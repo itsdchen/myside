@@ -1,0 +1,30 @@
+{
+	"subscriptions": {
+		"Hyperliquid": {
+			"is_mainnet": true,
+			"wss_endpoint": "wss://api.hyperliquid.xyz/ws",
+			"snapshot_endpoint": "https://api.hyperliquid.xyz/info",
+			"symbols": [
+			    "BTC",
+			    "xyz:GOLD",
+			    "xyz:EUR",
+			    "xyz:JPY",
+			    "xyz:GBP",
+			    "xyz:SILVER"
+
+			]
+		},
+		"PolygonFX": {
+			"symbols": [
+			    "GOLD",
+			    "SILVER",
+			    "EUR",
+			    "JPY",
+			    "GBP"
+			]
+		}
+
+	},
+	"snapshot_frequency": 10000,
+	"pub_socket": "ipc:///tmp/feed-sock"
+}

@@ -1,0 +1,13 @@
+{
+  "signals": [
+    {
+      "name": "a_name",
+      "type": "SigLinear",
+
+      "offset": 0.2,
+      "sig_names": ["example_sig"],
+      "example_sig_coef": 1.1,
+      "sigformer_tag": "top_level_signal"
+    }
+  ]
+}

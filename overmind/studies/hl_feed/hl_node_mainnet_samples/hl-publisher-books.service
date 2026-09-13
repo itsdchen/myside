@@ -1,0 +1,36 @@
+[Unit]
+Description=Hyperliquid book-diff publisher (hl_node_publisher --tail-dir)
+After=network-online.target hl-visor.service
+Wants=network-online.target
+# Don't tightly couple to hl-visor — publisher should retry quietly if
+# visor is briefly down. After= gives ordering on boot; PartOf= would
+# stop us on visor failure, which we don't want.
+
+StartLimitIntervalSec=600
+StartLimitBurst=10
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu
+# C++ publisher (noblebuild output, deployed to ~/hl_node_publisher_cpp).
+# Python sibling at ~/hl_node_publish.py remains available for ad-hoc / debug.
+ExecStart=/home/ubuntu/hl_node_publisher_cpp \
+  --tail-dir /home/ubuntu/hl/data/node_raw_book_diffs_streaming/hourly \
+  --bootstrap \
+  --poll-interval 0.005 \
+  --endpoint tcp://0.0.0.0:5555 \
+  --max-levels 40 \
+  -v
+Restart=on-failure
+RestartSec=10s
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=hl-publisher-books
+KillSignal=SIGINT
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

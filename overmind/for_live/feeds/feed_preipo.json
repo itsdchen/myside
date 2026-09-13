@@ -1,0 +1,14 @@
+{
+    "subscriptions": {
+        "Hyperliquid": {
+            "is_mainnet": true,
+            "wss_endpoint": "wss://api.hyperliquid.xyz/ws",
+            "snapshot_endpoint": "https://api.hyperliquid.xyz/info",
+            "symbols": [
+                "xyz:CBRS",
+                "BTC"
+            ]
+        }
+    },
+    "snapshot_frequency": 10000
+}

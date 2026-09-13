@@ -1,0 +1,59 @@
+{
+    "subscriptions": {
+        "Hyperliquid.disabled": {
+            "is_mainnet": true,
+            "wss_endpoint": "wss://api.hyperliquid.xyz/ws",
+            "snapshot_endpoint": "https://api.hyperliquid.xyz/info",
+            "symbols": [
+                "BTC",
+                "xyz:XYZ100",
+                "xyz:TSLA",
+                "xyz:NVDA",
+                "xyz:PLTR",
+                "xyz:GOOGL",
+                "xyz:AMZN",
+                "xyz:RIVN",
+                "xyz:BABA"
+            ]
+        },
+        "HyperliquidNode.disabled": {
+            "books_endpoint": "tcp://172.31.37.166:5555",
+            "fills_endpoint": "tcp://172.31.37.166:5556",
+            "fallback_silent_s": 5.0,
+            "fallback_lag_s": 5.0,
+            "symbols": [
+                "BTC",
+                "xyz:XYZ100",
+                "xyz:TSLA",
+                "xyz:NVDA",
+                "xyz:PLTR",
+                "xyz:GOOGL",
+                "xyz:AMZN",
+                "xyz:RIVN",
+                "xyz:BABA"
+            ]
+        },
+
+        "PolygonEquities": {
+            "symbols": []
+        },
+        "DataBentoEquities.disabled": {
+            "symbols": [
+                "NVDA",
+                "TSLA",
+                "PLTR",
+                "GOOGL",
+                "AMZN",
+                "RIVN",
+                "BABA"
+            ]
+        },
+        "DataBentoCME.disabled": {
+            "symbols": [
+                "NQ"
+            ]
+        }
+    },
+    "snapshot_frequency": 10000,
+    "pub_socket": "ipc:///tmp/feed-sock"
+}

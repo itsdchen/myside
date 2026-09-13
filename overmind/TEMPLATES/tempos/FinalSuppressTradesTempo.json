@@ -1,0 +1,11 @@
+{
+  "tempos": [
+    {
+      "name": "a_name",
+      "type": "FinalTempo",
+      "suppress_trades": true,
+      "symbol": "BTCUSDT",
+      "markets": ["BinanceSPOT"]
+    }
+  ]
+}

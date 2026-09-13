@@ -1,0 +1,34 @@
+{
+  "subscriptions": {
+    "Hyperliquid": {
+      "is_mainnet": false,
+      "wss_endpoint": "wss://api.hyperliquid-testnet.xyz/ws",
+      "snapshot_endpoint": "https://api.hyperliquid-testnet.xyz/info",
+      "symbols.old": [
+        "BTC",
+        "SOL"
+      ],
+      "symbols": [
+        "BTC",
+        "xyz:XYZ100"
+      ]
+    },
+    "DataBentoEquities": {
+      "symbols.old": ["QQQ"],
+      "symbols": []
+    },
+    "DataBentoCME": {
+      "symbols": [
+        "NQ"
+      ]
+    },
+    "Pyth": {
+      "symbols.old": [
+	"GOLD"
+      ],
+      "symbols": []
+    },
+  },
+  "snapshot_frequency": 10000,
+  "pub_socket": "ipc:///tmp/feed-sock"
+}

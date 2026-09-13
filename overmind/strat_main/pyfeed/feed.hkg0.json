@@ -1,0 +1,39 @@
+{
+	"subscriptions": {
+		"Hyperliquid": {
+			"is_mainnet": true,
+			"wss_endpoint": "wss://api.hyperliquid.xyz/ws",
+			"snapshot_endpoint": "https://api.hyperliquid.xyz/info",
+		    "symbols": [
+			"BTC",
+			"xyz:MINIMAX",
+			"xyz:ZHIPU"
+		    ]
+		},
+		"PolygonEquities": {
+			"symbols": []
+		},
+		"DataBentoEquities": {
+			"symbols": []
+		},
+		"DataBentoCME": {
+			"symbols": []
+		},
+		"PolygonFX": {
+			"symbols": []
+		},
+		"Pyth": {
+			"symbols": []
+		},
+		"Refinitiv": {
+			"service": "ELEKTRON_DD",
+			"session": "HKG",
+			"symbols": {
+			    "MINIMAX:hkg": { "calendar_type": "hkex_equities", "ric": "0100.HK", "convert_from": "HKD" },
+			    "ZHIPU:hkg": { "calendar_type": "hkex_equities", "ric": "2513.HK", "convert_from": "HKD" }
+			}
+		}
+	},
+	"snapshot_frequency": 10000,
+	"pub_socket": "ipc:///tmp/feed-sock"
+}

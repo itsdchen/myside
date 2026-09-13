@@ -1,0 +1,280 @@
+{
+  "traded_symbols": [
+    "xyz:XYZ100"
+  ],
+  "traded_markets": [
+    "Hyperliquid"
+  ],
+  "side_products": [],
+  "start_date": "20251106",
+  "end_date": "20251130",
+  "dates_method": "ALLDAYS",
+  "start_date_oos": "20251130",
+  "end_date_oos": "20251210",
+  "blacklist_dates": [],
+  "day_start_regress": "09:00:00 America/New_York",
+  "day_end_regress": "18:00:00 America/New_York",
+  "timer_specs": {
+    "sampling_tempos": [
+      {
+        "type": "final",
+        "symbol": "SELF"
+      }
+    ],
+    "markout_tempos": [
+      {
+        "type": "exec",
+        "symbol": "SELF"
+      }
+    ]
+  },
+  "fit_specs": {
+    "fit_tgt": 20,
+    "use_daily_markout_rate": false,
+    "calc_fit_tgt_daily": false
+  },
+  "modelclimb_specs": {
+    "num_rounds": 5,
+    "dispatch_sigs_per_round": 12,
+    "markout_cap": 0.015,
+    "merge_type": "group_regress",
+    "run_combined_signalclimb": true,
+    "dispatch_style": "smallrampup_rr",
+    "inherit": {
+      "use_inherit": false,
+      "traded": {
+        "include": true,
+        "use_default_dir": true,
+        "inherit_globs": [],
+        "traded_sym_override": false,
+        "src_sym_switcharoo": false,
+        "latest_n_files": 5,
+        "exclude_pattern": "10d"
+      },
+      "side": {
+        "include": true,
+        "use_native_and_override": false,
+        "use_traded_indeps": true,
+        "inherit_globs": [],
+        "latest_n_files": 5,
+        "exclude_pattern": "10d"
+      }
+    },
+    "batch_size": 8,
+    "reinit_prev": true,
+    "signals_per_round": 2,
+    "num_samples": 1000000,
+    "fit_intercept": false,
+    "keep_intercept": false,
+    "qc_specs": {
+      "min_epochs": 8,
+      "max_epochs": 13,
+      "can_snapback": true,
+      "snapback_frac": 0.95,
+      "prefer_best": true,
+      "expand_quad_up": false,
+      "required_delta_params": 0.005,
+      "stop_condition": {
+        "center_pct_increase": 0.03,
+        "pct_change_variants": 0.03
+      },
+      "params": []
+    }
+  },
+  "final_fit": {
+    "type": "hatch",
+    "fit_intercept": false,
+    "keep_intercept": false,
+    "num_samples": 1000000,
+    "markout_cap": 0.015,
+    "sd_bound": 80
+  },
+  "pnlclimb_specs": {
+    "dir_name": "pnlclimb_wide",
+    "sim_final": true,
+    "ordex_type": "wide_mm",
+    "ordex_specs": {
+      "ordersize_usd": 2000,
+      "maxpos_mult": 5,
+      "want_cross": false,
+      "cross_order_size_mult": 2,
+      "mm_gtc": false,
+      "rung_spacing_mult": 1,
+      "max_back_levels": 3,
+      "ms_between_place": 100,
+      "ms_between_cxl": 50,
+      "pcurvicity_one_sided": false,
+      "pcurv_denom_ord_mult": 4,
+      "signal_dynamic_threshing": false,
+      "signal_dynamic_place_thresh_exp": 1,
+      "signal_dynamic_place_thresh_denom": 0.0005,
+      "thresh_mid_sigmoid_scale": false,
+      "dynamic_mid_sigmoid_style": 2,
+      "dynamic_mid_sigmoid_base": 0.01,
+      "dynamic_mid_sigmoid_offset": 0.5,
+      "dynamic_mid_sigmoid_mult": 1,
+      "mid_move_ems_time_const_s": 10,
+      "scale_thresh_midmove_spread": true,
+      "scale_thresh_mids_const": 4000,
+      "scale_midmove_lower_bound": 0.5,
+      "narrow_when_few_trades": true,
+      "narrow_thresh_time_const_s": 500,
+      "narrow_minmultiple": 0.5,
+      "narrow_fewtrade_denom": 2,
+      "ms_between_cross": 0,
+      "min_ord_lifetime": 0.5,
+      "cross_thresh": 0.0004
+    },
+    "climb_params": {
+      "alpha_mult": {
+        "name": "alpha_mult",
+        "proj_type": "EXP",
+        "proj_value": 1,
+        "stepsize": 0.15
+      },
+      "place_thresh": {
+        "name": "place_thresh",
+        "proj_type": "EXP",
+        "proj_value": 0.0008,
+        "stepsize": 0.15
+      },
+      "cancel_buffer_frac": {
+        "name": "cancel_buffer_frac",
+        "proj_type": "EXP",
+        "proj_value": 0.2,
+        "stepsize": 0.1,
+        "chill_n_steps": 2
+      },
+      "cross_thresh": {
+        "name": "cross_thresh",
+        "proj_type": "EXP",
+        "proj_value": 0.0004,
+        "stepsize": 0.05
+      },
+      "pcurvicity": {
+        "name": "pcurvicity",
+        "proj_type": "LOGISTIC",
+        "proj_value": 1,
+        "proj_mult": 4,
+        "stepsize": 0.1,
+        "chill_n_steps": 2
+      },
+      "pcurvicity_coef": {
+        "name": "pcurvicity_coef",
+        "proj_type": "LOGISTIC",
+        "proj_value": 0.5,
+        "stepsize": 0.25,
+        "chill_n_steps": 3
+      },
+      "mid_ems_tdc_s": {
+        "name": "mid_ems_tdc_s",
+        "proj_type": "EXP",
+        "proj_value": 10,
+        "stepsize": 0.1,
+        "chill_n_steps": 0
+      },
+      "scale_thresh_mids_const": {
+        "name": "scale_thresh_mids_const",
+        "proj_type": "EXP",
+        "proj_value": 2000,
+        "stepsize": 0.1,
+        "chill_n_steps": 0
+      },
+      "narrow_minmultiple": {
+        "name": "narrow_minmultiple",
+        "proj_type": "LOGISTIC",
+        "proj_value": 0.7,
+        "stepsize": 0.25,
+        "chill_n_steps": 3
+      },
+      "narrow_thresh_time_const_s": {
+        "name": "narrow_thresh_time_const_s",
+        "proj_type": "EXP",
+        "proj_value": 500,
+        "stepsize": 0.25,
+        "chill_n_steps": 3
+      },
+      "narrow_fewtrade_denom": {
+        "name": "narrow_fewtrade_denom",
+        "proj_type": "EXP",
+        "proj_value": 2,
+        "stepsize": 0.05,
+        "chill_n_steps": 3
+      }
+    },
+    "grid_params": {},
+    "scoring_spec": {
+      "style": "wins_pnl_charminvol_pct",
+      "vol_limit": 30,
+      "vol_style": "avg_med_numtrds",
+      "vol_scale": "linear_frac_bounded",
+      "penalty": -10,
+      "penalty_mult": 1.5
+    },
+    "num_iters": 5,
+    "climb_type": "PARTICLE",
+    "qc_specs": {
+      "min_epochs": 1,
+      "max_epochs": 20,
+      "n_particles": 15,
+      "inertia_w": 0.7298,
+      "low_inertia_w": 0.2,
+      "c_self": 1.49618,
+      "low_c_self": 0.4,
+      "c_global": 1.49618,
+      "inertia_w.0": 0.5,
+      "c_self.0": 0.5,
+      "c_global.0": 2.0,
+      "do_snapback": true,
+      "snapback_frac": 0.85,
+      "snapback_min_epoch": 2,
+      "snapback_global_frac": 0.7,
+      "snapback_v_damp_frac": 0.5,
+      "params": []
+    },
+    "global_settings": {
+      "colo": "AWSTokA",
+      "strat_name": "spot_1",
+      "comment_here": "We should probably switch to some fxn of look-ahead ",
+      "commissions": {
+        "tiers": {
+          "BinanceSPOT": "VIP1",
+          "BinanceFutures": "VIP8USDT",
+          "Hyperliquid": "HIP3_3"
+        },
+        "promo_tier": "Silver",
+        "use_promo": true
+      },
+      "start_t": "08:00:00 America/New_York",
+      "end_t": "18:00:00 America/New_York"
+    },
+    "risk_settings": {
+      "max_notional": 10000000,
+      "max_position": "40",
+      "global_inherit": true,
+      "load_overnight_pos": false,
+      "max_orders": 12,
+      "base_currency": "USDT",
+      "min_pnl": -4000,
+      "fv_limit": 2,
+      "timeout_minfv": 900
+    },
+    "sim_settings": {
+      "BinanceSPOT": {
+        "cxl_frac_ahead": 0.3,
+        "sim_latency_secs": 0.015
+      },
+      "BinanceFutures": {
+        "cxl_frac_ahead": 0.3,
+        "use_one_way_latency": true,
+        "sim_latency_secs": 0.015
+      },
+      "Hyperliquid": {
+        "cxl_frac_ahead": 0.3,
+        "use_one_way_latency": false,
+        "sim_latency_secs": 1
+      }
+    }
+  },
+  "golive_minpnl_maxpos_mult": 0.025
+}

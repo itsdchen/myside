@@ -1,0 +1,591 @@
+{
+  "metadata": {
+    "built_at": "20260413",
+    "bundle_version": 1,
+    "end_date": "20260412",
+    "quality": "provisional",
+    "score": null,
+    "sha256": "3e0fc06c548ad1d19e42b74a64ba86fad5cd575ef27acb8156cd0f3629597d09",
+    "source_dir": "/home/pktrade/scratch/relwide_autobuild/autobuild_xyz_NVDA_20260413/coef_lair",
+    "start_date": "20260313",
+    "symbol": "xyz:NVDA",
+    "venue": "Hyperliquid"
+  },
+  "pred_signal": {
+    "signals": [
+      {
+        "example_sig_coef": 1.1,
+        "lair_10_xyz:NVDA_MondoDeepBookDerxyz:NVDA_10_bound": 0.5,
+        "lair_10_xyz:NVDA_MondoDeepBookDerxyz:NVDA_10_coef": 0.00016453311866421256,
+        "lair_1_xyz:NVDA_DeepBookDerxyz:NVDA_1_bound": 0.000329376,
+        "lair_1_xyz:NVDA_DeepBookDerxyz:NVDA_1_coef": 0.3569008283738896,
+        "lair_20_xyz:NVDA_BookImpxyz:NVDA_20_bound": 0.107856,
+        "lair_20_xyz:NVDA_BookImpxyz:NVDA_20_coef": 0.0006308830414932031,
+        "lair_22_xyz:NVDA_DeepBookDerxyz:NVDA_22_bound": 0.1633791090499994,
+        "lair_22_xyz:NVDA_DeepBookDerxyz:NVDA_22_coef": 0.0005055269071472396,
+        "lair_24_xyz:NVDA_MondoDeepBookDerxyz:NVDA_24_bound": 0.0007003997805997273,
+        "lair_24_xyz:NVDA_MondoDeepBookDerxyz:NVDA_24_coef": 0.226836348053608,
+        "lair_27_xyz:NVDA_AvgTrdDerxyz:NVDA_27_bound": 8.28962e-05,
+        "lair_27_xyz:NVDA_AvgTrdDerxyz:NVDA_27_coef": 2.5301953183818138,
+        "lair_33_xyz:NVDA_MondoDeepBookDerxyz:NVDA_33_bound": 0.0227207,
+        "lair_33_xyz:NVDA_MondoDeepBookDerxyz:NVDA_33_coef": -0.006006080852971021,
+        "lair_40_xyz:NVDA_DeepBookDerxyz:NVDA_40_bound": 0.16753470789999098,
+        "lair_40_xyz:NVDA_DeepBookDerxyz:NVDA_40_coef": 0.00044050559688944884,
+        "lair_42_xyz:NVDA_DeepBookDerxyz:NVDA_42_bound": 0.0017792,
+        "lair_42_xyz:NVDA_DeepBookDerxyz:NVDA_42_coef": -0.10836295423130551,
+        "lair_58_xyz:NVDA_DeepBookxyz:NVDA_58_bound": 0.00042217430575,
+        "lair_58_xyz:NVDA_DeepBookxyz:NVDA_58_coef": 0.4221426030338383,
+        "name": "pred_XYZ_NVDA",
+        "offset": 0,
+        "sig_names": [
+          "lair_1_xyz:NVDA_DeepBookDerxyz:NVDA_1",
+          "lair_10_xyz:NVDA_MondoDeepBookDerxyz:NVDA_10",
+          "lair_20_xyz:NVDA_BookImpxyz:NVDA_20",
+          "lair_22_xyz:NVDA_DeepBookDerxyz:NVDA_22",
+          "lair_24_xyz:NVDA_MondoDeepBookDerxyz:NVDA_24",
+          "lair_27_xyz:NVDA_AvgTrdDerxyz:NVDA_27",
+          "lair_33_xyz:NVDA_MondoDeepBookDerxyz:NVDA_33",
+          "lair_40_xyz:NVDA_DeepBookDerxyz:NVDA_40",
+          "lair_42_xyz:NVDA_DeepBookDerxyz:NVDA_42",
+          "lair_58_xyz:NVDA_DeepBookxyz:NVDA_58"
+        ],
+        "sigformer_tag": "top_level_signal",
+        "type": "SigLinear"
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.03,
+        "min_tick_decay": 0.9999,
+        "name": "lair_1_xyz:NVDA_DeepBookDerxyz:NVDA_1",
+        "output_sigmoid": false,
+        "output_sigmoid_denom": 0.01,
+        "pred_signal": "lair_1_xyz:NVDA_DeepBookDerxyz:NVDA_deepbook_1",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": false,
+        "tgt_decay_agree": 0.9848161794029606,
+        "tgt_decay_denom": 0.008654818632459715,
+        "tgt_decay_disagree": 0.9944538779594774,
+        "tgt_signal": "lair_1_xyz:NVDA_DeepBookDerxyz:NVDAder_decay_1",
+        "tick_decay": 0.99996559424987,
+        "time_decay": 278.2992890732217,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_1_xyz:NVDA_DeepBookDerxyz:NVDA_deepbook_1",
+        "px_decay": 0.00046031789787096634,
+        "return_price": false,
+        "shadow_decay_frac": 0.74748206651854,
+        "shadow_frac": 0.026402853194434087,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:NVDA",
+        "sz_decay": 3917.032548053236,
+        "sz_decay_2": 10,
+        "sz_decay_type": "EXP_NOTIONAL",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 1.3438632726871023,
+        "totstren_tdc_s": 3829.2913278605065,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_1_xyz:NVDA_DeepBookDerxyz:NVDAder_decay_1",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:NVDA",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.03,
+        "min_tick_decay": 0.9999,
+        "name": "lair_10_xyz:NVDA_MondoDeepBookDerxyz:NVDA_10",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.020843977487298007,
+        "pred_signal": "lair_10_xyz:NVDA_MondoDeepBookDerxyz:NVDA_deepbook_10",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": false,
+        "tgt_decay_agree": 0.9816119378462324,
+        "tgt_decay_denom": 6.967488179261824e-05,
+        "tgt_decay_disagree": 0.0017386687096840195,
+        "tgt_signal": "lair_10_xyz:NVDA_MondoDeepBookDerxyz:NVDAder_decay_10",
+        "tick_decay": 0.9993789173103578,
+        "time_decay": 0.3425911499848823,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_10_xyz:NVDA_MondoDeepBookDerxyz:NVDA_deepbook_10",
+        "px_decay": 0.05883757248374079,
+        "return_price": false,
+        "shadow_decay_frac": 0.696800231677935,
+        "shadow_frac": 0.20089995334105293,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:NVDA",
+        "sz_decay": 0.8688829893222461,
+        "sz_decay_2": 0.000545650439513188,
+        "sz_decay_type": "EXP_NOTIONAL_AND_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 0.002972723086987151,
+        "totstren_tdc_s": 495.4481363083736,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_10_xyz:NVDA_MondoDeepBookDerxyz:NVDAder_decay_10",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:NVDA",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "BinanceSPOT.weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bungee_denom": 0.04861797718919909,
+        "bungee_mult_frac": 0.9925585094392512,
+        "min_tick_decay": 1,
+        "name": "lair_20_xyz:NVDA_BookImpxyz:NVDA_20",
+        "pred_boost_offset": 0.10850853982308037,
+        "pred_boost_timeconst_s": 143174.65839724743,
+        "pred_decay": 0.9709196792187194,
+        "pred_decay_agree": 0.9852277940443559,
+        "pred_decay_denom": 0.005094366822704605,
+        "px_decay": 0.00026052308622942646,
+        "ref_signal": "lair_20_xyz:NVDA_BookImpxyz:NVDA_refpx_20",
+        "sigformer_tag": "top_level_signal",
+        "symbol": "xyz:NVDA",
+        "sz_decay": 648.2294722707128,
+        "sz_decay_type": "EXP_SIZE",
+        "tick_decay": 0.9974470526569269,
+        "ticker_weight": 0.5,
+        "time_behind_const": 0.4493702392953926,
+        "time_decay": 306.0454333358975,
+        "trade_weight": 0.8948467402743164,
+        "type": "SigBookImpulse",
+        "update_weight": 0.06295458962627173
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_20_xyz:NVDA_BookImpxyz:NVDA_refpx_20",
+        "sigformer_tag": "ref_px",
+        "symbol": "xyz:NVDA",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.01,
+        "min_tick_decay": 0.9999,
+        "name": "lair_22_xyz:NVDA_DeepBookDerxyz:NVDA_22",
+        "output_sigmoid": false,
+        "output_sigmoid_denom": 0.01,
+        "pred_signal": "lair_22_xyz:NVDA_DeepBookDerxyz:NVDA_deepbook_22",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": true,
+        "tgt_decay_agree": 0.681597559644286,
+        "tgt_decay_denom": 0.0033115451958692344,
+        "tgt_decay_disagree": 0.29852171671297745,
+        "tgt_signal": "lair_22_xyz:NVDA_DeepBookDerxyz:NVDAder_decay_22",
+        "tick_decay": 0.9508841596516076,
+        "time_decay": 5.035249854080124,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_22_xyz:NVDA_DeepBookDerxyz:NVDA_deepbook_22",
+        "px_decay": 0.00020943637699860157,
+        "return_price": true,
+        "shadow_decay_frac": 0.8581992196107051,
+        "shadow_frac": 0.10777182518083858,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:NVDA",
+        "sz_decay": 1814.359065788248,
+        "sz_decay_2": 10,
+        "sz_decay_type": "EXP_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 7.865609273944892,
+        "totstren_tdc_s": 730.7645506619408,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_22_xyz:NVDA_DeepBookDerxyz:NVDAder_decay_22",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:NVDA",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.03,
+        "min_tick_decay": 0.9999,
+        "name": "lair_24_xyz:NVDA_MondoDeepBookDerxyz:NVDA_24",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.11731917220545235,
+        "pred_signal": "lair_24_xyz:NVDA_MondoDeepBookDerxyz:NVDA_deepbook_24",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": false,
+        "tgt_decay_agree": 0.9827981972479183,
+        "tgt_decay_denom": 0.0009507044533508132,
+        "tgt_decay_disagree": 0.8780644628849827,
+        "tgt_signal": "lair_24_xyz:NVDA_MondoDeepBookDerxyz:NVDAder_decay_24",
+        "tick_decay": 0.999925690156703,
+        "time_decay": 872.6598339591784,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_24_xyz:NVDA_MondoDeepBookDerxyz:NVDA_deepbook_24",
+        "px_decay": 0.00018215922735766467,
+        "return_price": false,
+        "shadow_decay_frac": 0.3789357674236617,
+        "shadow_frac": 0.5811306495037902,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:NVDA",
+        "sz_decay": 1649378.515603624,
+        "sz_decay_2": 2.088769052366804,
+        "sz_decay_type": "EXP_NOTIONAL_AND_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 0.2836485601353713,
+        "totstren_tdc_s": 999.9999999999998,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_24_xyz:NVDA_MondoDeepBookDerxyz:NVDAder_decay_24",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:NVDA",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 30,
+        "max_impulse": 0.02,
+        "min_tick_decay": 0.999,
+        "name": "lair_27_xyz:NVDA_AvgTrdDerxyz:NVDA_27",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 6.457961106251743,
+        "pred_signal": "lair_27_xyz:NVDA_AvgTrdDerxyz:NVDA_avgtrd_27",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": true,
+        "tgt_decay_agree": 0.9888690357289535,
+        "tgt_decay_denom": 0.00012954600793581067,
+        "tgt_decay_disagree": 2.1536024805884267e-05,
+        "tgt_signal": "lair_27_xyz:NVDA_AvgTrdDerxyz:NVDA_der_decay_27",
+        "tick_decay": 0.99,
+        "time_decay": 300,
+        "type": "SigDer"
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "calc_style": "AVG_REL_PRICE",
+        "name": "lair_27_xyz:NVDA_AvgTrdDerxyz:NVDA_avgtrd_27",
+        "ref_signal": "lair_27_xyz:NVDA_AvgTrdDerxyz:NVDA_refpx_27",
+        "return_price": true,
+        "sigformer_tag": "avg_trd",
+        "symbol": "xyz:NVDA",
+        "sz_decay": 3452.434827816206,
+        "sz_decay_type": "EXP_SIZE",
+        "tick_decay": 0.923345177855986,
+        "time_decay": 4.948394202175492e-05,
+        "type": "SigTrdPx"
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_27_xyz:NVDA_AvgTrdDerxyz:NVDA_refpx_27",
+        "sigformer_tag": "ref_px",
+        "symbol": "xyz:NVDA",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_27_xyz:NVDA_AvgTrdDerxyz:NVDA_der_decay_27",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:NVDA",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.03,
+        "min_tick_decay": 0.9999,
+        "name": "lair_33_xyz:NVDA_MondoDeepBookDerxyz:NVDA_33",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.05323383920208336,
+        "pred_signal": "lair_33_xyz:NVDA_MondoDeepBookDerxyz:NVDA_deepbook_33",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": false,
+        "tgt_decay_agree": 0.9645045858357247,
+        "tgt_decay_denom": 0.00023021120433812305,
+        "tgt_decay_disagree": 0.9697437571149327,
+        "tgt_signal": "lair_33_xyz:NVDA_MondoDeepBookDerxyz:NVDAder_decay_33",
+        "tick_decay": 0.9990115314730632,
+        "time_decay": 313.5558274091081,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_33_xyz:NVDA_MondoDeepBookDerxyz:NVDA_deepbook_33",
+        "px_decay": 0.006862608898180315,
+        "return_price": false,
+        "shadow_decay_frac": 0.9526080686387709,
+        "shadow_frac": 0.8983314203229046,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:NVDA",
+        "sz_decay": 9080.031155623863,
+        "sz_decay_2": 0.9001898953672863,
+        "sz_decay_type": "EXP_NOTIONAL_AND_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 1.850981634104237,
+        "totstren_tdc_s": 657.6927421613084,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_33_xyz:NVDA_MondoDeepBookDerxyz:NVDAder_decay_33",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:NVDA",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.01,
+        "min_tick_decay": 0.9999,
+        "name": "lair_40_xyz:NVDA_DeepBookDerxyz:NVDA_40",
+        "output_sigmoid": false,
+        "output_sigmoid_denom": 0.01,
+        "pred_signal": "lair_40_xyz:NVDA_DeepBookDerxyz:NVDA_deepbook_40",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": true,
+        "tgt_decay_agree": 0.9972747295047308,
+        "tgt_decay_denom": 0.0013684525079440178,
+        "tgt_decay_disagree": 0.42725361505520987,
+        "tgt_signal": "lair_40_xyz:NVDA_DeepBookDerxyz:NVDAder_decay_40",
+        "tick_decay": 0.9535620678454845,
+        "time_decay": 26.99298035364439,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_40_xyz:NVDA_DeepBookDerxyz:NVDA_deepbook_40",
+        "px_decay": 2.1431608439465488e-06,
+        "return_price": true,
+        "shadow_decay_frac": 0.06217129589525206,
+        "shadow_frac": 0.004856619120892952,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:NVDA",
+        "sz_decay": 33759.55425401798,
+        "sz_decay_2": 10,
+        "sz_decay_type": "EXP_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 8.56776970949151,
+        "totstren_tdc_s": 334.3939127927302,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_40_xyz:NVDA_DeepBookDerxyz:NVDAder_decay_40",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:NVDA",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.01,
+        "min_tick_decay": 0.9999,
+        "name": "lair_42_xyz:NVDA_DeepBookDerxyz:NVDA_42",
+        "output_sigmoid": false,
+        "output_sigmoid_denom": 0.01,
+        "pred_signal": "lair_42_xyz:NVDA_DeepBookDerxyz:NVDA_deepbook_42",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": true,
+        "tgt_decay_agree": 0.0011161455782857457,
+        "tgt_decay_denom": 1.5234841889034254e-05,
+        "tgt_decay_disagree": 0.9627816234702451,
+        "tgt_signal": "lair_42_xyz:NVDA_DeepBookDerxyz:NVDAder_decay_42",
+        "tick_decay": 0.9996902523708127,
+        "time_decay": 292.8792612482193,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_42_xyz:NVDA_DeepBookDerxyz:NVDA_deepbook_42",
+        "px_decay": 1.4891336545979138e-07,
+        "return_price": true,
+        "shadow_decay_frac": 0.057323713607686747,
+        "shadow_frac": 0.544444346931269,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:NVDA",
+        "sz_decay": 4020731.679240779,
+        "sz_decay_2": 10,
+        "sz_decay_type": "EXP_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 0.017696519928620685,
+        "totstren_tdc_s": 611.4117301781067,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_42_xyz:NVDA_DeepBookDerxyz:NVDAder_decay_42",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:NVDA",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 2,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_58_xyz:NVDA_DeepBookxyz:NVDA_58",
+        "px_decay": 0.00010973444617490275,
+        "return_price": false,
+        "shadow_decay_frac": 0.983642925674087,
+        "shadow_frac": 0.9649767063528415,
+        "sigformer_tag": "top_level_signal",
+        "symbol": "xyz:NVDA",
+        "sz_decay": 7812.176230001397,
+        "sz_decay_2": 0.36828580031745506,
+        "sz_decay_type": "EXP_NOTIONAL_AND_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 1.982562737598583,
+        "totstren_tdc_s": 5163.354387328088,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      }
+    ]
+  },
+  "ref_signal": {
+    "signals": [
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "ref_XYZ_NVDA",
+        "sigformer_tag": "top_level_signal",
+        "symbol": "xyz:NVDA",
+        "type": "SigMid",
+        "use_flagged": true
+      }
+    ]
+  }
+}

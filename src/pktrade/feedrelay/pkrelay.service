@@ -1,0 +1,41 @@
+[Unit]
+# pkrelay: databento CME -> UDP forwarder for pkmultifeed consumers.
+# Intended to run on a small EC2 in us-east-2 (close to databento's CME
+# gateway), not co-located with pkmultifeed.
+Description=pkrelay - databento CME relay to pkmultifeed consumers
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+
+# Adjust paths for your deploy. PKRELAY_BIN and PKRELAY_CONF are the
+# things you'll typically override; everything else can stay.
+Environment=PKRELAY_BIN=/home/ubuntu/bin/pkrelay
+Environment=PKRELAY_CONF=/home/ubuntu/etc/pkrelay_config.json
+Environment=PKRELAY_LOG_DIR=/home/ubuntu/logs/pkrelay
+
+# --date TOMORROW matches pkmultifeed convention: on startup, resolve
+# "tomorrow" relative to America/New_York and pick the dated CME
+# contracts for that trading day. Restart the unit at CME session
+# roll (see timer below) so the date advances.
+ExecStartPre=/bin/mkdir -p ${PKRELAY_LOG_DIR}
+ExecStart=${PKRELAY_BIN} --conf ${PKRELAY_CONF} --date TOMORROW --out-dir ${PKRELAY_LOG_DIR}
+
+Restart=on-failure
+RestartSec=5s
+
+# Don't forcibly kill on stop; let the binary's SIGTERM handler run
+# through its shutdown sequence so the heartbeat thread and receiver
+# thread both exit cleanly.
+KillSignal=SIGTERM
+TimeoutStopSec=15s
+
+# Slightly elevated priority; this process is IO-bound but we want the
+# databento callback to run promptly when kernel schedules it.
+Nice=-5
+
+[Install]
+WantedBy=multi-user.target

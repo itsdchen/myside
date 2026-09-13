@@ -1,0 +1,61 @@
+# Instructions
+# 1. Resist the temptation to directly edit the crontab file with crontab -e
+# 2. Make changes to the appropriate crontab_bfx[0-2].txt file in repo
+# 3. Load it on the trade machines with: crontab <filename>
+# 4. Confirm it was loaded correctly with: crontab -l
+
+# Send email if anything is sent to stdout/stderr
+MAILTO="pktrade@googlegroups.com"
+
+# Note: run Python scripts directly with the venv's python because each ; separated command starts up its own shell, which means the activate won't actually activate.
+
+# Crontab entry to run pymultifeed at 18:00 Eastern Time daily
+0 18 * * * cd /home/ubuntu/estrader/ && /home/ubuntu/.venvs/v1/bin/python feed/pymultifeed.py --conf feed/feed.bfx0.json >> /home/ubuntu/estrader/logs/feed_logs_$(date +\%Y\%m\%d).log
+
+# Run the daily wsgateway
+0 18 * * * cd /home/ubuntu/estrader/ && /home/ubuntu/.venvs/v1/bin/python gateway/wsgateway.py --market Hyperliquid --creds /home/ubuntu/.creds/.Hyperliquid.creds.json --date TOMORROW --wait_secs 5 --id 5 >> /home/ubuntu/estrader/logs/gw_logs_$(date +\%Y\%m\%d).log
+
+
+# Crontab entries for daily trading scripts
+# However, I'm now running these on machines with eastern time. So that's good.
+# Script 1: Main trading processes
+# Run at 17:50 ET the day before trading (Sun, Mon, Tue, Wed, Thu for Mon, Tue, Wed, Thu, Fri trading)
+#00 18 * * 0-4 /home/ubuntu/estrader/launchers/main_trading_script.sh
+
+#00 18 * * 0-4 /home/ubuntu/estrader/launchers/main_trading_script_preus.sh
+#00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_nq.sh main_preus
+
+
+# Start the main trading process at 9am, to get ready for the 9:30 launch.
+#00 09 * * 1-5 /home/ubuntu/estrader/launchers/run_nq.sh main_usday
+
+
+# Script 2: Break trading processes.
+# Run at 15:50 ET on Mon, Tue, Wed, Thu, Fri
+50 15 * * 1-5 /home/ubuntu/estrader/launchers/run_nq.sh small_break
+
+# Script 3: Long break process for the weekend.
+# Run at 18:00 ET on Friday, Saturday
+00 18 * * 5,6 /home/ubuntu/estrader/launchers/run_nq.sh long_break
+
+00 18 * * 0-6 /home/ubuntu/estrader/launchers/run_nq.sh allday_hypernarrow
+
+
+# Run the narrow trader
+# Let's test this one case.
+00 18 * * * /home/ubuntu/estrader/launchers/run_nq.sh allday_narrow
+# This was after I ran simvariations.
+00 18 * * * /home/ubuntu/estrader/launchers/run_nq.sh allday_narrow_nu
+
+# Run the centered allday guy only when the main trading day is a weekday.
+#00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_nq.sh allday_narrow_centered
+
+# Run the centered experiments
+00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_nq.sh allday_narrow_centered_v7
+00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_nq.sh allday_narrow_centered_v11
+00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_nq.sh allday_narrow_centered_v12
+
+
+0 18 * * *  /home/ubuntu/.venvs/v1/bin/python scripts/position_alerter.py > /home/ubuntu/estrader/logs/pos_$(date +\%Y\%m\%d).log
+
+#01 18 * * *  /home/ubuntu/.venvs/v1/bin/python scripts/supabase_snapshots.py

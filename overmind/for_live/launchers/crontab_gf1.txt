@@ -1,0 +1,126 @@
+# Instructions
+# 1. Resist the temptation to directly edit the crontab file with crontab -e
+# 2. Make changes to the appropriate crontab_bfx[0-2].txt file in repo
+# 3. Load it on the trade machines with: crontab <filename>
+# 4. Confirm it was loaded correctly with: crontab -l
+
+# Edit this file to introduce tasks to be run by cron.
+#
+# Each task to run has to be defined through a single line
+# indicating with different fields when the task will be run
+# and what command to run for the task
+#
+# To define the time you can provide concrete values for
+# minute (m), hour (h), day of month (dom), month (mon),
+# and day of week (dow) or use '*' in these fields (for 'any').
+#
+# Notice that tasks will be started based on the cron's system
+# daemon's notion of time and timezones.
+#
+# Output of the crontab jobs (including errors) is sent through
+# email to the user the crontab file belongs to (unless redirected).
+#
+# For example, you can run a backup of all your user accounts
+# at 5 a.m every week with:
+# 0 5 * * 1 tar -zcf /var/backups/home.tgz /home/
+#
+# For more information see the manual pages of crontab(5) and cron(8)
+#
+# m h  dom mon dow   command
+
+# Send email if anything is sent to stdout/stderr
+MAILTO="pktrade@googlegroups.com"
+
+# Note: run Python scripts directly with the venv's python because each ; separated command starts up its own shell, which means the activate won't actually activate.
+
+# pymultifeed
+#0 18 * * * cd /home/ubuntu/estrader/ && /home/ubuntu/.venvs/v1/bin/python feed/pymultifeed.py --conf feed/feed.gf1.json >> /home/ubuntu/estrader/logs/feed_logs_$(date +\%Y\%m\%d).log
+
+# delay start 15s to see if that gets rid of the LiveFeed no data issue
+#0 18 * * * sleep 15; /home/ubuntu/estrader/launchers/run_feed.sh cppfeed/pkmultifeed_0 feed.gf1.cpp.json  tomorrow
+
+# Run the daily wsgateway
+#0 18 * * * cd /home/ubuntu/estrader/ && /home/ubuntu/.venvs/v1/bin/python gateway/wsgateway.py --market Hyperliquid --creds /home/ubuntu/.creds/.Hyperliquid.creds.json --date TOMORROW --wait_secs 5 --id 1 --local-ips 172.31.38.36,172.31.42.251 >> /home/ubuntu/estrader/logs/gw_logs_$(date +\%Y\%m\%d).log
+
+# Daily check that processes exited properly at EOD
+#1 18 * * * /home/ubuntu/.venvs/v1/bin/python /home/ubuntu/scripts/eod_safeguard.py --wsgateway 1 --pymultifeed 0 --pkmultifeed 1 --ntfy kdb
+
+# Snapshots
+#00 18 * * *  /home/ubuntu/.venvs/v1/bin/python scripts/supabase_snapshots.py >> /home/ubuntu/estrader/logs/snapshot_logs_$(date +\%Y\%m\%d).log
+
+# Trading processes.
+
+#0 18 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 combined_equities_bfx1/gf1_rel_nq_allday_boats/pk_rel_nq_allday_boats.json tomorrow
+#0 18 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 combined_equities_bfx1/gf1_rel_nq_narrow_1_boats/pk_rel_nq_narrow_1_boats.json tomorrow
+#0 18 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 combined_equities_bfx1/allday_0706/pk_gf1_allday.json tomorrow
+#0 18 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 combined_equities_bfx1/allday_cov_0727/pk_gf1_allday.json tomorrow
+
+
+# preus and us and postus
+#00 9 * * 1-5 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 combined_equities_bfx1/usday/pk_usday.json today
+
+# Experiments from simvariations
+#00 9 * * 1-5 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 combined_equities_bfx1/usday_cov_0616/pk_gf1_usday.json today
+#00 9 * * 1-5 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 combined_equities_bfx1/usday_cov_0727/pk_gf1_usday.json today
+
+#10 9 * * 1-5 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 eq_gf1_cross/v3/pk_cx_gf1_1.json today
+#10 9 * * 1-5 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 eq_gf1_cross/v4/pk_cx_gf1_1.json today
+#10 9 * * 1-5 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 eq_gf1_cross/v5/pk_cx_gf1_1.json today
+
+# Don't run postus on Fridays.
+#59 15 * * 1-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 combined_equities_bfx1/postusa/pk_postusa.json today
+
+
+# Weekend processes.
+#00 18 * * 5,6 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 combined_equities_bfx1/rel_btc_longbreak/pk_rel_btc_longbreak.json tomorrow
+#00 18 * * 5,6 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 combined_equities_bfx1/rel_btc_narrow/pk_rel_btc_narrow.json tomorrow
+
+
+################################################################################
+# Daily usermsgs: widen thresh at certain times of day that have higher vol
+
+# 2x thresh at 9:29, to make sure traders that start at 9:30 start with widened thresh
+# note: make sure these traders start at latest at 9:28. will catch the last 1min of traders ending at 9:30, but probably okay
+#29 9 * * 1-5 /home/ubuntu/.venvs/v1/bin/python /home/ubuntu/scripts/usermsg.py --strat ".*" --um SET_THRESH_MULT --args mult:2 >> /home/ubuntu/estrader/logs/um_logs_$(date +\%Y\%m\%d).log
+# 1.5x thresh at 9:45
+#45 9 * * 1-5 /home/ubuntu/.venvs/v1/bin/python /home/ubuntu/scripts/usermsg.py --strat ".*" --um SET_THRESH_MULT --args mult:1.5 >> /home/ubuntu/estrader/logs/um_logs_$(date +\%Y\%m\%d).log
+# back to 1x thresh at 10:00
+#00 10 * * 1-5 /home/ubuntu/.venvs/v1/bin/python /home/ubuntu/scripts/usermsg.py --strat ".*" --um SET_THRESH_MULT --args mult:1 >> /home/ubuntu/estrader/logs/um_logs_$(date +\%Y\%m\%d).log
+# 2x thresh at 18:00:30. will miss the first 15s of trading for now.
+# note: make sure these traders start at latest at 18:00.
+#00 18 * * 0-4 sleep 30; /home/ubuntu/.venvs/v1/bin/python /home/ubuntu/scripts/usermsg.py --strat ".*" --um SET_THRESH_MULT --args mult:2 >> /home/ubuntu/estrader/logs/um_logs_$(date +\%Y\%m\%d).log
+# back to 1x thresh at 18:15
+#15 18 * * 0-4 /home/ubuntu/.venvs/v1/bin/python /home/ubuntu/scripts/usermsg.py --strat ".*" --um SET_THRESH_MULT --args mult:1 >> /home/ubuntu/estrader/logs/um_logs_$(date +\%Y\%m\%d).log
+
+# Early TL2 on fridays (for korea) to decrease exposure into the weekend.
+#00 2 * * 5 /home/ubuntu/.venvs/v1/bin/python /home/ubuntu/scripts/usermsg.py --strat ".*day.*" --sym "xyz:SKHX" --um SET_TL_REASON --args tl:2,reason:Derisk >> /home/ubuntu/estrader/logs/um_logs_$(date +\%Y\%m\%d).log
+#00 2 * * 5 /home/ubuntu/.venvs/v1/bin/python /home/ubuntu/scripts/usermsg.py --strat ".*day.*" --sym "xyz:SMSN" --um SET_TL_REASON --args tl:2,reason:Derisk >> /home/ubuntu/estrader/logs/um_logs_$(date +\%Y\%m\%d).log
+#00 2 * * 5 /home/ubuntu/.venvs/v1/bin/python /home/ubuntu/scripts/usermsg.py --strat ".*day.*" --sym "xyz:HYUNDAI" --um SET_TL_REASON --args tl:2,reason:Derisk >> /home/ubuntu/estrader/logs/um_logs_$(date +\%Y\%m\%d).log
+
+
+# Early TL2 on fridays to decrease exposure into the weekend.
+#30 15 * * 5 /home/ubuntu/.venvs/v1/bin/python /home/ubuntu/scripts/usermsg.py --strat ".*" --um SET_TL_REASON --args tl:2,reason:Derisk >> /home/ubuntu/estrader/logs/um_logs_$(date +\%Y\%m\%d).log
+
+# Test: send regular no-op usermsgs to test if queries are silently dropping subs to supabase realtime (every hour at 20 past)
+#20 * * * * /home/ubuntu/.venvs/v1/bin/python /home/ubuntu/scripts/usermsg.py --strat "noexist" --um SET_THRESH_MULT --args mult:1 >> /home/ubuntu/estrader/logs/um_logs_test_$(date +\%Y\%m\%d).log
+
+# Earnings de-risk ramp. Self-deciding: earnings_derisk.py reads earnings/next_earnings.csv
+# (scp'd over from ace) + earnings/sector_map.json, works out today's AMC-earnings symbols
+# plus their sector peers, and ramps their TL down via SET_TL_REASON reason:Derisk. No-op on
+# days with no AMC earnings, so these lines stay in permanently (no per-earnings editing).
+# Note: postusa starts at 15:59, so it only sees the 15:59:30 (TL5) step; the earlier steps
+# apply to the already-running usday traders. Re-enable (TL0) is done manually with
+# earnings_derisk.py --reenable once the move has stabilised.
+#00 15 * * 1-5 /home/ubuntu/.venvs/v1/bin/python /home/ubuntu/scripts/earnings_derisk.py --tl 1 >> /home/ubuntu/estrader/logs/um_logs_$(date +\%Y\%m\%d).log
+#30 15 * * 1-5 /home/ubuntu/.venvs/v1/bin/python /home/ubuntu/scripts/earnings_derisk.py --tl 2 >> /home/ubuntu/estrader/logs/um_logs_$(date +\%Y\%m\%d).log
+#50 15 * * 1-5 /home/ubuntu/.venvs/v1/bin/python /home/ubuntu/scripts/earnings_derisk.py --tl 3 >> /home/ubuntu/estrader/logs/um_logs_$(date +\%Y\%m\%d).log
+#59 15 * * 1-5 sleep 30; /home/ubuntu/.venvs/v1/bin/python /home/ubuntu/scripts/earnings_derisk.py --tl 5 >> /home/ubuntu/estrader/logs/um_logs_$(date +\%Y\%m\%d).log
+
+# SK Hynix earnings pre-Korea-open on 20260729
+#01 18 28 7 * /home/ubuntu/.venvs/v1/bin/python /home/ubuntu/scripts/usermsg.py --strat ".*" --sym "xyz:SKHX" --um SET_TL_REASON --args tl:5,reason:Derisk >> /home/ubuntu/estrader/logs/um_logs_$(date +\%Y\%m\%d).log
+#30 20 28 7 * /home/ubuntu/.venvs/v1/bin/python /home/ubuntu/scripts/usermsg.py --strat ".*" --sym "xyz:SKHX" --um SET_TL_REASON --args tl:0,reason:Derisk >> /home/ubuntu/estrader/logs/um_logs_$(date +\%Y\%m\%d).log
+
+# Fed announcement
+#30 13 29 7 3 /home/ubuntu/.venvs/v1/bin/python /home/ubuntu/scripts/usermsg.py --strat ".*" --um SET_TL_REASON --args tl:2,reason:Derisk >> /home/ubuntu/estrader/logs/um_logs_$(date +\%Y\%m\%d).log
+#59 13 29 7 3 /home/ubuntu/.venvs/v1/bin/python /home/ubuntu/scripts/usermsg.py --strat ".*" --um SET_THRESH_MULT --args mult:3 >> /home/ubuntu/estrader/logs/um_logs_$(date +\%Y\%m\%d).log
+#59 13 29 7 3 sleep 30; /home/ubuntu/.venvs/v1/bin/python /home/ubuntu/scripts/usermsg.py --strat ".*" --um SET_TL_REASON --args tl:5,reason:Derisk >> /home/ubuntu/estrader/logs/um_logs_$(date +\%Y\%m\%d).log

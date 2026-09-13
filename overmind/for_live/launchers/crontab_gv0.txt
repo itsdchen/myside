@@ -1,0 +1,64 @@
+# Edit this file to introduce tasks to be run by cron.
+#
+# Each task to run has to be defined through a single line
+# indicating with different fields when the task will be run
+# and what command to run for the task
+#
+# To define the time you can provide concrete values for
+# minute (m), hour (h), day of month (dom), month (mon),
+# and day of week (dow) or use '*' in these fields (for 'any').
+#
+# Notice that tasks will be started based on the cron's system
+# daemon's notion of time and timezones.
+#
+# Output of the crontab jobs (including errors) is sent through
+# email to the user the crontab file belongs to (unless redirected).
+#
+# For example, you can run a backup of all your user accounts
+# at 5 a.m every week with:
+# 0 5 * * 1 tar -zcf /var/backups/home.tgz /home/
+#
+# For more information see the manual pages of crontab(5) and cron(8)
+#
+# m h  dom mon dow   command
+
+# Send email if anything is sent to stdout/stderr
+MAILTO="pktrade@googlegroups.com"
+
+#0 18 * * 0-4 cd /home/ubuntu/test_relayfeed && ./pkmultifeed_1 --conf /home/ubuntu/test_relayfeed/feed.relay.json --date TOMORROW --cme-fusion-stats --acceptbadbook --out-dir logs >> logs/wrapper.log 2>&1
+
+# Run specific preipo feed
+#0 18 * * * cd /home/ubuntu/estrader/ && /home/ubuntu/.venvs/v1/bin/python feed/pymultifeed.py --conf feed/feed_preipo.json >> /home/ubuntu/estrader/logs/feed_logs_$(date +\%Y\%m\%d).log
+#0 18 * * * /home/ubuntu/estrader/launchers/run_feed.sh cppfeed/pkmultifeed_relay feed_preipo.json tomorrow
+
+# Run the gateway
+
+# Forced to id9
+#0 18 * * * cd /home/ubuntu/estrader/ && /home/ubuntu/.venvs/v1/bin/python gateway/wsgateway.py --market Hyperliquid --creds /home/ubuntu/.creds/.Hyperliquid.creds.json --date TOMORROW --wait_secs 5 --id 9 --force-id   >> /home/ubuntu/estrader/logs/gw_logs_$(date +\%Y\%m\%d).log
+
+# Daily check that processes exited properly at EOD
+#1 18 * * * /home/ubuntu/.venvs/v1/bin/python /home/ubuntu/scripts/eod_safeguard.py --wsgateway 1 --pymultifeed 1 --pkmultifeed 0 --ntfy kdb
+
+# Run the strat.
+# Turn this off. We can start a real one tmr or something.
+#00 18 * * * /home/ubuntu/estrader/launchers/run_strat.sh pktrade_preipo  spcx/v0/pk_spcx_const.json tomorrow
+#00 18 * * 0-3 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_preipo spcx/v1/pk_spcx_const.json tomorrow
+#00 18 * * 0-3 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_preipo spcx/v2/pk_spcx_const.json tomorrow
+#00 18 * * 0-3 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_preipo spcx/v3/pk_64.json tomorrow
+#00 18 * * 0-3 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_preipo spcx/v4/pk_249.json tomorrow
+
+# Probe experiment for relay-to-feed timing.
+#0 18 * * * cd /home/ubuntu/probe/ && /home/ubuntu/probe/pkprobe_recv -f pkprobe_config.json
+
+
+###################################################
+# This is now running ANSEM stuff.
+#00 18 * * * cd /home/ubuntu/ansem_estrader/ && /home/ubuntu/.venvs/v1/bin/python feed/pymultifeed_ansem.py --conf feed/feed.ansem.json >> /home/ubuntu/estrader/logs/feed_logs_$(date +\%Y\%m\%d).log
+
+# ansem gateway
+#0 18 * * * cd /home/ubuntu/ansem_estrader/ && /home/ubuntu/.venvs/v1/bin/python gateway/wsgateway.py --market Hyperliquid --creds /home/ubuntu/.creds/.Hyperliquid.creds.json --date TOMORROW --wait_secs 5 --id 9 --force-id   >> /home/ubuntu/estrader/logs/gw_logs_$(date +\%Y\%m\%d).log
+# I'll start this later.
+
+# strats
+#00 18 * * 0-6 /home/ubuntu/ansem_estrader/launchers/run_strat.sh pktrade ansem/v1/pk_ansem_allday.json tomorrow
+#00 18 * * 0-6 /home/ubuntu/ansem_estrader/launchers/run_strat.sh pktrade ansem/v2/pk_ansem_allday.json tomorrow

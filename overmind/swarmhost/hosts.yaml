@@ -1,0 +1,20 @@
+# Hetzner worker inventory.
+#
+# Each entry names an SSH alias (resolved via ~/.ssh/config) and the number
+# of CPU cores on that box. The dispatcher sizes its per-host worker pool
+# from `cores`.
+#
+# Add a new box:
+#   1. Lease + installimage Ubuntu 22.04 Jammy on Hetzner.
+#   2. Add your pubkey to the box's ~/.ssh/authorized_keys.
+#   3. Add an SSH config entry under a `hetzner-N` alias.
+#   4. Append an entry below.
+#   5. Run `./overmind/swarmhost/bootstrap.sh hetzner-N`.
+
+hosts:
+  - alias: hetz0
+    cores: 16
+  - alias: hetz1
+    cores: 16
+  - alias: hetz2
+    cores: 16

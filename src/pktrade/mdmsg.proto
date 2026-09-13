@@ -1,0 +1,127 @@
+syntax = "proto3";
+
+// Put all generated C++ types in the pktrade::mdmsg namespace
+// Different books have different message types.
+package pktrade.mdmsg;
+
+enum PbMarket {
+  PBMARKET_UNKNOWN = 0;
+  PBMARKET_BINANCE_SPOT = 1;
+  PBMARKET_BINANCE_FUTURES = 2;
+  PBMARKET_BINANCE_COINFUTURES = 3;
+
+  PBMARKET_HYPERLIQUID = 4;
+
+  // These need to be in line with t he settings in mdapi.h
+  PBMARKET_BYBITSPOT = 5;
+  PBMARKET_BYBITDERIV = 6;
+  PBMARKET_BYBITINVERSEDERIV = 7;
+
+  // Whatever feed we use for getting topbook prices from useq.
+  // Not sure if we'll have to change this to more enums (eg. databento-useq vs databento-cme, but
+  // the "TOB" stuff we get should be pretty similar.
+
+  // Uusally from Databento
+  PBMARKET_TOPBOOK_EQUITY = 8;
+  // Probably from databento
+  PBMARKET_TOPBOOK_CME = 9;
+
+
+}
+
+// ***********************************************
+// binance-style messages:
+
+// TODO:
+// At some point, clean up or consolidate some of these definitions.
+
+message PbTickerUpdate {
+  int64 update_id = 1;
+  string best_bid_px = 2;
+  string best_bid_qty = 3;
+  string best_ask_px = 4;
+  string best_ask_qty = 5;
+  // This doesn't get included for binancespot, btw.
+  int64 transact_time = 6;
+}
+
+message PbLevelUpdate {
+  string px = 1;
+  string qty = 2;
+  // If the feed gives it to us. Right now, not using it for anything.
+  // TODO: incorporate numords into our book interp
+  int32 numords = 3;
+}
+
+message PbBookUpdate {
+  // In Binance, this is event time.
+  // In Binance, this is more like a transact time.
+  int64 event_time = 1;
+  int64 first_update_id = 2;
+  int64 last_update_id = 3;
+  repeated PbLevelUpdate bids = 4;
+  repeated PbLevelUpdate asks = 5;
+  int32 depth = 6;
+}
+
+// Note that for some books (eg. Bybit), we just get booksnapshots. It's ok. We can
+// handle those. We will also get snapshots of different heights, and it's ok.
+message PbBookSnapshot {
+  int64 last_update_id = 1;
+  repeated PbLevelUpdate bids = 2;
+  repeated PbLevelUpdate asks = 3;
+  // Some books might have an event_time with this.
+  int64 event_time = 4;
+}
+
+// Binance updates kind of tell us which side is the aggressor and stuff.
+message PbTrade {
+  string px = 1;
+  string qty = 2;
+
+  // OK, so tradeid is just its own stream that gets updated.
+  // Looks like it
+  int64 trade_id = 3;
+
+  // You can back out batches.
+  int64 buy_ord_id = 4;
+  int64 sell_ord_id = 5;
+  // same as transact_time.
+  int64 trade_time = 6;
+  bool passive_was_buyer = 7;
+}
+
+
+// Almost like a ticker update, but from a top of book quote feed we might use.
+// I'm going to keep these as doubles actually, and update later.
+// Note: depending on the source, we might not get bb/ba, and maybe just have
+//       mid. Will have to check.
+message PbQuote {
+  int64 update_id = 1;
+  string best_bid_px = 2;
+  string best_bid_qty = 3;
+  string best_ask_px = 4;
+  string best_ask_qty = 5;
+  double mid_px = 6;
+  int64 transact_time = 7;
+}
+
+// TODO: give a
+
+
+
+message PbMessage {
+  PbMarket market = 1;
+  string symbol_id = 2;
+  fixed64 rx_timestamp = 3;
+
+  // TODO: extend this if different books have more streams we want.
+  //       eg. aggregated trades.
+  oneof payload {
+    PbTickerUpdate ticker_update = 100;
+    PbBookUpdate book_update = 101;
+    PbBookSnapshot book_snapshot = 102;
+    PbTrade book_trade = 103;
+    PbQuote quote = 104;
+  }
+}

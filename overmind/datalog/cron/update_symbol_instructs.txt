@@ -1,0 +1,26 @@
+helpful_bash_cmds for merging and updatingg these symbol-lists:
+
+binance-futures
+c daily-capture.sh  | g BinanceFu| g mkt| awk -F\" '{print $4}' | tr ',' '\n' > a
+c sym_lists/binance_futures.txt  > b
+c a b | g -v TOD | sort -u | tr '\n' ','; echo " "
+
+binance-spot
+c daily-capture.sh  | g BinanceSPO| g mkt| awk -F\" '{print $4}' | tr ',' '\n' > a
+c sym_lists/binance_spot.txt > b
+c a b | g -v TOD | sort -u | tr '\n' ','; echo " "
+
+hyperliquid
+c daily-capture.sh  | g Hype| g mkt| awk -F\" '{print $4}' | tr ',' '\n' > a
+c sym_lists/hyperliquid.txt > b
+c a b | g -v TOD | sort -u | tr '\n' ','; echo " "
+
+bybit-spot
+c daily-capture.sh  | g BybitSPO| g mkt| awk -F\" '{print $4}' | tr ',' '\n' > a
+c sym_lists/bybit_spot.txt > b
+c a b | g -v TOD | sort -u | tr '\n' ','; echo " "
+
+bybit-deriv
+c daily-capture.sh  | g BybitSD| g mkt| awk -F\" '{print $4}' | tr ',' '\n' > a
+c sym_lists/bybit_futures.txt > b
+c a b | g -v TOD | sort -u | tr '\n' ','; echo " "

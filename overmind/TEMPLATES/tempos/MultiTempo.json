@@ -1,0 +1,14 @@
+{
+  "tempos": [
+    {
+      "name": "a_name",
+      "type": "MultiTempo",
+      "threshold": 120,
+      "tempos_to_weights": {
+          "final_tempo": 2.3,
+          "trade_tempo": 1.1,
+          "inside_tempo": 6.3
+      }
+    }
+  ]
+}

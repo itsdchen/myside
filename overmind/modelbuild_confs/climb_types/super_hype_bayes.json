@@ -1,0 +1,225 @@
+{
+  "day_start_regress": "18:00:00 America/New_York",
+  "day_end_regress": "17:00:00 America/New_York",
+  "timer_specs": {
+    "sampling_tempos": [
+      {
+        "type": "final",
+        "symbol": "SELF"
+      }
+    ],
+    "markout_tempos": [
+      {
+        "type": "final",
+        "symbol": "SELF"
+      }
+    ]
+  },
+  "fit_specs": {
+    "fit_tgt": 40,
+    "use_daily_markout_rate": false,
+    "calc_fit_tgt_daily": true
+  },
+  "pnlclimb_specs": {
+    "dir_name": "pnlclimb_wide_v8_bayes",
+    "sim_final": true,
+    "finalsim_best_n": 1,
+    "ordex_type": "wide_mm",
+    "ordex_specs": {
+      "ordersize_usd": 100,
+      "maxpos_mult": 10,
+      "want_cross": false,
+      "cross_order_size_mult": 1,
+      "mm_gtc": false,
+      "rung_spacing_mult": 1,
+      "max_back_levels": 4,
+      "ms_between_place": 100,
+      "ms_between_cxl": 50,
+      "ms_between_cross": 100,
+      "use_ladder_ticks": false,
+      "ladder_one_sided": true,
+      "per_order_n_ticks": 2,
+      "pcurv_denom_ord_mult": -1,
+      "pcurvicity_one_sided": false,
+      "oneside_pcurv_increases_thresh": true,
+      "signal_dynamic_threshing": false,
+      "signal_dynamic_place_thresh_exp": 1,
+      "signal_dynamic_place_thresh_denom": 0.0005,
+      "thresh_mid_sigmoid_scale": false,
+      "dynamic_mid_sigmoid_style": 2,
+      "dynamic_mid_sigmoid_base": 0.01,
+      "dynamic_mid_sigmoid_offset": 0.5,
+      "dynamic_mid_sigmoid_mult": 1,
+      "mid_ems_tdc_s": 10,
+      "scale_thresh_midmove_spread": false,
+      "scale_thresh_mids_const": 4000,
+      "scale_midmove_lower_bound": 0.8,
+      "narrow_when_few_trades": true,
+      "narrow_thresh_time_const_s": 500,
+      "narrow_fewtrade_minmultiple": 0.8,
+      "narrow_fewtrade_denom": 2,
+      "spreadscale_v2": false,
+      "spreadscale_v2_bias": false,
+      "spreadscale_v2_bias_coef": 1,
+      "spreadscale_v2_momentum": false,
+      "spreadscale_v2_shape": 2,
+      "spreadscale_v2_mult": 1,
+      "spreadscale_v2_denom_const": 20,
+      "vol_norm_coef": 1,
+      "vol_norm_tdc": 5,
+      "min_ord_lifetime": 0.8,
+      "cross_thresh": 0.0004
+    },
+    "note": "v8: Bayesian Optimization with Expected Improvement. GP surrogate, Kriging Believer batching. 4 batch x 15 epochs = 60 climb evals.",
+    "grid_params": {
+      "place_thresh": [
+        0.0004,
+        0.0005,
+        0.0008
+      ],
+      "cancel_buffer_frac": [
+        0.4,
+        0.8,
+        1
+      ],
+      "vol_norm_coef": [
+        0.5,
+        1,
+        2,
+        4
+      ],
+      "vol_norm_tdc": [
+        1,
+        5,
+        30
+      ]
+    },
+    "alpha_mult": {
+      "name": "alpha_mult",
+      "proj_type": "EXP",
+      "proj_value": 1,
+      "stepsize": 0.15
+    },
+    "climb_params": {
+      "place_thresh": {
+        "name": "place_thresh",
+        "proj_type": "EXP",
+        "proj_value": 0.0008,
+        "stepsize": 0.1
+      },
+      "cancel_buffer_frac": {
+        "name": "cancel_buffer_frac",
+        "proj_type": "EXP",
+        "proj_value": 0.2,
+        "stepsize": 0.1
+      },
+      "pcurvicity": {
+        "name": "pcurvicity",
+        "proj_type": "LOGISTIC",
+        "proj_value": 2,
+        "proj_mult": 4,
+        "stepsize": 0.1
+      },
+      "pcurvicity_coef": {
+        "name": "pcurvicity_coef",
+        "proj_type": "EXP",
+        "proj_value": 0.4,
+        "stepsize": 0.05
+      },
+      "narrow_thresh_time_const_s": {
+        "name": "narrow_thresh_time_const_s",
+        "proj_type": "EXP",
+        "proj_value": 500,
+        "stepsize": 0.25
+      },
+      "narrow_fewtrade_minmultiple": {
+        "name": "narrow_fewtrade_minmultiple",
+        "proj_type": "LOGISTIC",
+        "proj_value": 0.7,
+        "stepsize": 0.25
+      },
+      "narrow_fewtrade_denom": {
+        "name": "narrow_fewtrade_denom",
+        "proj_type": "EXP",
+        "proj_value": 2,
+        "stepsize": 0.05
+      }
+    },
+    "scoring_spec": {
+      "style": "wins_pnl_charminvol_pct",
+      "vol_limit": 100,
+      "vol_style": "avg_med_numtrds",
+      "vol_scale": "linear_frac_bounded",
+      "pct_adjust_powr": 2.5,
+      "penalty": -10,
+      "penalty_mult": 1.5
+    },
+    "climb_type_old": "QUAD",
+    "qc_specs_old": {
+      "min_epochs": 8,
+      "max_epochs": 18,
+      "can_snapback": true,
+      "snapback_frac": 0.95,
+      "prefer_best": true,
+      "expand_quad_up": false,
+      "required_delta_params": 0.005,
+      "stop_condition": {
+        "center_pct_increase": 0.03,
+        "pct_change_variants": 0.03
+      },
+      "params": []
+    },
+    "num_iters": 15,
+    "climb_type": "BAYES",
+    "qc_specs": {
+      "min_epochs": 1,
+      "max_epochs": 15,
+      "n_particles": 4,
+      "acq_type": "EI",
+      "gp_noise": 1.0,
+      "n_restarts": 10,
+      "params": []
+    },
+    "global_settings": {
+      "colo": "AWSTokA",
+      "strat_name": "spot_1",
+      "comment_here": "We should probably switch to some fxn of look-ahead ",
+      "commissions": {
+        "tiers": {
+          "BinanceSPOT": "VIP1",
+          "BinanceFutures": "VIP8USDT",
+          "Hyperliquid": "VIP3"
+        },
+        "use_promo": false
+      },
+      "start_t": "18:00:00 America/New_York",
+      "end_t": "17:59:00 America/New_York"
+    },
+    "risk_settings": {
+      "max_notional": 10000,
+      "max_position": "0.05",
+      "max_orders": 12,
+      "base_currency": "USDT",
+      "min_pnl": -50,
+      "fv_limit": 2,
+      "timeout_minfv": 900
+    },
+    "sim_settings": {
+      "BinanceSPOT": {
+        "cxl_frac_ahead": 0.3,
+        "sim_latency_secs": 0.015
+      },
+      "BinanceFutures": {
+        "cxl_frac_ahead": 0.3,
+        "use_one_way_latency": true,
+        "sim_latency_secs": 0.015
+      },
+      "Hyperliquid": {
+        "cxl_frac_ahead": 0.3,
+        "use_one_way_latency": false,
+        "sim_latency_secs": 1.0
+      }
+    }
+  },
+  "golive_minpnl_maxpos_mult": 0.1
+}

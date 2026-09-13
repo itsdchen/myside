@@ -1,0 +1,38 @@
+{
+
+    "signalscanner": {
+	"markout_tempo": "pred_tempo",
+	"markout_thresh": 1500,
+
+	"sampling_tempo": "sampling_tempo",
+	"sampling_thresh": 200,
+	"tgt_sig": "ref_sig"
+    },
+
+    "tempos":
+    [
+	{
+	    "name": "sampling_tempo",
+	    "type": "MsgTempo",
+	    "symbol": "MATICUSDT",
+	    "markets": ["BinanceSPOT"]
+	},
+
+	{
+	    "name": "pred_tempo",
+	    "type": "MsgTempo",
+	    "symbol": "MATICUSDT",
+	    "markets": ["BinanceSPOT"]
+	}
+    ],
+
+    "signals": [
+	{
+	    "name": "ref_sig",
+	    "type": "SigMid",
+	    "symbol": "MATICUSDT",
+	    "books": ["BinanceSPOT"],
+	    "sigformer_tag": "top_level_signal"
+	}
+    ]
+}

@@ -1,0 +1,14 @@
+# Start postprocessing for yesterday's capture right after midnight
+50 00 * * * MKT=BinanceFutures ; DATE=$(date +"\%Y\%m\%d" --date="yesterday") ; cron/postprocess-captures.sh $MKT $DATE > logs/${MKT}_$DATE.stdout 2> logs/${MKT}_$DATE.stderr
+
+# Binance others
+20 02 * * * MKT=BinanceSPOT ; DATE=$(date +"\%Y\%m\%d" --date="yesterday") ; cron/postprocess-captures.sh $MKT $DATE > logs/${MKT}_$DATE.stdout 2> logs/${MKT}_$DATE.stderr
+30 02 * * * MKT=BinanceCOINFutures ; DATE=$(date +"\%Y\%m\%d" --date="yesterday") ; cron/postprocess-captures.sh $MKT $DATE > logs/${MKT}_$DATE.stdout 2> logs/${MKT}_$DATE.stderr
+
+#Hyperliquid
+40 02 * * * MKT=Hyperliquid ; DATE=$(date +"\%Y\%m\%d" --date="yesterday") ; cron/postprocess-captures.sh $MKT $DATE > logs/${MKT}_$DATE.stdout 2> logs/${MKT}_$DATE.stderr
+
+# HyperliquidNodeV1 — waits for both books and fills done markers, then
+# runs hlnode_gzsplitter twice (once per stream) and uploads per-(sym,
+# stream) .gzpbf files under s3://l1-pktrade-capture/gzpbf/HyperliquidNodeV1/.
+45 02 * * * DATE=$(date +"\%Y\%m\%d" --date="yesterday") ; cron/postprocess-captures-hlnode.sh $DATE > logs/HyperliquidNodeV1_$DATE.stdout 2> logs/HyperliquidNodeV1_$DATE.stderr

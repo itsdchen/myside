@@ -1,0 +1,11 @@
+{
+    "signals": [
+      {
+        "name": "a_name",
+        "type": "SigFile",
+        "file_path_tmpl": "",
+        "sigformer_tag": "top_level_signal"
+      }
+    ]
+
+  }

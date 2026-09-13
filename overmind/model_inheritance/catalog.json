@@ -1,0 +1,466 @@
+{
+  "Hyperliquid": {
+    "xyz:AAPL": [
+      {
+        "built_at": "20260413",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_AAPL/20260413/model_bundle.json",
+        "end_date": "20260412",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "e9533dc2e9a225ce59f0dd78bc3715d09e7db207491389d3210a0a599c95c022",
+        "start_date": "20260313"
+      }
+    ],
+    "xyz:AMD": [
+      {
+        "built_at": "20260405",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_AMD/20260405/model_bundle.json",
+        "end_date": "20260404",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "a801764846563f6da77d609e84b31ec03312c827cae17634c33ccfd16c23af98",
+        "start_date": "20260305"
+      }
+    ],
+    "xyz:AMZN": [
+      {
+        "built_at": "20260413",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_AMZN/20260413/model_bundle.json",
+        "end_date": "20260412",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "dffd202de5b3d4d76c4305a37e9b455e5a5bcc92cc36fe8742b950d54a313379",
+        "start_date": "20260313"
+      }
+    ],
+    "xyz:BABA": [
+      {
+        "built_at": "20260413",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_BABA/20260413/model_bundle.json",
+        "end_date": "20260412",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "2fbc947149d2f9de3b2a2c42069a603f323641ee8f2d8f985760174977b8c72f",
+        "start_date": "20260313"
+      }
+    ],
+    "xyz:BRENTOIL": [
+      {
+        "built_at": "20260319",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_BRENTOIL/20260319/model_bundle.json",
+        "end_date": "20260319",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "35b58a3078d10df2c5b076f2966e2a732cc5b77d7e2fa8a457a1f9d9db7669ab",
+        "start_date": "20260301"
+      }
+    ],
+    "xyz:CL": [
+      {
+        "built_at": "20260319",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_CL/20260319/model_bundle.json",
+        "end_date": "20260319",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "472f3561e53614dede5cfa624061dd2f822be6fa80c322ce15bafb793265a0d6",
+        "start_date": "20260301"
+      }
+    ],
+    "xyz:COIN": [
+      {
+        "built_at": "20260413",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_COIN/20260413/model_bundle.json",
+        "end_date": "20260412",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "b23c197c0ef739573b62dec7ec6a4f5d22c47184fc3fdeb2063c2efb9b5aefdb",
+        "start_date": "20260313"
+      }
+    ],
+    "xyz:COPPER": [
+      {
+        "built_at": "20260319",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_COPPER/20260319/model_bundle.json",
+        "end_date": "20260318",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "005cc3903d24a452b7e625b506fe785e5c3c356011772e9c4c652e33902f44f2",
+        "start_date": "20260216"
+      }
+    ],
+    "xyz:COST": [
+      {
+        "built_at": "20260405",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_COST/20260405/model_bundle.json",
+        "end_date": "20260404",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "4cce480091851c63c3aac3dd63d89f504045ea36295588a12070304bfad6da4d",
+        "start_date": "20260305"
+      }
+    ],
+    "xyz:CRCL": [
+      {
+        "built_at": "20260405",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_CRCL/20260405/model_bundle.json",
+        "end_date": "20260404",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "f1409c31b71c2e406e32b15561b346aefa5f84d2ff41cb6d7985d12ef5dc6219",
+        "start_date": "20260305"
+      }
+    ],
+    "xyz:CRWV": [
+      {
+        "built_at": "20260405",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_CRWV/20260405/model_bundle.json",
+        "end_date": "20260404",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "591ca2fe48e1806effbbefd13a53a924ce5b973878b40f9ec818a3e52b63570c",
+        "start_date": "20260305"
+      }
+    ],
+    "xyz:EWJ": [
+      {
+        "built_at": "20260413",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_EWJ/20260413/model_bundle.json",
+        "end_date": "20260412",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "977f0961569359d91bcceef6c6c7327d40ed3768f4fc1f84514104be3284468f",
+        "start_date": "20260313"
+      }
+    ],
+    "xyz:EWY": [
+      {
+        "built_at": "20260413",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_EWY/20260413/model_bundle.json",
+        "end_date": "20260412",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "6762dafd69090e13895da9e411c601a5af4db4841ca5f7437304b9af1324416d",
+        "start_date": "20260313"
+      }
+    ],
+    "xyz:GOLD": [
+      {
+        "built_at": "20260407",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_GOLD/20260407/model_bundle.json",
+        "end_date": "20260406",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "5b73780a01df3827f0e840909a60397a4e49827146d6336c9427641c9c172a56",
+        "start_date": "20260307"
+      }
+    ],
+    "xyz:GOOGL": [
+      {
+        "built_at": "20260413",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_GOOGL/20260413/model_bundle.json",
+        "end_date": "20260412",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "0ade78730d47898d9997c79160caa1bfea5c9ab0db4f489815ef1346a4d2c480",
+        "start_date": "20260313"
+      }
+    ],
+    "xyz:HOOD": [
+      {
+        "built_at": "20260405",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_HOOD/20260405/model_bundle.json",
+        "end_date": "20260404",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "7cb73229721221c24ae34020ca78a7342f4fe37b665f4f7ae6cc7b3f84e220f9",
+        "start_date": "20260305"
+      }
+    ],
+    "xyz:HYUNDAI": [
+      {
+        "built_at": "20260509",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_HYUNDAI/20260509/model_bundle.json",
+        "end_date": "20260508",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "cdc776b465688bf1503efad36c991b4ab9d71fdc03cd047dbecb787c40488427",
+        "start_date": "20260408"
+      }
+    ],
+    "xyz:INTC": [
+      {
+        "built_at": "20260405",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_INTC/20260405/model_bundle.json",
+        "end_date": "20260404",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "83b2d434940062e92793c8d7d45aace1fd0e0966d401b36383e93cb63ced3e2f",
+        "start_date": "20260305"
+      }
+    ],
+    "xyz:JP225": [
+      {
+        "built_at": "20260509",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_JP225/20260509/model_bundle.json",
+        "end_date": "20260508",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "a6e84cd10364397af07486286bd7e9b55b786f41580d5fd140f6dc53ea938a75",
+        "start_date": "20260408"
+      }
+    ],
+    "xyz:LLY": [
+      {
+        "built_at": "20260405",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_LLY/20260405/model_bundle.json",
+        "end_date": "20260404",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "fb73b67a10ef3a8c00466bf8251ddb35593bba5d0f4a89d0946885ad745e4476",
+        "start_date": "20260305"
+      }
+    ],
+    "xyz:META": [
+      {
+        "built_at": "20260405",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_META/20260405/model_bundle.json",
+        "end_date": "20260404",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "43c65b8f2cda5f5a6ca1f6b9f54f90869e13a000af3d6f44637bd57511c4a491",
+        "start_date": "20260305"
+      }
+    ],
+    "xyz:MSFT": [
+      {
+        "built_at": "20260405",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_MSFT/20260405/model_bundle.json",
+        "end_date": "20260404",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "8c890545e0dc8077f59fb073c023a112eea5772f2479b9fc89fa4eb4485d0fdb",
+        "start_date": "20260305"
+      }
+    ],
+    "xyz:MSTR": [
+      {
+        "built_at": "20260413",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_MSTR/20260413/model_bundle.json",
+        "end_date": "20260412",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "c410e9752e8d74f5b9064fce5cad563a16efaaa74b4167367267ade26ff866be",
+        "start_date": "20260313"
+      }
+    ],
+    "xyz:MU": [
+      {
+        "built_at": "20260413",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_MU/20260413/model_bundle.json",
+        "end_date": "20260412",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "8394eb2e9059ed71a585eb7135f370fb937d4a894597d0c7c5319e43e0ec743e",
+        "start_date": "20260313"
+      }
+    ],
+    "xyz:NATGAS": [
+      {
+        "built_at": "20260407",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_NATGAS/20260407/model_bundle.json",
+        "end_date": "20260406",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "796eacfb9b1a5c325a6cef5514942eccabc0ab96b848453bb2a9a1a8bfa7503a",
+        "start_date": "20260307"
+      }
+    ],
+    "xyz:NFLX": [
+      {
+        "built_at": "20260413",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_NFLX/20260413/model_bundle.json",
+        "end_date": "20260412",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "4648f83b9b36ce2c7e462409119fc760a8842dd1ae71ca20839b20b30f0c54bd",
+        "start_date": "20260313"
+      }
+    ],
+    "xyz:NVDA": [
+      {
+        "built_at": "20260413",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_NVDA/20260413/model_bundle.json",
+        "end_date": "20260412",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "3e0fc06c548ad1d19e42b74a64ba86fad5cd575ef27acb8156cd0f3629597d09",
+        "start_date": "20260313"
+      }
+    ],
+    "xyz:ORCL": [
+      {
+        "built_at": "20260413",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_ORCL/20260413/model_bundle.json",
+        "end_date": "20260412",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "94525f530b52afa5a6b042a6df8b1fd5f60c5e7437e10e50f0008acb707c7147",
+        "start_date": "20260313"
+      }
+    ],
+    "xyz:PALLADIUM": [
+      {
+        "built_at": "20260410",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_PALLADIUM/20260410/model_bundle.json",
+        "end_date": "20260409",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "a0b2678891e5a35e93f42e65aa1fd5b49a7ecc0dfef2b5712fa610eac53f1b8d",
+        "start_date": "20260310"
+      }
+    ],
+    "xyz:PLATINUM": [
+      {
+        "built_at": "20260410",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_PLATINUM/20260410/model_bundle.json",
+        "end_date": "20260409",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "265fae307b6b6111d5aefabd00710c23c5ec8e8f66d448b5d6e2bdb62211db7c",
+        "start_date": "20260310"
+      }
+    ],
+    "xyz:PLTR": [
+      {
+        "built_at": "20260405",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_PLTR/20260405/model_bundle.json",
+        "end_date": "20260404",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "2743cfdb2361dac5ef666af2dd52369c00b313cb8b3a8b902dd3c39bc4af7d7d",
+        "start_date": "20260305"
+      }
+    ],
+    "xyz:RIVN": [
+      {
+        "built_at": "20260405",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_RIVN/20260405/model_bundle.json",
+        "end_date": "20260404",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "2a8c4a9f348af0d301d1b3a159230196f04417d1971b78c406ccdd2c96e23926",
+        "start_date": "20260305"
+      }
+    ],
+    "xyz:SILVER": [
+      {
+        "built_at": "20260407",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_SILVER/20260407/model_bundle.json",
+        "end_date": "20260406",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "1f73edf539f57a8b2785112ea9b5d8156a8339b55eb9c10c2531ef519eb43bbb",
+        "start_date": "20260307"
+      }
+    ],
+    "xyz:SKHX": [
+      {
+        "built_at": "20260509",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_SKHX/20260509/model_bundle.json",
+        "end_date": "20260508",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "3dc4a1448d99b492f751fc10b2eef877a7e417f9b02ae7b630eab0f89845ea3d",
+        "start_date": "20260408"
+      }
+    ],
+    "xyz:SMSN": [
+      {
+        "built_at": "20260509",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_SMSN/20260509/model_bundle.json",
+        "end_date": "20260508",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "e0846f293495e0fe68a908ab62e0e2bb106e9b0580db37bc0c8d31ef97c78bed",
+        "start_date": "20260408"
+      }
+    ],
+    "xyz:SNDK": [
+      {
+        "built_at": "20260413",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_SNDK/20260413/model_bundle.json",
+        "end_date": "20260412",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "7b34deac38984586b3fef62f40a31ad702fb55eecf85de93bb9850187b2959d5",
+        "start_date": "20260313"
+      }
+    ],
+    "xyz:SP500": [
+      {
+        "built_at": "20260408",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_SP500/20260408/model_bundle.json",
+        "end_date": "20260407",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "9ba5d248b6cc1b94fcb80be8a58fe99245fb687d7ca543a5e3558b0952458904",
+        "start_date": "20260308"
+      }
+    ],
+    "xyz:TSLA": [
+      {
+        "built_at": "20260402",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_TSLA/20260402/model_bundle.json",
+        "end_date": "20260401",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "5091a8f3c0a4da84466cf0eff98329811195358dc73138e559e2aa1f8aa25175",
+        "start_date": "20260302"
+      }
+    ],
+    "xyz:TSM": [
+      {
+        "built_at": "20260413",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_TSM/20260413/model_bundle.json",
+        "end_date": "20260412",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "03e6f971af8d01665bf8e53ac702d54e70af4a3fbaec20ebde10b7b0e61a78b4",
+        "start_date": "20260313"
+      }
+    ],
+    "xyz:URNM": [
+      {
+        "built_at": "20260509",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_URNM/20260509/model_bundle.json",
+        "end_date": "20260508",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "29c42a2c77c7fa25ed9606384f61316acb4c338350107cf6c4d969fedc28e7b6",
+        "start_date": "20260408"
+      }
+    ],
+    "xyz:USAR": [
+      {
+        "built_at": "20260509",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_USAR/20260509/model_bundle.json",
+        "end_date": "20260508",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "2ae8da41cad3a1e60e9591c9c219fb4f5de166981c50263331fd605fb52e27c2",
+        "start_date": "20260408"
+      }
+    ],
+    "xyz:XYZ100": [
+      {
+        "built_at": "20260407",
+        "bundle_path": "/home/pktrade/tradefi/retraded_8/overmind/model_inheritance/Hyperliquid/XYZ_XYZ100/20260407/model_bundle.json",
+        "end_date": "20260406",
+        "quality": "provisional",
+        "score": null,
+        "sha256": "eb02f06dcf40b551eadce81c1aaf778dd46d9ae310db2b91faca89552fdd7f12",
+        "start_date": "20260307"
+      }
+    ]
+  }
+}

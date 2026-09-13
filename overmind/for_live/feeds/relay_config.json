@@ -1,0 +1,27 @@
+{
+    "_comment_usage": "Drop this on the us-east-2 relay host, fill in real destination IPs, rename to pkrelay_config.json. Symbols should be the UNION of what any Tokyo consumer needs — each consumer filters to its own RelayDBCME.symbols locally.",
+
+    "_comment_destinations": "MUST be PRIVATE IPs of the Tokyo consumer EC2s (e.g. 172.31.x.x or 10.x.x.x). Public IPs would send packets over the public internet and defeat the relay's whole point — VPC peering only routes traffic between private addresses. See DEPLOY.md for the private-IP lookup steps. Btw, these are the destinations.  gf2: 172.31.39.152 . gf1: 172.31.38.36 . gf3: 172.31.35.167 . gf0: 172.31.41.60 . gv0: 172.31.42.54",
+
+    "api_key_path": "~/.creds/.DataBento.creds.json",
+
+    "symbols": [
+        "BZ",
+        "CL",
+        "ES",
+        "GC",
+        "HG",
+        "NG",
+        "NIY",
+        "NQ",
+        "PA",
+        "PL",
+        "SI",
+        "6E",
+        "6J",
+        "6B"
+    ],
+    "destinations": ["172.31.43.108:4242", "172.31.42.54:4242", "172.31.41.60:4242", "172.31.38.36:4242", "172.31.39.152:4242", "172.31.35.167:4242"],
+
+    "heartbeat_interval_ms": 1000
+}

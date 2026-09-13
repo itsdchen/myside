@@ -1,0 +1,128 @@
+cmake_minimum_required(VERSION 3.24)
+project(PKTrade LANGUAGES CXX)
+
+set(PROJECT_NAME "PKTrade") # CUSTOMISE: your project name
+set(PROJECT_VERSION 0.1.0) # CUSTOMISE: project version
+set(CMAKE_CXX_STANDARD 20) # CUSTOMISE: standard
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# Ensure libcurl calls never raise SIGPIPE via CPR
+add_compile_definitions(CPR_CURL_NOSIGNAL)
+
+# OK, legit can't set this yet because it'll just blow up all these compile
+# messages and leave nothing left. TODO: uncomment this and face Scott Meyers
+# set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weffc++" ) set (CMAKE_CXX_FLAGS
+# "${CMAKE_CXX_FLAGS} -Wuninitialized" )
+
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
+
+include(FetchContent)
+include(FindProtobuf)
+
+find_package(Boost REQUIRED)
+find_package(CLI11 REQUIRED)
+find_package(Protobuf REQUIRED)
+find_package(RapidJSON REQUIRED)
+find_package(date REQUIRED)
+find_package(fmt REQUIRED)
+find_package(magic_enum REQUIRED)
+find_package(namedtype REQUIRED)
+find_package(glog REQUIRED)
+find_package(ixwebsocket REQUIRED)
+find_package(cppzmq REQUIRED)
+find_package(vincentlaucsb-csv-parser REQUIRED)
+find_package(prometheus-cpp REQUIRED)
+find_package(OpenSSL REQUIRED)
+find_package(cpr REQUIRED)
+find_package(fast-cpp-csv-parser REQUIRED)
+find_package(nlohmann_json REQUIRED)
+
+FetchContent_Declare(
+  backward
+  GIT_REPOSITORY https://github.com/bombela/backward-cpp
+  GIT_TAG v1.6
+)
+FetchContent_MakeAvailable(backward)
+
+FetchContent_Declare(
+  databento
+  GIT_REPOSITORY https://github.com/databento/databento-cpp
+  GIT_TAG v0.50.0
+)
+FetchContent_MakeAvailable(databento)
+
+# I wasn't able to figure out how to make this work with
+# FetchContent_MakeAvailable. Maybe at some point we'l find someone who knows
+# how to do cmake well and get it done. For now, I cloned and built from source,
+# like:
+#
+# #Install dependencies: > sudo apt install libsecp256k1-dev > sudo apt install
+# libgmp-dev
+#
+# Building the lib itself: git clone https://github.com/mhw0/libethc cd libethc
+# mkdir build cd build cmake .. make sudo make install And then, include it in
+# helloworld.cc
+
+# FetchContent_Declare( libethc GIT_REPOSITORY https://github.com/mhw0/libethc
+# GIT_TAG v1.1.1 ) FetchContent_MakeAvailable(ethc)
+
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest
+  GIT_TAG release-1.11.0
+)
+
+option(INSTALL_GTEST "Enable installation of gtest" OFF)
+
+FetchContent_MakeAvailable(googletest)
+
+include(GoogleTest)
+enable_testing()
+
+
+#FetchContent_MakeAvailable(benchmark)
+
+# FetchContent_Declare( ethc GIT_REPOSITORY https://github.com/mhw0/libethc
+# GIT_TAG v1.1.1 ) FetchContent_MakeAvailable(ethc)
+
+macro(add_pk_library TARGET)
+  set(SOURCES ${ARGN})
+  add_library(${TARGET} ${SOURCES})
+  add_library(pk::${TARGET} ALIAS ${TARGET})
+
+  target_include_directories(
+    ${TARGET} PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+  )
+
+  set(SOURCES "")
+endmacro()
+
+macro(add_pk_executable TARGET)
+  set(SOURCES ${ARGN})
+  add_executable(${TARGET} ${SOURCES} ${BACKWARD_ENABLE})
+  target_include_directories(
+    ${TARGET}
+    PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+           $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/external>
+           $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/src/pktrade>
+  )
+  add_backward(${TARGET})
+
+  target_include_directories(
+    ${TARGET} PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+                     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/external>
+  )
+
+  set(SOURCES "")
+endmacro()
+
+# Generate version.h at build time (runs on every build)
+add_custom_target(generate_version ALL
+  COMMAND ${CMAKE_COMMAND}
+    -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
+    -DBINARY_DIR=${CMAKE_BINARY_DIR}
+    -P ${CMAKE_SOURCE_DIR}/cmake/GenerateVersion.cmake
+  COMMENT "Generating version.h with git info"
+)
+
+add_subdirectory(src/pktrade)

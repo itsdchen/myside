@@ -1,0 +1,86 @@
+{
+    "subscriptions": {
+        "Hyperliquid": {
+            "is_mainnet": true,
+            "wss_endpoint": "wss://api.hyperliquid.xyz/ws",
+            "snapshot_endpoint": "https://api.hyperliquid.xyz/info",
+            "symbols": [
+                "BTC",
+                "xyz:XYZ100",
+                "xyz:GOLD",
+                "xyz:EUR",
+                "xyz:JPY",
+                "xyz:SILVER",
+                "xyz:CL",
+                "xyz:COPPER",
+                "xyz:NATGAS",
+                "xyz:PLATINUM",
+                "xyz:PALLADIUM",
+                "xyz:BRENTOIL",
+                "xyz:SP500",
+                "xyz:GBP"
+            ]
+        },
+        "HyperliquidNode": {
+            "books_endpoint": "tcp://172.31.37.166:5555",
+            "fills_endpoint": "tcp://172.31.37.166:5556",
+            "fallback_silent_s": 5.0,
+            "fallback_lag_s": 5.0,
+
+            "symbols": [
+                "BTC",
+                "xyz:XYZ100",
+                "xyz:GOLD",
+                "xyz:EUR",
+                "xyz:JPY",
+                "xyz:SILVER",
+                "xyz:CL",
+                "xyz:COPPER",
+                "xyz:NATGAS",
+                "xyz:PLATINUM",
+                "xyz:PALLADIUM",
+                "xyz:BRENTOIL",
+                "xyz:SP500",
+                "xyz:GBP"
+            ]
+        },
+
+        "DataBentoCME": {
+            "symbols": [
+                "BZ",
+                "CL",
+                "ES",
+                "GC",
+                "HG",
+                "NG",
+                "NQ",
+                "PA",
+                "PL",
+                "SI",
+                "6E",
+                "6J",
+                "6B"
+            ]
+        },
+
+        "RelayDBCME": {
+            "symbols": [
+                "BZ",
+                "CL",
+                "ES",
+                "GC",
+                "HG",
+                "NG",
+                "NQ",
+                "PA",
+                "PL",
+                "SI",
+                "6E",
+                "6J",
+                "6B"
+            ],
+            "listen_port": 4242
+        }
+    },
+    "snapshot_frequency": 10000
+}

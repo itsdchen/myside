@@ -1,0 +1,77 @@
+{
+  "signals": [
+    {
+      "name": "parent_name",
+      "type": "SigLibra",
+
+      "sig_a": "sig_a_name",
+      "sig_b": "sig_b_name",
+
+      "sig_a_scale": 1,
+      "sig_b_scale": 1,
+      "sig_a_selfscale": 1.2,
+      "sig_b_selfscale": 1.2,
+
+      "ab_elim_scale": 1,
+      "max_impulse": 0.1,
+      "max_bound_mult": 30,
+      
+      "apply_basic_decay": false,
+      "tick_decay": 1,
+      "time_decay": 10000000,
+
+      "sigformer_tag": "top_level_signal"
+    },
+    {
+      "name": "a_name",
+      "type": "SigLiqBalance",
+      "symbol": "BTCUSDT",
+      "books": ["BINANCE_SPOT"],
+      "liq_type": "FIXED",
+      "liq_size": 500,
+      "calc_style": "AVG_LIQ_PX",
+      "per_level_decay" : 1.0,
+      "return_price": true,
+      "notional_to_liquidate": 1000000,
+      "auto_notional": false,
+      "min_auto_notional": 10000,
+
+      "ref_signal": "mid_price",
+      "sigformer_tag": "liqbal_predsym"
+    },
+    {
+      "name": "b_name",
+      "type": "SigLiqBalance",
+      "symbol": "BTCUSDT",
+      "books": ["BINANCE_SPOT"],
+      "liq_type": "FIXED",
+      "liq_size": 500,
+      "calc_style": "AVG_LIQ_PX",
+      "per_level_decay" : 1.0,
+      "return_price": true,
+      "notional_to_liquidate": 1000000,
+      "auto_notional": false,
+      "min_auto_notional": 10000,
+
+      "ref_signal": "mid_price",
+      "sigformer_tag": "liqbal_tgtsym"
+    },
+
+    {
+      "name": "a_tgt_signal",
+      "type": "SigMid",
+      "symbol": "BTCUSDT",
+      "books": ["BinanceSPOT"],
+      "sigformer_tag": "a_refpx"
+    },
+
+    {
+      "name": "b_tgt_signal",
+      "type": "SigMid",
+      "symbol": "BTCUSDT",
+      "books": ["BinanceSPOT"],
+      "sigformer_tag": "b_refpx"
+    }
+
+  ]
+}

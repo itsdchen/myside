@@ -1,0 +1,12 @@
+{
+  "built_at": "20260319",
+  "bundle_version": 1,
+  "end_date": "20260319",
+  "quality": "provisional",
+  "score": null,
+  "sha256": "35b58a3078d10df2c5b076f2966e2a732cc5b77d7e2fa8a457a1f9d9db7669ab",
+  "source_dir": "/home/pktrade/scratch/relwide_autobuild/autobuild_xyz_BRENTOIL_20260319/coef_lair",
+  "start_date": "20260301",
+  "symbol": "xyz:BRENTOIL",
+  "venue": "Hyperliquid"
+}

@@ -1,0 +1,67 @@
+{
+  "signals": [
+    {
+      "name": "a_name",
+      "type": "SigDer",
+
+      "pred_signal": "child_deepbook",
+      "tgt_signal": "der_decay_signal",
+
+      "take_pred_returns": false,
+      "defer_decay": false,
+      "max_impulse": 0.01,
+      "max_bound_mult": 30,
+      
+      "time_decay": 20,
+      "tick_decay": 0.87,
+      "min_tick_decay": 0.999,
+      "tgt_decay_agree": 0.6,
+      "tgt_decay_disagree": 0.88,
+      "tgt_decay_denom": -1,
+      "output_sigmoid": false,
+      "output_sigmoid_denom": 0.01,
+      "sigformer_tag": "top_level_signal"
+    },
+    {
+      "name": "pred_signal",
+      "type": "SigDeepBook",
+      "symbol": "BTCUSDT",
+      "books": ["BinanceSPOT"],
+      "BinanceSPOT.Weight": 1,
+
+      "px_decay": 0.01,
+      "min_px_weight": 1e-10,
+      "max_pct_away": 0.02,
+      "insides_before_recalc": 30,
+      "ignore_recalc_thresh_mult": 0.7,
+
+      "sz_decay_type": "EXP_SIZE",
+      "sz_decay": 20000,
+      "sz_decay_2": 10,
+
+      "bounding_val": 2.0,
+      "return_price": false,
+      "use_flagged": true,
+
+      "use_shadow": false,
+      "shadow_frac": 0,
+      "shadow_decay_frac": 0.9,
+
+      "totstren_ema_bound": 8,
+      "totstren_tdc_s": 1000,
+      "totstren_ema_power": 2,
+
+      "calc_style": "DIFF_RATIO",
+      "sigformer_tag": "deep_book"
+    },
+    {
+      "name": "der_decay_signal",
+      "type": "SigMid",
+      "symbol": "BTCUSDT",
+      "books": ["BinanceSPOT"],
+      "use_flagged": false,
+      "sigformer_tag": "der_decay_signal"
+    }
+
+  ]
+}

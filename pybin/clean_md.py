@@ -1,0 +1,1 @@
+../overmind/strat_main/tools/clean_md.py

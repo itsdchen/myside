@@ -1,0 +1,588 @@
+{
+  "metadata": {
+    "built_at": "20260509",
+    "bundle_version": 1,
+    "end_date": "20260508",
+    "quality": "provisional",
+    "score": null,
+    "sha256": "cdc776b465688bf1503efad36c991b4ab9d71fdc03cd047dbecb787c40488427",
+    "source_dir": "/home/pktrade/scratch/relwide_autobuild/autobuild_xyz_HYUNDAI_20260509/coef_lair",
+    "start_date": "20260408",
+    "symbol": "xyz:HYUNDAI",
+    "venue": "Hyperliquid"
+  },
+  "pred_signal": {
+    "signals": [
+      {
+        "example_sig_coef": 1.1,
+        "lair_0_xyz:HYUNDAI_DeepBookDerxyz:HYUNDAI_0_bound": 0.01457,
+        "lair_0_xyz:HYUNDAI_DeepBookDerxyz:HYUNDAI_0_coef": -0.14685740351720195,
+        "lair_17_xyz:HYUNDAI_MondoDeepBookDerxyz:HYUNDAI_17_bound": 0.2570107715,
+        "lair_17_xyz:HYUNDAI_MondoDeepBookDerxyz:HYUNDAI_17_coef": 0.0068760508668678135,
+        "lair_1_xyz:HYUNDAI_DeepBookDerxyz:HYUNDAI_1_bound": 0.0155732,
+        "lair_1_xyz:HYUNDAI_DeepBookDerxyz:HYUNDAI_1_coef": 0.24316691671494625,
+        "lair_29_xyz:HYUNDAI_AvgTrdDerxyz:HYUNDAI_29_bound": 0.00218395,
+        "lair_29_xyz:HYUNDAI_AvgTrdDerxyz:HYUNDAI_29_coef": -0.252361109848715,
+        "lair_35_xyz:HYUNDAI_AvgTrdDerxyz:HYUNDAI_35_bound": 0.499214,
+        "lair_35_xyz:HYUNDAI_AvgTrdDerxyz:HYUNDAI_35_coef": 0.0008855930119819467,
+        "lair_38_xyz:HYUNDAI_TrdImpxyz:HYUNDAI_38_bound": 2.018655395,
+        "lair_38_xyz:HYUNDAI_TrdImpxyz:HYUNDAI_38_coef": 9.236882221193347e-05,
+        "lair_47_xyz:HYUNDAI_MondoDeepBookDerxyz:HYUNDAI_47_bound": 0.21142,
+        "lair_47_xyz:HYUNDAI_MondoDeepBookDerxyz:HYUNDAI_47_coef": 0.0028900366913127457,
+        "lair_4_xyz:HYUNDAI_MondoDeepBookDerxyz:HYUNDAI_4_bound": 0.499874,
+        "lair_4_xyz:HYUNDAI_MondoDeepBookDerxyz:HYUNDAI_4_coef": 0.00046895241352769686,
+        "lair_5_xyz:HYUNDAI_DeepBookxyz:HYUNDAI_5_bound": 0.000160283,
+        "lair_5_xyz:HYUNDAI_DeepBookxyz:HYUNDAI_5_coef": 16.156383702202604,
+        "lair_6_xyz:HYUNDAI_DeepBookDerxyz:HYUNDAI_6_bound": 0.01,
+        "lair_6_xyz:HYUNDAI_DeepBookDerxyz:HYUNDAI_6_coef": -0.16435603925122183,
+        "name": "pred_XYZ_HYUNDAI",
+        "offset": 0,
+        "sig_names": [
+          "lair_0_xyz:HYUNDAI_DeepBookDerxyz:HYUNDAI_0",
+          "lair_1_xyz:HYUNDAI_DeepBookDerxyz:HYUNDAI_1",
+          "lair_4_xyz:HYUNDAI_MondoDeepBookDerxyz:HYUNDAI_4",
+          "lair_5_xyz:HYUNDAI_DeepBookxyz:HYUNDAI_5",
+          "lair_6_xyz:HYUNDAI_DeepBookDerxyz:HYUNDAI_6",
+          "lair_17_xyz:HYUNDAI_MondoDeepBookDerxyz:HYUNDAI_17",
+          "lair_29_xyz:HYUNDAI_AvgTrdDerxyz:HYUNDAI_29",
+          "lair_35_xyz:HYUNDAI_AvgTrdDerxyz:HYUNDAI_35",
+          "lair_38_xyz:HYUNDAI_TrdImpxyz:HYUNDAI_38",
+          "lair_47_xyz:HYUNDAI_MondoDeepBookDerxyz:HYUNDAI_47"
+        ],
+        "sigformer_tag": "top_level_signal",
+        "type": "SigLinear"
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.01,
+        "min_tick_decay": 0.9999,
+        "name": "lair_0_xyz:HYUNDAI_DeepBookDerxyz:HYUNDAI_0",
+        "output_sigmoid": false,
+        "output_sigmoid_denom": 0.01,
+        "pred_signal": "lair_0_xyz:HYUNDAI_DeepBookDerxyz:HYUNDAI_deepbook_0",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": true,
+        "tgt_decay_agree": 0.9807998086400302,
+        "tgt_decay_denom": 0.0003448564001180343,
+        "tgt_decay_disagree": 0.9810575293743192,
+        "tgt_signal": "lair_0_xyz:HYUNDAI_DeepBookDerxyz:HYUNDAIder_decay_0",
+        "tick_decay": 0.995002342476983,
+        "time_decay": 67.52457575928436,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_0_xyz:HYUNDAI_DeepBookDerxyz:HYUNDAI_deepbook_0",
+        "px_decay": 0.00041662115595842195,
+        "return_price": true,
+        "shadow_decay_frac": 0.7355107297886814,
+        "shadow_frac": 0.5971950940107299,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:HYUNDAI",
+        "sz_decay": 10638.168585544478,
+        "sz_decay_2": 10,
+        "sz_decay_type": "EXP_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 1.748065227923097,
+        "totstren_tdc_s": 1357.6594442647593,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_0_xyz:HYUNDAI_DeepBookDerxyz:HYUNDAIder_decay_0",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:HYUNDAI",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.03,
+        "min_tick_decay": 0.9999,
+        "name": "lair_1_xyz:HYUNDAI_DeepBookDerxyz:HYUNDAI_1",
+        "output_sigmoid": false,
+        "output_sigmoid_denom": 0.01,
+        "pred_signal": "lair_1_xyz:HYUNDAI_DeepBookDerxyz:HYUNDAI_deepbook_1",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": false,
+        "tgt_decay_agree": 0.9848161794029606,
+        "tgt_decay_denom": 0.008654818632459715,
+        "tgt_decay_disagree": 0.9944538779594774,
+        "tgt_signal": "lair_1_xyz:HYUNDAI_DeepBookDerxyz:HYUNDAIder_decay_1",
+        "tick_decay": 0.99996559424987,
+        "time_decay": 278.2992890732217,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_1_xyz:HYUNDAI_DeepBookDerxyz:HYUNDAI_deepbook_1",
+        "px_decay": 0.00046031789787096634,
+        "return_price": false,
+        "shadow_decay_frac": 0.74748206651854,
+        "shadow_frac": 0.026402853194434087,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:HYUNDAI",
+        "sz_decay": 3917.032548053236,
+        "sz_decay_2": 10,
+        "sz_decay_type": "EXP_NOTIONAL",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 1.3438632726871023,
+        "totstren_tdc_s": 3829.2913278605065,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_1_xyz:HYUNDAI_DeepBookDerxyz:HYUNDAIder_decay_1",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:HYUNDAI",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.03,
+        "min_tick_decay": 0.9999,
+        "name": "lair_4_xyz:HYUNDAI_MondoDeepBookDerxyz:HYUNDAI_4",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.006180188840549158,
+        "pred_signal": "lair_4_xyz:HYUNDAI_MondoDeepBookDerxyz:HYUNDAI_deepbook_4",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": false,
+        "tgt_decay_agree": 0.9557323852884977,
+        "tgt_decay_denom": 0.002097431843716707,
+        "tgt_decay_disagree": 0.014136065697557938,
+        "tgt_signal": "lair_4_xyz:HYUNDAI_MondoDeepBookDerxyz:HYUNDAIder_decay_4",
+        "tick_decay": 0.9876501162109248,
+        "time_decay": 7.481655061575958,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_4_xyz:HYUNDAI_MondoDeepBookDerxyz:HYUNDAI_deepbook_4",
+        "px_decay": 0.023874804299172273,
+        "return_price": false,
+        "shadow_decay_frac": 0.028703742357325125,
+        "shadow_frac": 0.15922856413238984,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:HYUNDAI",
+        "sz_decay": 1.6769684534818405,
+        "sz_decay_2": 0.16386878109913589,
+        "sz_decay_type": "EXP_NOTIONAL_AND_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 0.6024546251078955,
+        "totstren_tdc_s": 1084.1560317955675,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_4_xyz:HYUNDAI_MondoDeepBookDerxyz:HYUNDAIder_decay_4",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:HYUNDAI",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 2,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_5_xyz:HYUNDAI_DeepBookxyz:HYUNDAI_5",
+        "px_decay": 0.002009190599204903,
+        "return_price": false,
+        "shadow_decay_frac": 0.981717506511812,
+        "shadow_frac": 0.9967360675298602,
+        "sigformer_tag": "top_level_signal",
+        "symbol": "xyz:HYUNDAI",
+        "sz_decay": 2.1316538485634045,
+        "sz_decay_2": 10,
+        "sz_decay_type": "EXP_NOTIONAL",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 4.6988688673361345,
+        "totstren_tdc_s": 334.72978827594534,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.01,
+        "min_tick_decay": 0.9999,
+        "name": "lair_6_xyz:HYUNDAI_DeepBookDerxyz:HYUNDAI_6",
+        "output_sigmoid": false,
+        "output_sigmoid_denom": 0.01,
+        "pred_signal": "lair_6_xyz:HYUNDAI_DeepBookDerxyz:HYUNDAI_deepbook_6",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": true,
+        "tgt_decay_agree": 0.053021076905071324,
+        "tgt_decay_denom": 2.7228955396307776e-05,
+        "tgt_decay_disagree": 0.9668194187961222,
+        "tgt_signal": "lair_6_xyz:HYUNDAI_DeepBookDerxyz:HYUNDAIder_decay_6",
+        "tick_decay": 0.9321452873906506,
+        "time_decay": 2.941096510746548,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_6_xyz:HYUNDAI_DeepBookDerxyz:HYUNDAI_deepbook_6",
+        "px_decay": 0.0004343294092650389,
+        "return_price": true,
+        "shadow_decay_frac": 0.9966609229786848,
+        "shadow_frac": 0.34501357859830306,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:HYUNDAI",
+        "sz_decay": 86.36653526738218,
+        "sz_decay_2": 10,
+        "sz_decay_type": "EXP_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 0.6489824094077655,
+        "totstren_tdc_s": 2398.875293967097,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_6_xyz:HYUNDAI_DeepBookDerxyz:HYUNDAIder_decay_6",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:HYUNDAI",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.03,
+        "min_tick_decay": 0.9999,
+        "name": "lair_17_xyz:HYUNDAI_MondoDeepBookDerxyz:HYUNDAI_17",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.05323383920208336,
+        "pred_signal": "lair_17_xyz:HYUNDAI_MondoDeepBookDerxyz:HYUNDAI_deepbook_17",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": false,
+        "tgt_decay_agree": 0.9645045858357247,
+        "tgt_decay_denom": 0.00023021120433812305,
+        "tgt_decay_disagree": 0.9697437571149327,
+        "tgt_signal": "lair_17_xyz:HYUNDAI_MondoDeepBookDerxyz:HYUNDAIder_decay_17",
+        "tick_decay": 0.9990115314730632,
+        "time_decay": 313.5558274091081,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_17_xyz:HYUNDAI_MondoDeepBookDerxyz:HYUNDAI_deepbook_17",
+        "px_decay": 0.006862608898180315,
+        "return_price": false,
+        "shadow_decay_frac": 0.9526080686387709,
+        "shadow_frac": 0.8983314203229046,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:HYUNDAI",
+        "sz_decay": 9080.031155623863,
+        "sz_decay_2": 0.9001898953672863,
+        "sz_decay_type": "EXP_NOTIONAL_AND_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 1.850981634104237,
+        "totstren_tdc_s": 657.6927421613084,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_17_xyz:HYUNDAI_MondoDeepBookDerxyz:HYUNDAIder_decay_17",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:HYUNDAI",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 30,
+        "max_impulse": 0.02,
+        "min_tick_decay": 0.999,
+        "name": "lair_29_xyz:HYUNDAI_AvgTrdDerxyz:HYUNDAI_29",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 2.2943296543539344,
+        "pred_signal": "lair_29_xyz:HYUNDAI_AvgTrdDerxyz:HYUNDAI_avgtrd_29",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": true,
+        "tgt_decay_agree": 0.9765911908421702,
+        "tgt_decay_denom": 2.536251693965737e-05,
+        "tgt_decay_disagree": 0.024883924528386277,
+        "tgt_signal": "lair_29_xyz:HYUNDAI_AvgTrdDerxyz:HYUNDAI_der_decay_29",
+        "tick_decay": 0.99,
+        "time_decay": 300,
+        "type": "SigDer"
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "calc_style": "AVG_REL_PRICE",
+        "name": "lair_29_xyz:HYUNDAI_AvgTrdDerxyz:HYUNDAI_avgtrd_29",
+        "ref_signal": "lair_29_xyz:HYUNDAI_AvgTrdDerxyz:HYUNDAI_refpx_29",
+        "return_price": true,
+        "sigformer_tag": "avg_trd",
+        "symbol": "xyz:HYUNDAI",
+        "sz_decay": 22785.898480715045,
+        "sz_decay_type": "EXP_SIZE",
+        "tick_decay": 0.9873431230234285,
+        "time_decay": 8.55155281217351,
+        "type": "SigTrdPx"
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_29_xyz:HYUNDAI_AvgTrdDerxyz:HYUNDAI_refpx_29",
+        "sigformer_tag": "ref_px",
+        "symbol": "xyz:HYUNDAI",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_29_xyz:HYUNDAI_AvgTrdDerxyz:HYUNDAI_der_decay_29",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:HYUNDAI",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 30,
+        "max_impulse": 0.02,
+        "min_tick_decay": 0.999,
+        "name": "lair_35_xyz:HYUNDAI_AvgTrdDerxyz:HYUNDAI_35",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.0010230290655087579,
+        "pred_signal": "lair_35_xyz:HYUNDAI_AvgTrdDerxyz:HYUNDAI_avgtrd_35",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": true,
+        "tgt_decay_agree": 0.9659071181905474,
+        "tgt_decay_denom": 9.344844455692604e-05,
+        "tgt_decay_disagree": 0.731312065568444,
+        "tgt_signal": "lair_35_xyz:HYUNDAI_AvgTrdDerxyz:HYUNDAI_der_decay_35",
+        "tick_decay": 0.99,
+        "time_decay": 300,
+        "type": "SigDer"
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "calc_style": "AVG_REL_PRICE",
+        "name": "lair_35_xyz:HYUNDAI_AvgTrdDerxyz:HYUNDAI_avgtrd_35",
+        "ref_signal": "lair_35_xyz:HYUNDAI_AvgTrdDerxyz:HYUNDAI_refpx_35",
+        "return_price": true,
+        "sigformer_tag": "avg_trd",
+        "symbol": "xyz:HYUNDAI",
+        "sz_decay": 969.443718586982,
+        "sz_decay_type": "EXP_SIZE",
+        "tick_decay": 0.9999999734869804,
+        "time_decay": 262021.62711709144,
+        "type": "SigTrdPx"
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_35_xyz:HYUNDAI_AvgTrdDerxyz:HYUNDAI_refpx_35",
+        "sigformer_tag": "ref_px",
+        "symbol": "xyz:HYUNDAI",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_35_xyz:HYUNDAI_AvgTrdDerxyz:HYUNDAI_der_decay_35",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:HYUNDAI",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "BinanceSPOT.weight": 1,
+        "batch": false,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bungee_denom": 0.4488652269364064,
+        "bungee_mult_frac": 0.9992994242938287,
+        "draped_tdc_s": 0.0764382576078428,
+        "killed_lvl_boost": 1.2848058200536412,
+        "min_tgt_diff_bps": 1e-05,
+        "name": "lair_38_xyz:HYUNDAI_TrdImpxyz:HYUNDAI_38",
+        "normalize_size_draped_inside": true,
+        "oob_scale": 0.1,
+        "px_decay": 0.00016613763877435707,
+        "sigformer_tag": "top_level_signal",
+        "symbol": "xyz:HYUNDAI",
+        "sz_decay": 2.197279470626461e-05,
+        "sz_decay_type": "EXP_NOTIONAL",
+        "tgt_decay_disagree": 0.9970757735949278,
+        "tgt_sig_decay": 0.9999936442457293,
+        "tgt_signal": "lair_38_xyz:HYUNDAI_TrdImpxyz:HYUNDAI_refpx_38",
+        "tick_decay": 0.9999914555164792,
+        "time_decay": 259.50254822368424,
+        "type": "SigTrdImpulse",
+        "use_killed_lvl_boost": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_38_xyz:HYUNDAI_TrdImpxyz:HYUNDAI_refpx_38",
+        "sigformer_tag": "ref_px",
+        "symbol": "xyz:HYUNDAI",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.03,
+        "min_tick_decay": 0.9999,
+        "name": "lair_47_xyz:HYUNDAI_MondoDeepBookDerxyz:HYUNDAI_47",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.001389002325538419,
+        "pred_signal": "lair_47_xyz:HYUNDAI_MondoDeepBookDerxyz:HYUNDAI_deepbook_47",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": false,
+        "tgt_decay_agree": 0.9906874415425683,
+        "tgt_decay_denom": 0.016816878009993104,
+        "tgt_decay_disagree": 0.990315921294206,
+        "tgt_signal": "lair_47_xyz:HYUNDAI_MondoDeepBookDerxyz:HYUNDAIder_decay_47",
+        "tick_decay": 0.9997900001901311,
+        "time_decay": 3522.9437131811633,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_47_xyz:HYUNDAI_MondoDeepBookDerxyz:HYUNDAI_deepbook_47",
+        "px_decay": 5.875226483380024e-05,
+        "return_price": false,
+        "shadow_decay_frac": 0.9639731617289047,
+        "shadow_frac": 0.6353958302704399,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:HYUNDAI",
+        "sz_decay": 15876.201043096182,
+        "sz_decay_2": 33.99968615092389,
+        "sz_decay_type": "EXP_NOTIONAL_AND_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 0.9373124744218714,
+        "totstren_tdc_s": 2260.567751405818,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_47_xyz:HYUNDAI_MondoDeepBookDerxyz:HYUNDAIder_decay_47",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:HYUNDAI",
+        "type": "SigMid",
+        "use_flagged": true
+      }
+    ]
+  },
+  "ref_signal": {
+    "signals": [
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "ref_XYZ_HYUNDAI",
+        "sigformer_tag": "top_level_signal",
+        "symbol": "xyz:HYUNDAI",
+        "type": "SigMid",
+        "use_flagged": true
+      }
+    ]
+  }
+}

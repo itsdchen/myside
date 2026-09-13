@@ -1,0 +1,7 @@
+# Start captures right before midnight each day
+55 23 * * * MKT=Hyperliquid ; DATE=$(date +"\%Y\%m\%d" --date="tomorrow") ; ./cron/run-job.sh CppCapture ./cron/daily-capture.sh $MKT $DATE 1
+
+# Start postprocessing for yesterday's capture right after midnight
+
+#Hyperliquid
+40 02 * * * MKT=Hyperliquid ; DATE=$(date +"\%Y\%m\%d" --date="yesterday") ; cron/postprocess-captures.sh $MKT $DATE > logs/${MKT}_$DATE.stdout 2> logs/${MKT}_$DATE.stderr

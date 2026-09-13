@@ -1,0 +1,67 @@
+{
+  "signals": [
+    {
+      "name": "a_name",
+      "type": "SigDer",
+
+      "pred_signal": "child_sigliq",
+      "tgt_signal": "some_midmkt",
+
+      "take_pred_returns": true,
+      "defer_decay": false,
+      "max_impulse": 0.03,
+      "max_bound_mult": 30,
+      
+      "time_decay": 20,
+      "tick_decay": 0.87,
+      "min_tick_decay": 0.999,
+      "tgt_decay_agree": 0.6,
+      "tgt_decay_disagree": 0.88,
+      "tgt_decay_denom": -1,
+      "output_sigmoid": false,
+      "output_sigmoid_denom": 0.01,
+
+      "sigformer_tag": "top_level_signal"
+    },
+    {
+      "name": "a_name",
+      "type": "SigLiqBalance",
+      "symbol": "BTCUSDT",
+      "books": ["BinanceSPOT"],
+
+      "liq_type": "FIXED_LEVELS",
+      "calc_style": "AVG_LIQ_PX",
+      "notional_to_liquidate": 1000000,
+      "auto_notional": false,
+      "min_auto_notional": 10000,
+
+      "levels_deep": 5,
+      "sz_decay": 100,
+      "sz_decay_2": 10,
+      "sz_decay_type": "SIZE",
+      "min_sz_wt": 1e-12,
+
+
+      "per_level_decay" : 1.0,
+      "return_price": true,
+      "ref_signal": "mid_price",
+      "sigformer_tag": "liq_bal"
+    },
+    {
+      "name": "tgt_signal",
+      "type": "SigMid",
+      "symbol": "BTCUSDT",
+      "books": ["BinanceSPOT"],
+      "sigformer_tag": "ref_px"
+    },
+
+    {
+      "name": "der_decay_signal",
+      "type": "SigMid",
+      "symbol": "BTCUSDT",
+      "books": ["BinanceSPOT"],
+      "sigformer_tag": "der_decay_signal"
+    }
+
+  ]
+}

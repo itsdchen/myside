@@ -1,0 +1,34 @@
+{
+	"subscriptions": {
+		"Hyperliquid": {
+			"is_mainnet": true,
+			"wss_endpoint": "wss://api.hyperliquid.xyz/ws",
+			"snapshot_endpoint": "https://api.hyperliquid.xyz/info",
+			"symbols": []
+		},
+		"PolygonEquities": {
+			"symbols": []
+		},
+		"DataBentoEquities": {
+			"symbols": []
+		},
+		"DataBentoCME": {
+			"symbols": []
+		},
+		"PolygonFX": {
+			"symbols": []
+		},
+		"Pyth": {
+			"symbols": []
+		},
+		"Refinitiv": {
+			"service": "ELEKTRON_DD",
+			"session": "US",
+			"symbols": {
+				"AAPL": "AAPL.BLUE"
+			}
+		}
+	},
+	"snapshot_frequency": 10000,
+	"pub_socket": "ipc:///tmp/testfeed-sock"
+}

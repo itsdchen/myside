@@ -1,0 +1,1 @@
+../overmind/strat_main/tools/gateway_log_analyzer.py

@@ -1,0 +1,620 @@
+{
+  "metadata": {
+    "built_at": "20260319",
+    "bundle_version": 1,
+    "end_date": "20260319",
+    "quality": "provisional",
+    "score": null,
+    "sha256": "35b58a3078d10df2c5b076f2966e2a732cc5b77d7e2fa8a457a1f9d9db7669ab",
+    "source_dir": "/home/pktrade/scratch/relwide_autobuild/autobuild_xyz_BRENTOIL_20260319/coef_lair",
+    "start_date": "20260301",
+    "symbol": "xyz:BRENTOIL",
+    "venue": "Hyperliquid"
+  },
+  "pred_signal": {
+    "signals": [
+      {
+        "example_sig_coef": 1.1,
+        "lair_0_xyz:BRENTOIL_DeepBookDerxyz:BRENTOIL_0_bound": 0.01846873069999141,
+        "lair_0_xyz:BRENTOIL_DeepBookDerxyz:BRENTOIL_0_coef": 0.031094692308320473,
+        "lair_10_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_10_bound": 0.5,
+        "lair_10_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_10_coef": 0.00018168053498917165,
+        "lair_26_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_26_bound": 0.330389,
+        "lair_26_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_26_coef": 0.00382598685504044,
+        "lair_30_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_30_bound": 0.4991510499999993,
+        "lair_30_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_30_coef": -0.00019831129896860674,
+        "lair_36_xyz:BRENTOIL_DeepBookDerxyz:BRENTOIL_36_bound": 0.006744368339999323,
+        "lair_36_xyz:BRENTOIL_DeepBookDerxyz:BRENTOIL_36_coef": -0.13972534863133934,
+        "lair_39_xyz:BRENTOIL_DeepBookDerxyz:BRENTOIL_39_bound": 0.13878946499999914,
+        "lair_39_xyz:BRENTOIL_DeepBookDerxyz:BRENTOIL_39_coef": 0.0015505743812878165,
+        "lair_49_xyz:BRENTOIL_AvgTrdDerxyz:BRENTOIL_49_bound": 0.001404683869999887,
+        "lair_49_xyz:BRENTOIL_AvgTrdDerxyz:BRENTOIL_49_coef": 0.5966880986782277,
+        "lair_54_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_54_bound": 0.124637054,
+        "lair_54_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_54_coef": 0.0017836516326003057,
+        "lair_57_xyz:BRENTOIL_BookImpxyz:BRENTOIL_57_bound": 19.434675799999997,
+        "lair_57_xyz:BRENTOIL_BookImpxyz:BRENTOIL_57_coef": 1.0399666819131345e-05,
+        "lair_8_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_8_bound": 0.0031127674799997823,
+        "lair_8_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_8_coef": -0.15862747436301586,
+        "name": "pred_XYZ_BRENTOIL",
+        "offset": 0,
+        "sig_names": [
+          "lair_0_xyz:BRENTOIL_DeepBookDerxyz:BRENTOIL_0",
+          "lair_8_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_8",
+          "lair_10_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_10",
+          "lair_26_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_26",
+          "lair_30_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_30",
+          "lair_36_xyz:BRENTOIL_DeepBookDerxyz:BRENTOIL_36",
+          "lair_39_xyz:BRENTOIL_DeepBookDerxyz:BRENTOIL_39",
+          "lair_49_xyz:BRENTOIL_AvgTrdDerxyz:BRENTOIL_49",
+          "lair_54_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_54",
+          "lair_57_xyz:BRENTOIL_BookImpxyz:BRENTOIL_57"
+        ],
+        "sigformer_tag": "top_level_signal",
+        "type": "SigLinear"
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.01,
+        "min_tick_decay": 0.9999,
+        "name": "lair_0_xyz:BRENTOIL_DeepBookDerxyz:BRENTOIL_0",
+        "output_sigmoid": false,
+        "output_sigmoid_denom": 0.01,
+        "pred_signal": "lair_0_xyz:BRENTOIL_DeepBookDerxyz:BRENTOIL_deepbook_0",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": true,
+        "tgt_decay_agree": 0.9807998086400302,
+        "tgt_decay_denom": 0.0003448564001180343,
+        "tgt_decay_disagree": 0.9810575293743192,
+        "tgt_signal": "lair_0_xyz:BRENTOIL_DeepBookDerxyz:BRENTOILder_decay_0",
+        "tick_decay": 0.995002342476983,
+        "time_decay": 67.52457575928436,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_0_xyz:BRENTOIL_DeepBookDerxyz:BRENTOIL_deepbook_0",
+        "px_decay": 0.00041662115595842195,
+        "return_price": true,
+        "shadow_decay_frac": 0.7355107297886814,
+        "shadow_frac": 0.5971950940107299,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:BRENTOIL",
+        "sz_decay": 10638.168585544478,
+        "sz_decay_2": 10,
+        "sz_decay_type": "EXP_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 1.748065227923097,
+        "totstren_tdc_s": 1357.6594442647593,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_0_xyz:BRENTOIL_DeepBookDerxyz:BRENTOILder_decay_0",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:BRENTOIL",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.03,
+        "min_tick_decay": 0.9999,
+        "name": "lair_8_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_8",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.02313988695685405,
+        "pred_signal": "lair_8_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_deepbook_8",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": false,
+        "tgt_decay_agree": 0.8563471691533037,
+        "tgt_decay_denom": 0.00012284692693788945,
+        "tgt_decay_disagree": 0.9787520480534486,
+        "tgt_signal": "lair_8_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOILder_decay_8",
+        "tick_decay": 0.9991770252400032,
+        "time_decay": 2459.2585158485226,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_8_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_deepbook_8",
+        "px_decay": 0.0002311453475357184,
+        "return_price": false,
+        "shadow_decay_frac": 0.7558106689093154,
+        "shadow_frac": 0.5184402228543572,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:BRENTOIL",
+        "sz_decay": 2673.756048363364,
+        "sz_decay_2": 23.150779756822896,
+        "sz_decay_type": "EXP_NOTIONAL_AND_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 3.715450737941104,
+        "totstren_tdc_s": 1000.0,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_8_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOILder_decay_8",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:BRENTOIL",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.03,
+        "min_tick_decay": 0.9999,
+        "name": "lair_10_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_10",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.020843977487298007,
+        "pred_signal": "lair_10_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_deepbook_10",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": false,
+        "tgt_decay_agree": 0.9816119378462324,
+        "tgt_decay_denom": 6.967488179261824e-05,
+        "tgt_decay_disagree": 0.0017386687096840195,
+        "tgt_signal": "lair_10_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOILder_decay_10",
+        "tick_decay": 0.9993789173103578,
+        "time_decay": 0.3425911499848823,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_10_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_deepbook_10",
+        "px_decay": 0.05883757248374079,
+        "return_price": false,
+        "shadow_decay_frac": 0.696800231677935,
+        "shadow_frac": 0.20089995334105293,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:BRENTOIL",
+        "sz_decay": 0.8688829893222461,
+        "sz_decay_2": 0.000545650439513188,
+        "sz_decay_type": "EXP_NOTIONAL_AND_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 0.002972723086987151,
+        "totstren_tdc_s": 495.4481363083736,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_10_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOILder_decay_10",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:BRENTOIL",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.03,
+        "min_tick_decay": 0.9999,
+        "name": "lair_26_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_26",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 8.693710132081331e-05,
+        "pred_signal": "lair_26_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_deepbook_26",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": false,
+        "tgt_decay_agree": 0.9974522142655521,
+        "tgt_decay_denom": 0.001898165209375083,
+        "tgt_decay_disagree": 0.9940645738578481,
+        "tgt_signal": "lair_26_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOILder_decay_26",
+        "tick_decay": 0.9995514013227017,
+        "time_decay": 648.425350820899,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_26_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_deepbook_26",
+        "px_decay": 0.00047297748623110266,
+        "return_price": false,
+        "shadow_decay_frac": 0.8777109923328368,
+        "shadow_frac": 0.5450804426593655,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:BRENTOIL",
+        "sz_decay": 2429.0685774057565,
+        "sz_decay_2": 2.155331046292006,
+        "sz_decay_type": "EXP_NOTIONAL_AND_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 2.642530956081146,
+        "totstren_tdc_s": 864.301741471364,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_26_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOILder_decay_26",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:BRENTOIL",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.03,
+        "min_tick_decay": 0.9999,
+        "name": "lair_30_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_30",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 7.865150577985615e-06,
+        "pred_signal": "lair_30_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_deepbook_30",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": false,
+        "tgt_decay_agree": 0.004451886126093769,
+        "tgt_decay_denom": 1.91667994963724e-05,
+        "tgt_decay_disagree": 0.9921569108663942,
+        "tgt_signal": "lair_30_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOILder_decay_30",
+        "tick_decay": 0.9935594707930092,
+        "time_decay": 56.859069580961666,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_30_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_deepbook_30",
+        "px_decay": 0.0003513847089366207,
+        "return_price": false,
+        "shadow_decay_frac": 0.7731207996663619,
+        "shadow_frac": 0.9369554644550189,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:BRENTOIL",
+        "sz_decay": 3416.624956324645,
+        "sz_decay_2": 1.0001352849690588,
+        "sz_decay_type": "EXP_NOTIONAL_AND_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 3.955076722920577,
+        "totstren_tdc_s": 1091.237837307144,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_30_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOILder_decay_30",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:BRENTOIL",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.01,
+        "min_tick_decay": 0.9999,
+        "name": "lair_36_xyz:BRENTOIL_DeepBookDerxyz:BRENTOIL_36",
+        "output_sigmoid": false,
+        "output_sigmoid_denom": 0.01,
+        "pred_signal": "lair_36_xyz:BRENTOIL_DeepBookDerxyz:BRENTOIL_deepbook_36",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": true,
+        "tgt_decay_agree": 0.35381274623058334,
+        "tgt_decay_denom": 0.00018827183809968728,
+        "tgt_decay_disagree": 0.9913059165202963,
+        "tgt_signal": "lair_36_xyz:BRENTOIL_DeepBookDerxyz:BRENTOILder_decay_36",
+        "tick_decay": 0.9982512781659417,
+        "time_decay": 1078.7615226483845,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_36_xyz:BRENTOIL_DeepBookDerxyz:BRENTOIL_deepbook_36",
+        "px_decay": 2.2731196272213734e-06,
+        "return_price": true,
+        "shadow_decay_frac": 0.8991599909007116,
+        "shadow_frac": 0.8895544808928325,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:BRENTOIL",
+        "sz_decay": 429788.41283697356,
+        "sz_decay_2": 10,
+        "sz_decay_type": "EXP_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 0.12574966896226344,
+        "totstren_tdc_s": 1548.8302986341328,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_36_xyz:BRENTOIL_DeepBookDerxyz:BRENTOILder_decay_36",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:BRENTOIL",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.01,
+        "min_tick_decay": 0.9999,
+        "name": "lair_39_xyz:BRENTOIL_DeepBookDerxyz:BRENTOIL_39",
+        "output_sigmoid": false,
+        "output_sigmoid_denom": 0.01,
+        "pred_signal": "lair_39_xyz:BRENTOIL_DeepBookDerxyz:BRENTOIL_deepbook_39",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": true,
+        "tgt_decay_agree": 0.681597559644286,
+        "tgt_decay_denom": 0.0033115451958692344,
+        "tgt_decay_disagree": 0.29852171671297745,
+        "tgt_signal": "lair_39_xyz:BRENTOIL_DeepBookDerxyz:BRENTOILder_decay_39",
+        "tick_decay": 0.9508841596516076,
+        "time_decay": 5.035249854080124,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_39_xyz:BRENTOIL_DeepBookDerxyz:BRENTOIL_deepbook_39",
+        "px_decay": 0.00020943637699860157,
+        "return_price": true,
+        "shadow_decay_frac": 0.8581992196107051,
+        "shadow_frac": 0.10777182518083858,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:BRENTOIL",
+        "sz_decay": 1814.359065788248,
+        "sz_decay_2": 10,
+        "sz_decay_type": "EXP_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 7.865609273944892,
+        "totstren_tdc_s": 730.7645506619408,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_39_xyz:BRENTOIL_DeepBookDerxyz:BRENTOILder_decay_39",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:BRENTOIL",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 30,
+        "max_impulse": 0.02,
+        "min_tick_decay": 0.999,
+        "name": "lair_49_xyz:BRENTOIL_AvgTrdDerxyz:BRENTOIL_49",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 1.3317040363404793,
+        "pred_signal": "lair_49_xyz:BRENTOIL_AvgTrdDerxyz:BRENTOIL_avgtrd_49",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": true,
+        "tgt_decay_agree": 0.9195366285729719,
+        "tgt_decay_denom": 0.0001228461150855538,
+        "tgt_decay_disagree": 0.6286225931658401,
+        "tgt_signal": "lair_49_xyz:BRENTOIL_AvgTrdDerxyz:BRENTOIL_der_decay_49",
+        "tick_decay": 0.99,
+        "time_decay": 300,
+        "type": "SigDer"
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "calc_style": "AVG_REL_PRICE",
+        "name": "lair_49_xyz:BRENTOIL_AvgTrdDerxyz:BRENTOIL_avgtrd_49",
+        "ref_signal": "lair_49_xyz:BRENTOIL_AvgTrdDerxyz:BRENTOIL_refpx_49",
+        "return_price": true,
+        "sigformer_tag": "avg_trd",
+        "symbol": "xyz:BRENTOIL",
+        "sz_decay": 112.57074806057811,
+        "sz_decay_type": "EXP_SIZE",
+        "tick_decay": 0.7798152990513547,
+        "time_decay": 0.38923941334232987,
+        "type": "SigTrdPx"
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_49_xyz:BRENTOIL_AvgTrdDerxyz:BRENTOIL_refpx_49",
+        "sigformer_tag": "ref_px",
+        "symbol": "xyz:BRENTOIL",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_49_xyz:BRENTOIL_AvgTrdDerxyz:BRENTOIL_der_decay_49",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:BRENTOIL",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.03,
+        "min_tick_decay": 0.9999,
+        "name": "lair_54_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_54",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.001389002325538419,
+        "pred_signal": "lair_54_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_deepbook_54",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": false,
+        "tgt_decay_agree": 0.9906874415425683,
+        "tgt_decay_denom": 0.016816878009993104,
+        "tgt_decay_disagree": 0.990315921294206,
+        "tgt_signal": "lair_54_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOILder_decay_54",
+        "tick_decay": 0.9997900001901311,
+        "time_decay": 3522.9437131811633,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_54_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOIL_deepbook_54",
+        "px_decay": 5.875226483380024e-05,
+        "return_price": false,
+        "shadow_decay_frac": 0.9639731617289047,
+        "shadow_frac": 0.6353958302704399,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:BRENTOIL",
+        "sz_decay": 15876.201043096182,
+        "sz_decay_2": 33.99968615092389,
+        "sz_decay_type": "EXP_NOTIONAL_AND_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 0.9373124744218714,
+        "totstren_tdc_s": 2260.567751405818,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_54_xyz:BRENTOIL_MondoDeepBookDerxyz:BRENTOILder_decay_54",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:BRENTOIL",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "BinanceSPOT.weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bungee_denom": 0.00015016260094846535,
+        "bungee_mult_frac": 0.11385197981250154,
+        "min_tick_decay": 1,
+        "name": "lair_57_xyz:BRENTOIL_BookImpxyz:BRENTOIL_57",
+        "pred_boost_offset": 0.8773945413209553,
+        "pred_boost_timeconst_s": 235364808.4424882,
+        "pred_decay": 0.9946013236448885,
+        "pred_decay_agree": 0.9938366224661044,
+        "pred_decay_denom": 0.054326389790760675,
+        "px_decay": 1.5978221415869722e-06,
+        "ref_signal": "lair_57_xyz:BRENTOIL_BookImpxyz:BRENTOIL_refpx_57",
+        "sigformer_tag": "top_level_signal",
+        "symbol": "xyz:BRENTOIL",
+        "sz_decay": 0.01624108312124202,
+        "sz_decay_type": "EXP_SIZE",
+        "tick_decay": 0.8578192446697858,
+        "ticker_weight": 0.5,
+        "time_behind_const": 46459.68933608332,
+        "time_decay": 67.04903710903885,
+        "trade_weight": 0.991133184530713,
+        "type": "SigBookImpulse",
+        "update_weight": 0.0258347520421205
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_57_xyz:BRENTOIL_BookImpxyz:BRENTOIL_refpx_57",
+        "sigformer_tag": "ref_px",
+        "symbol": "xyz:BRENTOIL",
+        "type": "SigMid",
+        "use_flagged": true
+      }
+    ]
+  },
+  "ref_signal": {
+    "signals": [
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "ref_XYZ_BRENTOIL",
+        "sigformer_tag": "top_level_signal",
+        "symbol": "xyz:BRENTOIL",
+        "type": "SigMid",
+        "use_flagged": true
+      }
+    ]
+  }
+}

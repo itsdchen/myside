@@ -1,0 +1,7 @@
+BasedOnStyle: LLVM
+PointerAlignment: Left
+ColumnLimit: 100
+InsertNewlineAtEOF: true
+IndentCaseLabels: true
+AccessModifierOffset: -1
+AlwaysBreakTemplateDeclarations: Yes

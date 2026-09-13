@@ -1,0 +1,182 @@
+##################################################
+
+Step by step, how to launch live.
+
+# Change it to ET to make things... easier.
+sudo timedatectl set-timezone America/New_York
+
+# Force cron to restart
+sudo systemctl restart cron
+
+(Make the dirs)
+> mkdir estrader
+> cd estrader
+
+
+mkdir feed gateway
+
+(Add pymultifeed over)
+
+scp strat_main/pyfeed/* TGT:/home/ubuntu/estrader/feed
+scp strat_main/util/symbolizer.py ubuntu@15.204.208.89:/home/ubuntu/estrader/feed
+scp strat_main/util/chron.py  ubuntu@15.204.208.89:/home/ubuntu/estrader/feed
+
+
+cp gateway things over
+scp strat_main/pygateway/* TGT:/home/ubuntu/estrader/gateway
+scp strat_main/util/chron.py TGT:/home/ubuntu/estrader/gateway
+
+
+mkdir feed/util
+mkdir gateway/util
+
+# cp the email things over
+# I know this is not quite right but just we can fix the directory structure later, or just rewrite it.
+scp strat_main/util/email_utils.py TGT:/home/ubuntu/estrader/gateway/util
+scp strat_main/util/email_utils.py TGT:/home/ubuntu/estrader/feed/util
+
+
+(make the nq files)
+mkdir nq
+cd nq
+mkdir main longbreak_btc smallbreak_daily
+
+<For usequities, I think something like this is more complete?>
+mkdir allday_narrow  postusa  postusb  preus  rel_btc_longbreak  rel_nq_allday  usday
+(We have narrow traders, we have pre- and post- periods where we use decayed vwap to determine best price, we
+have TWO postUS sessions (because we restart all our processes at 18:00). And then we have an allday/overnight trader, because
+I would rather us quote relative to NQ than use blueocean data.
+
+
+# longbreak_btc is for the weekend, whereas the longbreak_daily is for the cme stop/start
+
+scp for_live/saved_strats/nq/* ubuntu@15.204.208.89:/home/ubuntu/estrader/nq
+
+mv all the conffiles into their dirs.
+
+
+> cp all the startup scripts
+mkdir launchers
+cp for_live/launchers/* TGT:/home/ubuntu/estrader/launchers/
+
+# fwiw - my remote machines look like they're in UTC time, so I'm going to act as if they're in UTC time for all my scripts.
+Here's how you check:
+timedatectl| g one
+
+( for where the cron things go )
+mkdir logs
+
+
+# cp over the pktrader
+
+scp -i /home/pktrade/aws_pairs/undefined_dchen_1.pem bin/pktrade ubuntu@ec2-43-207-90-163.ap-northeast-1.compute.amazonaws.com:/home/ubuntu/estrader/
+
+
+scp -i /home/pktrade/aws_pairs/undefined_dchen_1.pem strat_main/requirements.txt ubuntu@ec2-43-207-90-163.ap-northeast-1.compute.amazonaws.com:/home/ubuntu/estrader
+pip install -r requirements.txt
+
+===========================================================
+Set up permissions
+
+mkdir .creds
+
+> add hyperliquid creds
+> add databento creds.
+> add supabase creds
+> add polygon creds
+> add gmail creds
+
+e .Hyperliquid.creds.json
+e .DataBento.creds.json
+e .Supabase.creds.json
+e .HyperliquidTest.creds.json
+e .Polygon.creds.json
+e .Gmail.creds.json
+
+===========================================================
+ENABLE COREDUMPS
+(this is kind of tricky. )
+sudo emacs /etc/security/limits.conf
+Add these two lines:
+
+* soft core unlimited
+* hard core unlimited
+
+Test (after restarting session):
+ulimit -c
+
+> Check that this file has this line:
+cat /etc/pam.d/cron
+
+# Sets up user limits, please define limits for cron tasks
+# through /etc/security/limits.conf
+session    required   pam_limits.so
+
+> restart cron so it picks this up.
+sudo systemctl restart cron
+
+> Disable apport and prevent it from reenabling itself
+sudo sed -i "s/enabled=1/enabled=0/" /etc/default/apport
+sudo systemctl stop apport
+sudo systemctl disable apport
+
+> Set up our own core pattern to manage raw coredumps
+sudo tee /etc/sysctl.d/60-coredump.conf >/dev/null <<'EOF'
+kernel.core_pattern=/var/lib/core/core.%e.%p.%h.%t
+kernel.core_uses_pid=1
+EOF
+
+c /etc/sysctl.d/60-coredump.conf
+
+sudo sysctl --system
+
+should check if this says apport anymore:
+> cat /proc/sys/kernel/core_pattern
+/var/lib/core/core.%e.%p.%h.%t
+
+make sure that core dir exists. if not, create it and set permissions.
+> sudo mkdir /var/lib/core
+> sudo chmod 777 /var/lib/core
+
+test it.
+> sleep 10 &
+> kill -SIGSEGV $!
+> ll /var/lib/core/core.sleep.*
+should see your sleep core there.
+
+===========================================================
+SET UP EMAIL (FOR CRON AND CMDLINE)
+
+> Install msmtp etc. (don't enable AppArmor)
+sudo apt install msmtp msmtp-mta mailutils
+scp ~/.msmtprc TGT:~/
+===========================================================
+
+> Test all commandlines.
+
+
+I've tested the multifeed and gateway now.
+Gotta test the instructions for the main processes.
+
+After that, I need to install the actual crontabs.
+
+I'll do this shortly I guess.
+
+Let's test the commandlines now.
+
+Think the commandlines should work.
+Let's do... a pip freeze on the machine to make sure everything goes.
+
+
+Almost done. The commandlines work too.
+
+Let's try all the launch things. I'm going to install the crontabs.
+- And then, let's just make sure that these all work.
+ - I may want to add in contingencies, like checking if they fail, what do we write down.
+
+When installing crontabs, make sure you recognize which launcher you're running - testnet or mainnet.
+
+===================================================================
+Now, start all the commands by hand to try it out.
+
+Next, start it up on cron.

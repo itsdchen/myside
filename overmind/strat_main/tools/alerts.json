@@ -1,0 +1,120 @@
+{
+  // Check if we need to top up isolated margin positions
+  "isolated_margin": [
+    // {
+    //   "thresh": 0.3,
+    //   "min_pos": 10000,
+    //   "email": "pktrade@googlegroups.com",
+    //   "ntfy": "all",
+    //   "pri": "urgent",
+    //   "loop": 60 // re-check every 1min if triggered
+    // },
+    // {
+    //   "thresh": 0.4,
+    //   "email": "pktrade@googlegroups.com",
+    //   "ntfy": "all",
+    //   "pri": "high",
+    //   "loop": 300 // re-check every 5min if triggered
+    // },
+    // {
+    //   "thresh": 0.5,
+    //   "ntfy": "all"
+    // }
+  ],
+
+  // Check if we need to top up overall account margin
+  "cross_margin": [
+    // {
+    //   "thresh": 100000,
+    //   "email": "pktrade@googlegroups.com",
+    //   "ntfy": "all",
+    //   "pri": "high"
+    // },
+    // {
+    //   "thresh": 200000,
+    //   "email": "pktrade@googlegroups.com",
+    //   "ntfy": "all",
+    //   "pri": "default"
+    // }
+    // {
+    //   "thresh": 300000,
+    //   "ntfy": "all",
+    //   "pri": "low"
+    // }
+  ],
+
+  // Check if mark and oracle prices are dislocated
+  "mark_oracle": [
+    {
+      "thresh": 2.0,
+      "ntfy": "all",
+      "rate_limit": 60 // minutes
+    }
+  ],
+
+  // Check if HL is reporting new symbols (must specify at most 1 check)
+  "new_syms": [
+    {
+      "email": "pktrade@googlegroups.com",
+      "ntfy": "all"
+    }
+  ],
+
+  // Check if we have too few orders out for any symbol
+  "min_orders": [
+    // {
+    //   "thresh": 0,
+    //   "ntfy": "all"
+    // }
+  ],
+
+  // Check if we have too many orders out for any symbol
+  "max_orders": [
+    {
+      "thresh": 50,
+      "email": "pktrade@googlegroups.com",
+      "ntfy": "all",
+      "pri": "high"
+    }
+  ],
+
+  // Check if our absolute notional position is too big for any symbol
+  "position": [
+    {
+      "include_syms": ["xyz:XYZ100"],
+      "thresh": 600000,
+      "ntfy": "all",
+      "pri": "high"
+    },
+    {
+      "include_syms": ["xyz:SP500"],
+      "thresh": 500000,
+      "ntfy": "all",
+      "pri": "high"
+    },
+    {
+      "exclude_syms": ["xyz:XYZ100", "xyz:SP500"],
+      "thresh": 300000,
+      "ntfy": "all",
+      "pri": "high"
+    }
+  ],
+
+  // Check if our unrealized pnl is too negative for any symbol
+  "upnl": [
+    {
+      "include_syms": ["xyz:XYZ100"],
+      "thresh": -50000,
+      "ntfy": "all",
+      "pri": "default",
+      "rate_limit": 360
+    },
+    {
+      "exclude_syms": ["xyz:XYZ100"],
+      "thresh": -5000,
+      "ntfy": "all",
+      "pri": "high",
+      "rate_limit": 60
+    }
+  ]
+}

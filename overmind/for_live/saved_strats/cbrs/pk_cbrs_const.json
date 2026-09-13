@@ -1,0 +1,133 @@
+{
+  "settings": {
+    "commissions": {
+      "tiers": {
+        "Hyperliquid": "HIP3_3"
+      },
+      "promo_tier": "Silver",
+      "use_promo": true
+    },
+    "start_t": "18:00:00 America/New_York",
+    "end_t": "17:59:55 America/New_York"
+  },
+  "simulation": {
+    "Hyperliquid": {
+      "cxl_frac_ahead": 0.3,
+      "use_one_way_latency": false,
+      "sim_latency_secs": 1.0
+    }
+  },
+  "pktraders": [
+    {
+      "traded_symbol": "xyz:CBRS",
+      "enabled": true,
+	"size_mult": 0.5,
+      "risk": {
+        "max_notional": 50000,
+        "max_position": "1000",
+        "max_orders": 20,
+        "base_currency": "USDT",
+        "global_inherit": false,
+        "min_pnl": -5000,
+        "fv_limit": 2,
+        "timeout_minfv": 900,
+        // Detect adverse selection from a stale const_pred_px:
+        // score realized PnL per close, widen at -0.6, stop at -0.8.
+        "bleed_detector": {
+          "tdc": 10,
+          "deadzone_thresh": 0.002,
+          "bleed_score_widen": -0.6,
+          "bleed_score_stop": -0.8,
+          "bleed_widen_thresh_mult": 2.0,
+          "bleed_stop_timeout": 1800
+        }
+      },
+      "ordex": {
+        "type": "RelWideMM2",
+        "markets": [
+          "Hyperliquid"
+        ],
+        "trade_caller": "remote_tradecall_tempo_CBRS",
+        "riskfree_rate": 0,
+          // Pre-IPO: no remote/relative leg, use a constant pred_px.
+          // 200 ~= 48B mcap on ~240M shares; update live via SET_CONST_PRED_PX usermsg.
+          "const_pred_px": 200,
+          "max_pos": "1000",
+          "order_size": "10",
+          "tgt_order_notional": 5000,
+          "tgt_maxpos_notional": 50000,
+          "max_back_levels": 8,
+
+	  "front_rung_spacing_mult": 2,
+          "rung_spacing_mult": 4.01,
+          "per_backlevel_rung_spacing_mult": 2,
+          "front_order_random_upper_limit": 1.2,
+          "front_order_random_lower_limit": 0.8,
+          "order_random_upper_limit": 1.2,
+          "order_random_lower_limit": 0.8,
+
+	  "place_back_levels": true,
+	  "restrict_near_book": true,
+
+          "can_cross": false,
+          "cross_thresh": 0.0045,
+          "ms_between_cross": 500,
+          "cross_limit_maxpos_frac": 0.25,
+          "ms_between_place": 50,
+          "ms_between_cxl": 50,
+
+          "local_sig": "local_mid_CBRS",
+          "min_ord_lifetime": 2,
+
+          "premium_ema_coef": 1.0,
+	  "premium_tdc_s": 30,
+
+          "place_thresh": 0.004,
+          "cancel_buffer": 0.35,
+
+          "extra_buy_thresh": 0.0,
+          "extra_sell_thresh": 0.0,
+
+          "curv_impulse_tdc": 240,
+          "curv_impulse_coef": 3,
+
+          "pred_momentum_tdc": 30,
+          "pred_momentum_coef": 0.0,
+
+          "enable_queue_jump": false,
+          "queue_jump_size_mult": 3,
+
+          "mm_gtc": false,
+
+          "ladder_one_sided": false,
+          "per_order_widen_frac": 0.5,
+
+          "print_ords": false,
+          "print_ords_every": 100
+      },
+      "signals": [
+        {
+          "name": "local_mid_CBRS",
+          "type": "SigMid",
+          "symbol": "xyz:CBRS",
+          "books": [
+            "Hyperliquid"
+          ],
+          "use_flagged": true,
+          "sigformer_tag": "top_level_signal"
+        }
+      ],
+      "tempos": [
+        {
+          "name": "remote_tradecall_tempo_CBRS",
+          "type": "FinalTempo",
+          "symbol": "BTC",
+          "markets": [
+            "Hyperliquid"
+          ]
+        }
+      ],
+      "extra_subs": []
+    }
+  ]
+}

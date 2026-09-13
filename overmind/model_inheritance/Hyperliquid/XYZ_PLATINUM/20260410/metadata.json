@@ -1,0 +1,12 @@
+{
+  "built_at": "20260410",
+  "bundle_version": 1,
+  "end_date": "20260409",
+  "quality": "provisional",
+  "score": null,
+  "sha256": "265fae307b6b6111d5aefabd00710c23c5ec8e8f66d448b5d6e2bdb62211db7c",
+  "source_dir": "/home/pktrade/scratch/relwide_autobuild/autobuild_xyz_PLATINUM_20260410/coef_lair",
+  "start_date": "20260310",
+  "symbol": "xyz:PLATINUM",
+  "venue": "Hyperliquid"
+}

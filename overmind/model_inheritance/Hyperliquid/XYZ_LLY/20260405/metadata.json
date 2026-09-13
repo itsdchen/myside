@@ -1,0 +1,12 @@
+{
+  "built_at": "20260405",
+  "bundle_version": 1,
+  "end_date": "20260404",
+  "quality": "provisional",
+  "score": null,
+  "sha256": "fb73b67a10ef3a8c00466bf8251ddb35593bba5d0f4a89d0946885ad745e4476",
+  "source_dir": "/home/pktrade/scratch/relwide_autobuild/autobuild_xyz_LLY_20260405/coef_lair",
+  "start_date": "20260305",
+  "symbol": "xyz:LLY",
+  "venue": "Hyperliquid"
+}

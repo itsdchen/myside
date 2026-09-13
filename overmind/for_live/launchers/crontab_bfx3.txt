@@ -1,0 +1,52 @@
+# Edit this file to introduce tasks to be run by cron.
+#
+# Each task to run has to be defined through a single line
+# indicating with different fields when the task will be run
+# and what command to run for the task
+#
+# To define the time you can provide concrete values for
+# minute (m), hour (h), day of month (dom), month (mon),
+# and day of week (dow) or use '*' in these fields (for 'any').
+#
+# Notice that tasks will be started based on the cron's system
+# daemon's notion of time and timezones.
+#
+# Output of the crontab jobs (including errors) is sent through
+# email to the user the crontab file belongs to (unless redirected).
+#
+# For example, you can run a backup of all your user accounts
+# at 5 a.m every week with:
+# 0 5 * * 1 tar -zcf /var/backups/home.tgz /home/
+#
+# For more information see the manual pages of crontab(5) and cron(8)
+#
+# m h  dom mon dow   command
+
+
+# Send email if anything is sent to stdout/stderr
+MAILTO="pktrade@googlegroups.com"
+
+# Note: run Python scripts directly with the venv's python because each ; separated command starts up its own shell, which means the activate won't actually activate.
+
+# pymultifeed
+0 18 * * * cd /home/ubuntu/estrader/ && /home/ubuntu/.venvs/v1/bin/python feed/pymultifeed.py --conf feed/feed.bfx3.json >> /home/ubuntu/estrader/logs/feed_logs_$(date +\%Y\%m\%d).log
+
+# tmp: for the polygonfx version.
+# Undo this when we merge the full new polygonfx multifeed.
+#0 18 * * * cd /home/ubuntu/estrader/ && /home/ubuntu/.venvs/v1/bin/python feed/pymultifeed_polygonfx.py --conf feed/feed_polygonfx.json >> /home/ubuntu/estrader/logs/feed_logs_$(date +\%Y\%m\%d).log
+
+# Run the daily wsgateway
+# Set the id to be a unique value every time you make a new one.
+0 18 * * * cd /home/ubuntu/estrader/ && /home/ubuntu/.venvs/v1/bin/python gateway/wsgateway.py --market Hyperliquid --creds /home/ubuntu/.creds/.Hyperliquid.creds.json --date TOMORROW --wait_secs 5 --id 8 >> /home/ubuntu/estrader/logs/gw_logs_$(date +\%Y\%m\%d).log
+
+
+# Snapshots
+00 18 * * *  /home/ubuntu/.venvs/v1/bin/python scripts/supabase_snapshots.py >> /home/ubuntu/estrader/logs/snapshot_logs_$(date +\%Y\%m\%d).log
+
+# Trading processes.
+
+# Things that run before real trading starts.
+# exotics so far ==
+# fx, metals. Stuff with pretty long market hours.
+#00 18 * * 0-6 /home/ubuntu/estrader/launchers/run_exotic.sh combined_exotic_bfx3 allday
+#00 18 * * 0-6 /home/ubuntu/estrader/launchers/run_exotic.sh combined_exotic_bfx3 alldaysearch

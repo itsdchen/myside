@@ -1,0 +1,12 @@
+{
+  "built_at": "20260509",
+  "bundle_version": 1,
+  "end_date": "20260508",
+  "quality": "provisional",
+  "score": null,
+  "sha256": "29c42a2c77c7fa25ed9606384f61316acb4c338350107cf6c4d969fedc28e7b6",
+  "source_dir": "/home/pktrade/scratch/relwide_autobuild/autobuild_xyz_URNM_20260509/coef_lair",
+  "start_date": "20260408",
+  "symbol": "xyz:URNM",
+  "venue": "Hyperliquid"
+}

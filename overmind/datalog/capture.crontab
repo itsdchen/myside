@@ -1,0 +1,9 @@
+# Start captures right before midnight each day
+# Note: the date command just returns the formatted date requested.
+58 23 * * * MKT=BinanceFutures ; DATE=$(date +"\%Y\%m\%d" --date="tomorrow") ; ./cron/run-job.sh Capture ./cron/daily-capture.sh $MKT $DATE
+
+# HyperliquidNodeV1 — two parallel cron entries, one per ZMQ PUB stream
+# (books on :5555, fills on :5556). Each captures into its own pb.gz file
+# and uploads independently; postproc waits for both done markers.
+58 23 * * * DATE=$(date +"\%Y\%m\%d" --date="tomorrow") ; ./cron/run-job.sh Capture_HLNode_books ./cron/daily-capture-hlnode.sh $DATE books
+58 23 * * * DATE=$(date +"\%Y\%m\%d" --date="tomorrow") ; ./cron/run-job.sh Capture_HLNode_fills ./cron/daily-capture-hlnode.sh $DATE fills

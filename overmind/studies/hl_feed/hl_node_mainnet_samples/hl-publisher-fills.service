@@ -1,0 +1,30 @@
+[Unit]
+Description=Hyperliquid fills publisher (hl_node_publisher --tail-fills-dir)
+After=network-online.target hl-visor.service
+Wants=network-online.target
+
+StartLimitIntervalSec=600
+StartLimitBurst=10
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu
+# C++ publisher (see hl-publisher-books.service note).
+ExecStart=/home/ubuntu/hl_node_publisher_cpp \
+  --tail-fills-dir /home/ubuntu/hl/data/node_fills_streaming/hourly \
+  --poll-interval 0.005 \
+  --endpoint tcp://0.0.0.0:5556 \
+  -v
+Restart=on-failure
+RestartSec=10s
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=hl-publisher-fills
+KillSignal=SIGINT
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

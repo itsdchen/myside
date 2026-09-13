@@ -1,0 +1,37 @@
+{
+  "signals": [
+    {
+      "name": "a_name",
+      "type": "SigDeepBook",
+      "symbol": "BTCUSDT",
+      "books": ["BinanceSPOT"],
+      "BinanceSPOT.Weight": 1,
+
+      "px_decay": 0.01,
+      "min_px_weight": 1e-10,
+      "max_pct_away": 0.02,
+      "insides_before_recalc": 30,
+      "ignore_recalc_thresh_mult": 0.7,
+
+      "sz_decay_type": "EXP_SIZE",
+      "sz_decay": 20000,
+      "sz_decay_2": 10,
+
+      "bounding_val": 1.0,
+      "return_price": false,
+      "use_flagged": false,
+
+      "use_shadow": false,
+      "shadow_frac": 0,
+      "shadow_decay_frac": 0.9,
+
+      "totstren_ema_bound": 8,
+      "totstren_tdc_s": 1000,
+      "totstren_ema_power": 2,
+
+      "calc_style": "DIFF_RATIO",
+      "sigformer_tag": "top_level_signal"
+
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "settings": {
+    "commissions": {
+      "tiers": {
+        "Hyperliquid": "HIP3_3"
+      },
+      "promo_tier": "Silver",
+      "use_promo": true
+    },
+    "start_t": "18:00:00 America/New_York",
+    "end_t": "17:59:55 America/New_York"
+  },
+  "simulation": {
+    "Hyperliquid": {
+      "cxl_frac_ahead": 0.3,
+      "use_one_way_latency": false,
+      "sim_latency_secs": 1.0
+    }
+  },
+  "pktraders": [
+    {
+	"traded_symbol": "xyz:TSLA",
+	"enabled": true,
+	"size_mult": 1,
+	"risk": {
+            "max_notional": 100000,
+            "max_position": "50",
+            "max_orders": 20,
+            "base_currency": "USDT",
+            "global_inherit": false,
+            "min_pnl": -1000,
+            "fv_limit": 2,
+            "timeout_minfv": 900
+	},
+	"ordex": {
+            "type": "RelWideMM2",
+            "markets": ["Hyperliquid"],
+            "trade_caller": "remote_tradecall_tempo_tsla",
+
+            "riskfree_rate": 0,
+
+            "max_pos": "50",
+            "order_size": "5",
+
+
+            "max_back_levels": 5,
+            "rung_spacing_mult": 2,
+            "per_backlevel_rung_spacing_mult": 2.0,
+
+            "front_order_random_upper_limit": 1.2,
+            "front_order_random_lower_limit": 0.8,
+
+            "order_random_upper_limit": 1.2,
+            "order_random_lower_limit": 0.8,
+
+            "can_cross": false,
+            "cross_thresh": 0.0045,
+            "ms_between_cross": 500,
+            "cross_limit_maxpos_frac": 0.25,
+
+            "ms_between_place": 50,
+            "ms_between_cxl": 50,
+
+            "local_sig": "local_mid_tsla",
+            "remote_sig": "remote_mid_tsla",
+
+            "relative_sig": "rel_mid_tsla",
+            "snapshot_interval_s": 60,
+            "relative_beta": 0.49,
+            "beta_uncertainty_coef": 0.5,
+
+            "last_perm_snapshot_rel_px.old": 107634,
+            "last_perm_snapshot_remote_px.old": 6283,
+
+            "min_ord_lifetime": 1,
+
+            "premium_ema_coef": 0.8,
+
+            "place_thresh": 0.0004,
+            "cancel_buffer": 0.35,
+
+            "extra_buy_thresh": 0.0000,
+            "extra_sell_thresh": 0.0000,
+
+            "curv_impulse_tdc": 240,
+            "curv_impulse_coef": 0,
+
+            "pred_momentum_tdc": 30,
+            "pred_momentum_coef": 0.0,
+
+            "enable_queue_jump": false,
+            "queue_jump_size_mult": 3,
+
+            "equity_off_hour_vwap": false,
+
+            "mm_gtc": false,
+
+            "ladder_one_sided": false,
+            "per_order_widen_frac": 0.20,
+
+            "print_ords": false,
+            "print_ords_every": 100
+	},
+      "signals": [
+        {
+          "name": "local_mid_tsla",
+          "type": "SigMid",
+            "symbol": "xyz:TSLA",
+          "books": ["Hyperliquid"],
+          "use_flagged": true,
+          "sigformer_tag": "top_level_signal"
+        },
+        {
+          "name": "rel_mid_tsla",
+          "type": "SigMid",
+          "symbol": "BTC",
+          "books": ["Hyperliquid"],
+          "use_flagged": true,
+          "sigformer_tag": "top_level_signal"
+        },
+
+        {
+          "name": "remote_mid_tsla",
+          "type": "SigQuoteMid",
+          "symbol": "TSLA",
+          "books": ["TopBookEquity"],
+          "use_flagged": true,
+          "sigformer_tag": "top_level_signal"
+        }
+      ],
+      "tempos": [
+        {
+          "name": "remote_tradecall_tempo_tsla",
+          "type": "FinalTempo",
+          "symbol": "BTC",
+          "markets": ["Hyperliquid"]
+        }
+      ],
+      "extra_subs": []
+    }
+  ]
+}

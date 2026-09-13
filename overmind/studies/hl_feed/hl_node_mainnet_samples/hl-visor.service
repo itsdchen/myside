@@ -1,0 +1,24 @@
+[Unit]
+Description=Hyperliquid non-validating node (via hl-visor)
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=600
+StartLimitBurst=10
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu
+ExecStart=/home/ubuntu/hl-visor run-non-validator --serve-info --write-fills --write-raw-book-diffs --write-hip3-oracle-updates --stream-with-block-info --disable-output-file-buffering
+Restart=on-failure
+RestartSec=10s
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=hl-visor
+KillSignal=SIGINT
+TimeoutStopSec=60
+
+[Install]
+WantedBy=multi-user.target

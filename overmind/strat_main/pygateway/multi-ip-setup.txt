@@ -1,0 +1,330 @@
+Multi-IP Setup for wsgateway.py (AWS Console version)
+=====================================================
+
+Goal: Give the EC2 instance N private IPs, each with its own Elastic IP,
+so each WS connection exits to the internet from a different public IP.
+
+Prerequisite: Instance must be in a public subnet (with an Internet Gateway
+route). NAT Gateway won't work -- it maps all source IPs to a single public IP.
+
+All AWS steps below are done in the web console -- no CLI needed.
+
+
+================================================================================
+Step 1: Check your instance's IP limit
+================================================================================
+
+Different instance types support different numbers of IPs per network
+interface. You need to know your limit before adding IPs.
+
+  1. Log into the AWS Console for the correct org
+     - Make sure you're in the right account! Check the account name/ID
+       in the top-right corner of the console.
+
+  2. Go to EC2 > Instances
+     - Find your instance
+     - Note the "Instance type" (e.g. m5.xlarge)
+
+  3. Go to EC2 > Instance Types (left sidebar, under "Instances")
+     - Search for your instance type
+     - Click on it
+     - Under the "Networking" tab, find "IPv4 addresses per interface"
+
+  Common values:
+    t3.micro      = 2   (only 1 secondary -- probably too few)
+    t3.medium     = 6
+    m5.large      = 10
+    m5.xlarge     = 15
+    m5.2xlarge    = 15
+    c5.xlarge     = 15
+
+  The number includes your primary IP. So if it says 15, you can add
+  up to 14 secondary IPs.
+
+  If your instance only supports 2, you'll need to upgrade the instance
+  type first.
+
+
+================================================================================
+Step 2: Note your instance's primary private IP and subnet
+================================================================================
+
+  1. Go to EC2 > Instances > click on your instance
+
+  2. In the "Details" tab at the bottom, note:
+     - Instance ID          (e.g. i-0abc123def456789)
+     - Private IPv4 address (e.g. 10.0.1.10)  -- this is your primary IP
+     - Subnet ID            (e.g. subnet-0abc...)
+     - Availability Zone    (e.g. us-east-1a)
+
+  3. Confirm it's in a public subnet:
+     - If you launched the instance with default settings and it has a
+       public IP you can SSH to, you're fine -- it's in a public subnet.
+     - This is only a concern if someone set up a custom VPC with private
+       subnets behind a NAT Gateway. If you didn't do that, you don't
+       have that problem.
+     - (If you do need to check: search "VPC" in the top search bar >
+       Subnets > click your subnet > Route table tab > the 0.0.0.0/0
+       route should point to an igw-..., not a nat-...)
+
+
+================================================================================
+Step 3: Assign secondary private IPs to the instance
+================================================================================
+
+This adds extra private IPs to your instance's network interface. These
+are free -- no charge for private IPs.
+
+  1. Go to EC2 > Instances > click on your instance
+
+  2. Go to the "Networking" tab at the bottom
+
+  3. Under "Network interfaces", click the ENI link (eni-...)
+     - This takes you to the Network Interfaces page
+
+  4. Select the ENI > Actions > "Manage IP addresses"
+
+  5. Under "IPv4 addresses", click "Assign new IP address"
+     - Do this once for each extra WS connection you want
+     - e.g. click it twice if you want 3 total connections (1 primary + 2 new)
+     - You can leave the IP field blank to let AWS auto-assign, or type
+       a specific IP from your subnet's range
+
+  6. Click "Save"
+
+  7. Note the new private IPs that were assigned (e.g. 10.0.1.47, 10.0.1.123)
+
+
+================================================================================
+Step 4: Allocate Elastic IPs (these cost money)
+================================================================================
+
+Each Elastic IP is a static public IPv4 address. You need one per
+secondary private IP so that each WS connection exits from a different
+public IP.
+
+Pricing (as of 2025):
+  - $0.005/hour per public IPv4 address = ~$3.60/month each
+  - This applies whether the EIP is in use or not
+  - Your primary IP also costs $0.005/hr (since Feb 2024, AWS charges
+    for ALL public IPv4)
+  - So 2 extra EIPs = ~$7.20/month extra
+
+To allocate:
+
+  1. Go to EC2 > Elastic IPs (left sidebar, under "Network & Security")
+
+  2. Click "Allocate Elastic IP address"
+
+  3. Settings:
+     - Network border group: leave as default (matches your region)
+     - Public IPv4 address pool: "Amazon's pool of IPv4 addresses"
+     - Leave everything else default
+
+  4. Click "Allocate"
+
+  5. You now have a new EIP (e.g. 54.x.x.x). To name it for easy
+     identification:
+     - Click on the new EIP's allocation ID
+     - Click the "Tags" tab
+     - Click "Manage tags"
+     - Add a tag:  Key = "Name",  Value = "wsgateway-ip-2" (or whatever)
+     - Click "Save"
+
+  6. Repeat steps 2-5 for each secondary IP you need.
+
+  Suggested naming:
+    - wsgateway-ip-1  (for the first secondary)
+    - wsgateway-ip-2  (for the second secondary)
+    - etc.
+
+  Your primary IP probably already has an EIP (or uses the auto-assigned
+  public IP). You don't need to allocate one for the primary.
+
+
+================================================================================
+Step 5: Associate each EIP with a secondary private IP
+================================================================================
+
+  1. Go to EC2 > Elastic IPs
+
+  2. Select the first new EIP > Actions > "Associate Elastic IP address"
+
+  3. Settings:
+     - Resource type: "Network interface"
+     - Network interface: select your instance's ENI (eni-...)
+       (start typing the ENI ID to find it)
+     - Private IP address: from the dropdown, pick the first secondary
+       private IP (e.g. 10.0.1.47)
+       IMPORTANT: make sure you pick a SECONDARY IP, not the primary.
+       The dropdown will show all IPs on the ENI.
+
+  4. Click "Associate"
+
+  5. Repeat for each remaining EIP + secondary private IP pair.
+
+  When done, go back to EC2 > Elastic IPs. You should see each EIP
+  associated with a different private IP on the same ENI:
+
+    Name              Public IP     Private IP    Instance
+    ----              ---------     ----------    --------
+    (primary)         52.x.x.x     10.0.1.10     i-0abc...
+    wsgateway-ip-1    54.x.x.x     10.0.1.47     i-0abc...
+    wsgateway-ip-2    54.y.y.y     10.0.1.123    i-0abc...
+
+
+================================================================================
+Step 6: Configure the OS to use the secondary IPs
+================================================================================
+
+SSH into the instance. The secondary private IPs are assigned at the AWS
+level but the OS doesn't automatically know about them.
+
+6a. Check what the OS currently sees
+-------------------------------------
+
+  # First, find the interface name (it's NOT always eth0 -- could be ens5, enX0, etc.)
+  ip -brief addr show
+  # Look for the interface that has your primary private IP. e.g.:
+  #   ens5   UP   172.31.43.103/20 ...
+
+  # Then use that interface name:
+  ip addr show ens5
+
+You should see your primary IP (e.g. 10.0.1.10) but NOT the secondary
+IPs yet.
+
+6b. Find the subnet prefix length
+-----------------------------------
+
+Look at the existing IP entry from the output above. It will say something
+like:
+
+  inet 10.0.1.10/24 brd 10.0.1.255 scope global ...
+
+The /24 is your prefix length. Use this same value below.
+
+6c. Add the secondary IPs
+--------------------------
+
+  sudo ip addr add 10.0.1.47/24 dev ens5
+  sudo ip addr add 10.0.1.123/24 dev ens5
+
+(Replace IPs and /24 with your actual values.)
+
+6d. Verify
+----------
+
+  ip addr show ens5
+
+You should now see all three IPs listed under ens5.
+
+6e. Test outbound connectivity from each IP
+--------------------------------------------
+
+  curl --interface 10.0.1.10 https://api.hyperliquid.xyz/info \
+    -X POST -H "Content-Type: application/json" -d '{"type":"meta"}' \
+    -s | head -c 200
+
+  curl --interface 10.0.1.47 https://api.hyperliquid.xyz/info \
+    -X POST -H "Content-Type: application/json" -d '{"type":"meta"}' \
+    -s | head -c 200
+
+  curl --interface 10.0.1.123 https://api.hyperliquid.xyz/info \
+    -X POST -H "Content-Type: application/json" -d '{"type":"meta"}' \
+    -s | head -c 200
+
+All three should return JSON. If one hangs or times out:
+  - Check that the EIP is correctly associated (Step 5)
+  - Check that the OS has the IP (ip addr show ens5)
+  - Check that the subnet routes 0.0.0.0/0 to an IGW not a NAT
+
+
+ Check that I am seeing the different ip addresses: 
+ 
+  ubuntu@gf0: ~  $ curl -s --connect-timeout 5 http://checkip.amazonaws.com
+  3.112.22.158
+
+  ubuntu@gf0: ~  $ curl -s --interface 172.31.35.93 --connect-timeout 5 http://checkip.amazonaws.com
+  13.159.159.156
+
+
+6f. Make secondary IPs persist across reboots
+----------------------------------------------
+
+The ip addr add commands are lost on reboot. To make them permanent:
+
+For Ubuntu/Debian with netplan (most modern Ubuntu AMIs):
+
+  sudo nano /etc/netplan/51-secondary-ips.yaml
+
+  Contents:
+
+    network:
+      version: 2
+      ethernets:
+        ens5:
+          addresses:
+            - 10.0.1.47/24
+            - 10.0.1.123/24
+
+  Then apply:
+
+    sudo netplan apply
+
+For Amazon Linux 2 (uses network-scripts):
+
+  sudo tee /etc/sysconfig/network-scripts/ifcfg-ens5:1 <<EOF
+  DEVICE=ens5:1
+  BOOTPROTO=static
+  IPADDR=10.0.1.47
+  PREFIX=24
+  ONPARENT=yes
+  EOF
+
+  sudo tee /etc/sysconfig/network-scripts/ifcfg-ens5:2 <<EOF
+  DEVICE=ens5:2
+  BOOTPROTO=static
+  IPADDR=10.0.1.123
+  PREFIX=24
+  ONPARENT=yes
+  EOF
+
+  sudo systemctl restart network
+
+
+================================================================================
+Step 7: Run the gateway
+================================================================================
+
+  ./wsgateway.py --market Hyperliquid --id 0 \
+    --local-ips 10.0.1.10,10.0.1.47,10.0.1.123
+
+Logs should show:
+
+  WS conn 0 connected at wss://api.hyperliquid.xyz/ws (local_ip=10.0.1.10)
+  WS conn 1 connected at wss://api.hyperliquid.xyz/ws (local_ip=10.0.1.47)
+  WS conn 2 connected at wss://api.hyperliquid.xyz/ws (local_ip=10.0.1.123)
+  All 3 WS connection(s) open
+
+
+================================================================================
+Cleanup / teardown (if you want to remove the extra IPs later)
+================================================================================
+
+All via console:
+
+  1. EC2 > Elastic IPs > select an EIP > Actions > "Disassociate Elastic
+     IP address" > Disassociate
+
+  2. EC2 > Elastic IPs > select the now-unassociated EIP > Actions >
+     "Release Elastic IP address" > Release
+     (This stops billing for that EIP)
+
+  3. EC2 > Network Interfaces > select your ENI > Actions > "Manage IP
+     addresses" > click the X next to each secondary IP > Save
+
+  4. On the instance, remove from OS:
+       sudo ip addr del 10.0.1.47/24 dev ens5
+       sudo ip addr del 10.0.1.123/24 dev ens5
+     And remove the netplan/network-scripts config from Step 6f.

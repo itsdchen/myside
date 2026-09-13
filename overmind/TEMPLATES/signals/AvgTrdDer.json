@@ -1,0 +1,58 @@
+{
+  "signals": [
+    {
+      "name": "a_name",
+      "type": "SigDer",
+
+      "pred_signal": "child_deepbook",
+      "tgt_signal": "der_decay_signal",
+
+      "take_pred_returns": false,
+      "defer_decay": false,
+      "max_impulse": 0.1,
+      "max_bound_mult": 30,
+      
+      "time_decay": 20,
+      "tick_decay": 0.87,
+      "min_tick_decay": 0.999,
+      "tgt_decay_agree": 0.6,
+      "tgt_decay_disagree": 0.88,
+      "tgt_decay_denom": -1,
+      "sigformer_tag": "top_level_signal"
+    },
+    {
+      "name": "a_name",
+      "type": "SigTrdPx",
+      "symbol": "BTCUSDT",
+      "books": ["BinanceSPOT"],
+
+      "time_decay": 20,
+      "tick_decay": 0.922,
+      "sz_decay": 18,
+      "sz_decay_type": "EXP_SIZE",
+      "calc_style": "AVG_PX",
+      "return_price": false,
+      "ref_signal": "some_signal",
+      "sigformer_tag": "avg_trd"
+    },
+
+    {
+      "name": "trdpx_tgt_signal",
+      "type": "SigMid",
+      "symbol": "BTCUSDT",
+      "books": ["BinanceSPOT"],
+      "use_flagged": false,
+      "sigformer_tag": "ref_px"
+    },
+
+    {
+      "name": "der_decay_signal",
+      "type": "SigMid",
+      "symbol": "BTCUSDT",
+      "books": ["BinanceSPOT"],
+      "use_flagged": false,
+      "sigformer_tag": "der_decay_signal"
+    }
+
+  ]
+}

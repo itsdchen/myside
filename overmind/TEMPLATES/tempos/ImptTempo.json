@@ -1,0 +1,17 @@
+{
+    "tempos": [
+        {
+            "name": "a_name",
+            "type": "ImptTempo",
+            "symbol": "BTCUSDT",
+            "markets": [
+                "BinanceSPOT"
+            ],
+            "enable_time_aspect": false,
+            "do_bunch_check": false,
+            "trigger_inside_widen": true,
+            "trigger_inside_narrow": false,
+            "wmid_diff_thresh": 0.1
+        }
+    ]
+}

@@ -1,0 +1,105 @@
+2026-04-09 11:44:49,622 - Bound to ipc:///tmp/feed-sock
+2026-04-09 11:44:49,622 - Polygon US Equity session: 2026-04-09 04:00:00-04:00 to 2026-04-09 20:00:00-04:00
+2026-04-09 11:44:49,630 - Polygon US Equity session: 2026-04-10 04:00:00-04:00 to 2026-04-10 20:00:00-04:00
+2026-04-09 11:44:49,630 - US Equity session: 2026-04-09 04:00:00-04:00 to 2026-04-09 20:00:00-04:00
+2026-04-09 11:44:49,630 - US Equity session: 2026-04-10 04:00:00-04:00 to 2026-04-10 20:00:00-04:00
+2026-04-09 11:44:49,630 - Adding CME sym NIYM6 weight 1.0
+2026-04-09 11:44:49,630 - CME: Generated 3 session intervals
+2026-04-09 11:44:49,630 - PolygonFX session : 2026-04-09 00:00:00-04:00 to 2026-04-10 00:00:00-04:00
+2026-04-09 11:44:49,631 - KRX session: 2026-04-09 09:00:00+09:00 to 2026-04-09 15:30:00+09:00
+2026-04-09 11:44:49,631 - KRX session: 2026-04-10 09:00:00+09:00 to 2026-04-10 15:30:00+09:00
+2026-04-09 11:44:49,631 - KRX NXT session: 2026-04-09 08:00:00+09:00 to 2026-04-09 20:00:00+09:00
+2026-04-09 11:44:49,631 - KRX NXT session: 2026-04-10 08:00:00+09:00 to 2026-04-10 20:00:00+09:00
+2026-04-09 11:44:49,631 - KRX futures session: 2026-04-09 09:00:00+09:00 to 2026-04-09 15:45:00+09:00, 2026-04-09 18:00:00+09:00 to 2026-04-10 05:00:00+09:00
+2026-04-09 11:44:49,631 - KRX futures session: 2026-04-10 09:00:00+09:00 to 2026-04-10 15:45:00+09:00, 2026-04-10 18:00:00+09:00 to 2026-04-11 05:00:00+09:00
+2026-04-09 11:44:49,631 - JPX session: 2026-04-09 09:00:00+09:00 to 2026-04-09 15:30:00+09:00
+2026-04-09 11:44:49,631 - JPX session: 2026-04-10 09:00:00+09:00 to 2026-04-10 15:30:00+09:00
+2026-04-09 11:44:49,631 - Refinitiv: 9 symbols, calendars=['krx_futures', 'krx_equities', 'krx_nxt_equities', 'jpx_equities'], 10 total session intervals, fx_currencies=['KRW']
+2026-04-09 11:44:49,654 - Not subscribing to DataBento EQ, returning
+2026-04-09 11:44:49,654 - DatabentoCME - connecting to ['NIYM6']
+2026-04-09 11:44:50,344 - Not subscribing to Polygon EQ, returning
+2026-04-09 11:44:50,344 - Not subscribing to PolygonFX, returning
+2026-04-09 11:44:50,344 - Not subscribing to Pyth, returning
+2026-04-09 11:44:50,477 - DataBento CME heartbeat monitor active (timeout=60s, check=60s)
+2026-04-09 11:44:50,520 - CME SymbolMapping: NIYM6 -> 1106
+2026-04-09 11:44:50,520 - CME System subscription confirmed: SystemMsg(rtype=<RType.SYSTEM: 23>, publisher_id=0, instrument_id=0, ts_event=1775749333774022205, pretty_ts_event='2026-04-09T15:42:13.774022205Z', msg='Subscription request 0 for mbp-1 data succeeded', code=<SystemCode.SUBSCRIPTION_ACK: 1>)
+2026-04-09 11:44:50,690 - 1775749490.690148: CME NIYM6 msgtime 1775749333933 tot_delay_ms 156756 recv_delay_ms 156756 ts_out_delay_ms 156737 queue_len 0
+2026-04-09 11:44:50,690 - CME NIY (NIYM6) bid=56525.0 ask=56535.0
+2026-04-09 11:44:50,800 - Refinitiv auth token obtained, expires_in=7199s
+2026-04-09 11:44:50,836 - Hyperliquid websocket connected at wss://api.hyperliquid.xyz/ws
+2026-04-09 11:44:50,836 - Hyperliquid syms: ['BTC', 'xyz:SKHX', 'xyz:SMSN', 'xyz:HYUNDAI', 'xyz:KR200', 'xyz:JP225']
+2026-04-09 11:44:50,985 - 1775749490.985416: CME NIYM6 msgtime 1775749334176 tot_delay_ms 156809 recv_delay_ms 156809 ts_out_delay_ms 156737 queue_len 2
+2026-04-09 11:44:50,985 - CME NIY (NIYM6) bid=56530.0 ask=56540.0
+2026-04-09 11:44:51,012 - {'channel': 'subscriptionResponse', 'data': {'method': 'subscribe', 'subscription': {'type': 'l2Book', 'coin': 'BTC', 'nSigFigs': None, 'mantissa': None}}}
+2026-04-09 11:44:51,023 - {'channel': 'subscriptionResponse', 'data': {'method': 'subscribe', 'subscription': {'type': 'trades', 'coin': 'BTC'}}}
+2026-04-09 11:44:51,039 - 1775749491.0394886: CME NIYM6 msgtime 1775749334238 tot_delay_ms 156801 recv_delay_ms 156801 ts_out_delay_ms 156740 queue_len 0
+2026-04-09 11:44:51,039 - CME NIY (NIYM6) bid=56530.0 ask=56540.0
+2026-04-09 11:44:51,060 - 1775749491.0603364: CME NIYM6 msgtime 1775749334292 tot_delay_ms 156768 recv_delay_ms 156768 ts_out_delay_ms 156739 queue_len 0
+2026-04-09 11:44:51,060 - CME NIY (NIYM6) bid=56525.0 ask=56540.0
+2026-04-09 11:44:51,157 - {'channel': 'subscriptionResponse', 'data': {'method': 'subscribe', 'subscription': {'type': 'l2Book', 'coin': 'xyz:SKHX', 'nSigFigs': None, 'mantissa': None}}}
+2026-04-09 11:44:51,160 - {'channel': 'subscriptionResponse', 'data': {'method': 'subscribe', 'subscription': {'type': 'trades', 'coin': 'xyz:SKHX'}}}
+2026-04-09 11:44:51,164 - {'channel': 'subscriptionResponse', 'data': {'method': 'subscribe', 'subscription': {'type': 'l2Book', 'coin': 'xyz:SMSN', 'nSigFigs': None, 'mantissa': None}}}
+2026-04-09 11:44:51,173 - {'channel': 'subscriptionResponse', 'data': {'method': 'subscribe', 'subscription': {'type': 'trades', 'coin': 'xyz:SMSN'}}}
+2026-04-09 11:44:51,173 - {'channel': 'subscriptionResponse', 'data': {'method': 'subscribe', 'subscription': {'type': 'l2Book', 'coin': 'xyz:HYUNDAI', 'nSigFigs': None, 'mantissa': None}}}
+2026-04-09 11:44:51,174 - {'channel': 'subscriptionResponse', 'data': {'method': 'subscribe', 'subscription': {'type': 'trades', 'coin': 'xyz:HYUNDAI'}}}
+2026-04-09 11:44:51,308 - {'channel': 'subscriptionResponse', 'data': {'method': 'subscribe', 'subscription': {'type': 'l2Book', 'coin': 'xyz:KR200', 'nSigFigs': None, 'mantissa': None}}}
+2026-04-09 11:44:51,308 - {'channel': 'subscriptionResponse', 'data': {'method': 'subscribe', 'subscription': {'type': 'trades', 'coin': 'xyz:KR200'}}}
+2026-04-09 11:44:51,309 - {'channel': 'subscriptionResponse', 'data': {'method': 'subscribe', 'subscription': {'type': 'l2Book', 'coin': 'xyz:JP225', 'nSigFigs': None, 'mantissa': None}}}
+2026-04-09 11:44:51,309 - {'channel': 'subscriptionResponse', 'data': {'method': 'subscribe', 'subscription': {'type': 'trades', 'coin': 'xyz:JP225'}}}
+2026-04-09 11:44:51,450 - Refinitiv discovered endpoint: ap-northeast-1-aws-1-sm.optimized-pricing-api.refinitiv.net:443
+2026-04-09 11:44:51,451 - Refinitiv connecting to wss://ap-northeast-1-aws-1-sm.optimized-pricing-api.refinitiv.net:443/WebSocket
+2026-04-09 11:44:51,611 - 1775749491.6117418: CME NIYM6 msgtime 1775749334874 tot_delay_ms 156737 recv_delay_ms 156736 ts_out_delay_ms 156735 queue_len 0
+2026-04-09 11:44:51,611 - CME NIY (NIYM6) bid=56530.0 ask=56540.0
+2026-04-09 11:44:51,763 - 1775749491.7639458: CME NIYM6 msgtime 1775749335029 tot_delay_ms 156734 recv_delay_ms 156734 ts_out_delay_ms 156733 queue_len 0
+2026-04-09 11:44:51,764 - CME NIY (NIYM6) bid=56530.0 ask=56540.0
+2026-04-09 11:44:51,926 - 1775749491.9268408: CME NIYM6 msgtime 1775749335192 tot_delay_ms 156734 recv_delay_ms 156734 ts_out_delay_ms 156734 queue_len 0
+2026-04-09 11:44:51,927 - CME NIY (NIYM6) bid=56525.0 ask=56540.0
+2026-04-09 11:44:52,098 - Refinitiv FX conversion task started for: {'KRW'}
+2026-04-09 11:44:52,098 - Refinitiv login request sent
+2026-04-09 11:44:52,099 - Refinitiv heartbeat monitor active (timeout=60s, check=30.0s)
+2026-04-09 11:44:52,179 - Refinitiv FX: subscribed to Pyth feeds for ['KRW']
+2026-04-09 11:44:52,319 - 1775749492.3191829: CME NIYM6 msgtime 1775749335575 tot_delay_ms 156744 recv_delay_ms 156744 ts_out_delay_ms 156744 queue_len 0
+2026-04-09 11:44:52,319 - CME NIY (NIYM6) bid=56525.0 ask=56535.0
+2026-04-09 11:44:52,412 - 1775749492.412413: CME NIYM6 msgtime 1775749335664 tot_delay_ms 156748 recv_delay_ms 156748 ts_out_delay_ms 156748 queue_len 0
+2026-04-09 11:44:52,412 - CME NIY (NIYM6) bid=56525.0 ask=56535.0
+2026-04-09 11:44:52,464 - 1775749492.4640925: CME NIYM6 msgtime 1775749335709 tot_delay_ms 156754 recv_delay_ms 156754 ts_out_delay_ms 156754 queue_len 0
+2026-04-09 11:44:52,464 - CME NIY (NIYM6) bid=56525.0 ask=56535.0
+2026-04-09 11:44:52,592 - 1775749492.592292: CME NIYM6 msgtime 1775749335838 tot_delay_ms 156754 recv_delay_ms 156753 ts_out_delay_ms 156753 queue_len 0
+2026-04-09 11:44:52,592 - CME NIY (NIYM6) bid=56525.0 ask=56535.0
+2026-04-09 11:44:52,642 - Refinitiv FX: KRW/USD rate=1473.8306600000
+2026-04-09 11:44:52,695 - 1775749492.6956964: CME NIYM6 msgtime 1775749335921 tot_delay_ms 156774 recv_delay_ms 156773 ts_out_delay_ms 156743 queue_len 0
+2026-04-09 11:44:52,695 - CME NIY (NIYM6) bid=56525.0 ask=56535.0
+2026-04-09 11:44:52,733 - Refinitiv login OK: {'Stream': 'Open', 'Data': 'Ok', 'Text': 'Login accepted by host ads-fanout-sm-az1-apne1-prd.'}
+2026-04-09 11:44:52,733 - Refinitiv subscribed to 9 RICs: ['005930.KS', '005930.KNT', '000660.KS', '000660.KNT', '005380.KS', '005380.KNT', '.KS200', 'KSM6', '.N225']
+2026-04-09 11:44:52,920 - Refinitiv status: ? {'Stream': 'Closed', 'Data': 'Ok', 'Text': 'Processed 9 total items from Batch Request.  9 Ok.'}
+2026-04-09 11:44:52,926 - Refinitiv KS (RIC=KSM6, cal=krx_futures) bid=881.6 ask=881.85
+2026-04-09 11:44:53,066 - 1775749493.0663784: CME NIYM6 msgtime 1775749336329 tot_delay_ms 156737 recv_delay_ms 156737 ts_out_delay_ms 156737 queue_len 0
+2026-04-09 11:44:53,066 - CME NIY (NIYM6) bid=56525.0 ask=56535.0
+2026-04-09 11:44:53,257 - 1775749493.2570598: CME NIYM6 msgtime 1775749336445 tot_delay_ms 156811 recv_delay_ms 156869 ts_out_delay_ms 156737 queue_len 4
+2026-04-09 11:44:53,257 - CME NIY (NIYM6) bid=56525.0 ask=56535.0
+2026-04-09 11:44:53,281 - 1775749493.2812564: CME NIYM6 msgtime 1775749336532 tot_delay_ms 156749 recv_delay_ms 156748 ts_out_delay_ms 156735 queue_len 0
+2026-04-09 11:44:53,281 - CME NIY (NIYM6) bid=56525.0 ask=56535.0
+2026-04-09 11:44:53,467 - 1775749493.4669785: CME NIYM6 msgtime 1775749336654 tot_delay_ms 156812 recv_delay_ms 156811 ts_out_delay_ms 156736 queue_len 4
+2026-04-09 11:44:53,467 - CME NIY (NIYM6) bid=56525.0 ask=56535.0
+2026-04-09 11:44:53,544 - Refinitiv KS (RIC=KSM6, cal=krx_futures) bid=881.55 ask=881.8
+2026-04-09 11:44:53,570 - 1775749493.5704465: CME NIYM6 msgtime 1775749336750 tot_delay_ms 156820 recv_delay_ms 156820 ts_out_delay_ms 156739 queue_len 0
+2026-04-09 11:44:53,570 - CME NIY (NIYM6) bid=56520.0 ask=56535.0
+2026-04-09 11:44:53,622 - 1775749493.6224298: CME NIYM6 msgtime 1775749336852 tot_delay_ms 156770 recv_delay_ms 156770 ts_out_delay_ms 156735 queue_len 2
+2026-04-09 11:44:53,622 - CME NIY (NIYM6) bid=56520.0 ask=56530.0
+2026-04-09 11:44:53,646 - 1775749493.6461017: CME NIYM6 msgtime 1775749336893 tot_delay_ms 156752 recv_delay_ms 156752 ts_out_delay_ms 156739 queue_len 0
+2026-04-09 11:44:53,646 - CME NIY (NIYM6) bid=56520.0 ask=56530.0
+2026-04-09 11:44:53,789 - 1775749493.7890856: CME NIYM6 msgtime 1775749337046 tot_delay_ms 156742 recv_delay_ms 156739 ts_out_delay_ms 156739 queue_len 2
+2026-04-09 11:44:53,789 - CME NIY (NIYM6) bid=56520.0 ask=56530.0
+2026-04-09 11:44:53,987 - 1775749493.987342: CME NIYM6 msgtime 1775749337248 tot_delay_ms 156739 recv_delay_ms 156738 ts_out_delay_ms 156738 queue_len 12
+2026-04-09 11:44:53,987 - CME NIY (NIYM6) bid=56525.0 ask=56535.0
+2026-04-09 11:44:54,469 - 1775749494.4694934: CME NIYM6 msgtime 1775749337733 tot_delay_ms 156736 recv_delay_ms 156736 ts_out_delay_ms 156736 queue_len 0
+2026-04-09 11:44:54,469 - CME NIY (NIYM6) bid=56525.0 ask=56535.0
+2026-04-09 11:44:54,548 - 1775749494.5482135: CME NIYM6 msgtime 1775749337791 tot_delay_ms 156757 recv_delay_ms 156757 ts_out_delay_ms 156757 queue_len 2
+2026-04-09 11:44:54,548 - CME NIY (NIYM6) bid=56525.0 ask=56535.0
+2026-04-09 11:44:54,959 - 1775749494.9593909: CME NIYM6 msgtime 1775749338224 tot_delay_ms 156735 recv_delay_ms 156735 ts_out_delay_ms 156734 queue_len 0
+2026-04-09 11:44:54,959 - CME NIY (NIYM6) bid=56525.0 ask=56535.0
+2026-04-09 11:44:55,203 - 1775749495.2031295: CME NIYM6 msgtime 1775749338461 tot_delay_ms 156742 recv_delay_ms 156742 ts_out_delay_ms 156741 queue_len 1
+2026-04-09 11:44:55,203 - CME NIY (NIYM6) bid=56520.0 ask=56530.0
+2026-04-09 11:44:55,513 - Refinitiv KS (RIC=KSM6, cal=krx_futures) bid=881.4 ask=881.6
+2026-04-09 11:44:55,530 - 1775749495.530472: CME NIYM6 msgtime 1775749338795 tot_delay_ms 156735 recv_delay_ms 156735 ts_out_delay_ms 156735 queue_len 0
+2026-04-09 11:44:55,530 - CME NIY (NIYM6) bid=56520.0 ask=56530.0

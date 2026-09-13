@@ -1,0 +1,39 @@
+{
+  "_comment": [
+    "Sector -> list of xyz:-prefixed symbols for earnings de-risk contagion.",
+    "Sectors are INDEPENDENT: a symbol reporting earnings de-risks only the sector(s)",
+    "it is listed in. List a symbol under multiple keys to put it in multiple sectors",
+    "(e.g. SMSN is both memory and semis).",
+    "Membership is not limited to symbols that report earnings themselves. Include:",
+    "  - US-hours ETFs (e.g. DRAM, SMH): no earnings of their own, but move with the sector.",
+    "  - Foreign names (e.g. SKHX, SMSN, KIOXIA): their home exchange isn't open at our",
+    "    US-market ramp times and we don't track their own earnings, but our xyz: traders on",
+    "    them are live 24h and catch sympathy moves when a same-sector US name reports, so we",
+    "    de-risk them too.",
+    "Consumed by earnings_derisk.py. Source of truth lives in repo; scp to",
+    "gf1:/home/ubuntu/estrader/earnings/sector_map.json after editing."
+  ],
+  "memory": [
+    "xyz:MU",
+    "xyz:SNDK",
+    "xyz:WDC",
+    "xyz:DRAM",
+    "xyz:SKHX",
+    "xyz:SMSN",
+    "xyz:KIOXIA"
+  ],
+  "semis": [
+    "xyz:NVDA",
+    "xyz:AMD",
+    "xyz:AVGO",
+    "xyz:MRVL",
+    "xyz:QCOM",
+    "xyz:INTC",
+    "xyz:TSM",
+    "xyz:ARM",
+    "xyz:ASML",
+    "xyz:SMH",
+    "xyz:LITE",
+    "xyz:SMSN"
+  ]
+}

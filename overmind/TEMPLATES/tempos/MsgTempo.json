@@ -1,0 +1,10 @@
+{
+  "tempos": [
+    {
+      "name": "a_name",
+      "type": "MsgTempo",
+      "symbol": "BTCUSDT",
+      "markets": ["BinanceSPOT"]
+    }
+  ]
+}

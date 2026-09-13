@@ -1,0 +1,12 @@
+{
+  "signals": [
+    {
+      "name": "a_name",
+      "type": "SigMid",
+      "symbol": "BTCUSDT",
+      "books": ["BinanceSPOT"],
+      "use_flagged": false,
+      "sigformer_tag": "top_level_signal"
+    }
+  ]
+}

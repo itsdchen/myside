@@ -1,0 +1,37 @@
+# Crontab entries for daily trading scripts
+# However, I'm now running these on machines with eastern time. So that's good.
+
+
+# Script 1: Main trading processes
+# Run at 18:00 ET the day before trading (Sun, Mon, Tue, Wed, Thu for Mon, Tue, Wed, Thu, Fri trading)
+# I'm actually turning this back from 17:50 to 18:00, because there will be a wsgateway reset too.
+# And I don't want any socket issues to get in the way.
+00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_nq.sh main_preus
+
+# Start the main trading process at 9am, to get ready for the 9:30 launch.
+00 09 * * 1-5 /home/ubuntu/estrader/launchers/run_nq.sh main_usday
+
+
+
+# Daily traders that try to catch the two extremes of the ecosystem
+# This is a wide quoter that tries to catch liquidations. It's at like 1%.
+00 18 * * 0-6 /home/ubuntu/estrader/launchers/run_nq.sh allday_superwide
+
+
+# Script 2: Break trading processes.
+# Run at 15:50 ET on Mon, Tue, Wed, Thu, Fri
+50 15 * * 1-5 /home/ubuntu/estrader/launchers/run_nq.sh small_break
+
+
+
+# Script 3: Long break process for the weekend.
+# Run at 18:00 ET on Friday, Saturday
+00 18 * * 5,6 /home/ubuntu/estrader/launchers/run_nq.sh long_break
+
+
+
+# Narrow quoters.
+00 18 * * * /home/ubuntu/estrader/launchers/run_nq.sh allday_narrow
+# Run the centered allday guy only when the main trading day is a weekday.
+00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_nq.sh allday_narrow_centered
+

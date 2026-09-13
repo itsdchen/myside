@@ -1,0 +1,9 @@
+{
+  "tempos": [
+    {
+      "name": "a_name",
+      "type": "FileTempo",
+      "file_path": "path_to_times"
+    }
+  ]
+}

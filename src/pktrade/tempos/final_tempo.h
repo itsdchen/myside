@@ -1,0 +1,32 @@
+#pragma once
+
+#include "base_tempo.h"
+#include "pktrade/enums/basic_enums.h"
+#include "pktrade/mktdata/md_beacon.h"
+
+namespace pktrade::tempos {
+
+// Pretty simple.
+class FinalTempo : public BaseTempo, public pktrade::md::BeaconListener {
+ public:
+  FinalTempo(const rapidjson::Value& tempo_conf, int id, TempoFactory* tf);
+
+  bool isSame(const rapidjson::Value& other_tempo_conf, TempoFactory* tf) override;
+  void subscribeData(pktrade::md::MDBeacon* beacon) override;
+  std::vector<pktrade::BookId> getBookIds() override;
+
+  // BeaconListener callbacks.
+  void onLvlAdd(const LevelBook& bk, const LevelAdd& lvl_add) {};
+  void onLvlMod(const LevelBook& bk, const LevelModify& lvl_mod) {};
+  void onLvlDel(const LevelBook& bk, const LevelDelete& lvl_del) {};
+  void onTrade(const LevelBook& bk, const Trade& trd);
+  void onFinal(const LevelBook& bk);
+
+ protected:
+  SymbolId symbol_;
+  std::vector<pktrade::Market> books_;
+  bool suppress_trades_ = false;
+  bool has_trade_this_batch_ = false;
+};
+
+}; // namespace pktrade::tempos

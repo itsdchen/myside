@@ -1,0 +1,35 @@
+{
+  "signals": [
+    {
+      "name": "a_name",
+      "type": "SigLiqBalance",
+      "symbol": "BTCBUSD",
+      "books": ["BinanceSPOT"],
+      "liq_type": "FIXED_NOTIONAL",
+      "calc_style": "AVG_LIQ_PX",
+      "return_price": false,
+
+      "levels_deep": 5,
+
+      "sz_decay": 100,
+      "sz_decay_2": 10,
+      "min_sz_wt": 1e-12,
+      "sz_decay_type": "SIZE",
+
+      "per_level_decay" : 1.0,
+
+      "ref_signal": "mid_price",
+      "use_flagged": false,
+      "sigformer_tag": "top_level_signal"
+    },
+
+    {
+      "name": "mid_price",
+      "type": "SigMid",
+      "symbol": "BTCBUSD",
+      "books": ["BinanceSPOT"],
+      "use_flagged": false,
+      "sigformer_tag": "ref_px"
+    }
+  ]
+}

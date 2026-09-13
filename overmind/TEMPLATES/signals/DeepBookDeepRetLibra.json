@@ -1,0 +1,93 @@
+{
+  "signals": [
+    {
+      "name": "parent_name",
+      "type": "SigLibra",
+
+      "sig_a": "sig_a_name",
+      "sig_b": "sig_b_name",
+
+      "sig_a_scale": 1,
+      "sig_b_scale": 1,
+      "sig_a_selfscale": 1.2,
+      "sig_b_selfscale": 1.2,
+
+      "ab_elim_scale": 1,
+      "ab_elim_diff_scale": 1,
+
+      "max_impulse": 0.1,
+      "max_bound_mult": 30,
+      
+      "apply_basic_decay": false,
+      "tick_decay": 1,
+      "time_decay": 10000000,
+
+      "sigformer_tag": "top_level_signal"
+    },
+    {
+      "name": "a_name",
+      "type": "SigDeepBook",
+      "symbol": "BTCUSDT",
+      "books": ["BinanceSPOT"],
+      "BinanceSPOT.Weight": 1,
+
+      "px_decay": 0.01,
+      "min_px_weight": 1e-10,
+      "max_pct_away": 0.02,
+      "insides_before_recalc": 30,
+      "ignore_recalc_thresh_mult": 0.7,
+
+      "sz_decay_type": "EXP_SIZE",
+      "sz_decay": 20000,
+      "sz_decay_2": 10,
+
+      "bounding_val": 1.0,
+
+      "return_price": true,
+      "calc_style": "DIFF_RATIO",
+      "use_flagged": false,
+
+      "use_shadow": false,
+      "shadow_frac": 0,
+      "shadow_decay_frac": 0.9,
+
+      "totstren_ema_bound": 8,
+      "totstren_tdc_s": 1000,
+      "totstren_ema_power": 2,
+
+      "sigformer_tag": "deepbook_predsym"
+    },
+    {
+      "name": "a_name",
+      "type": "SigDeepBook",
+      "symbol": "BTCUSDT",
+      "books": ["BinanceSPOT"],
+      "BinanceSPOT.Weight": 1,
+
+      "px_decay": 0.01,
+      "min_px_weight": 1e-10,
+      "max_pct_away": 0.02,
+      "insides_before_recalc": 30,
+      "ignore_recalc_thresh_mult": 0.7,
+
+      "sz_decay_type": "EXP_SIZE",
+      "sz_decay": 20000,
+      "sz_decay_2": 10,
+      "bounding_val": 1.0,
+
+      "return_price": true,
+      "calc_style": "DIFF_RATIO",
+      "use_flagged": false,
+
+      "use_shadow": false,
+      "shadow_frac": 0,
+      "shadow_decay_frac": 0.9,
+
+      "totstren_ema_bound": 8,
+      "totstren_tdc_s": 1000,
+      "totstren_ema_power": 2,
+
+      "sigformer_tag": "deepbook_tgtsym"
+    }
+  ]
+}

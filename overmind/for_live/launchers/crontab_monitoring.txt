@@ -1,0 +1,4 @@
+
+
+# Position checking
+0 18 * * *  /home/ubuntu/.venvs/v1/bin/python scripts/position_alerter.py --testnet

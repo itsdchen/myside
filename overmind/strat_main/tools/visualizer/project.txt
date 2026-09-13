@@ -1,0 +1,6 @@
+I'm using this project to trade hip3 perps on hyperliquid, with a remote symbol as reference. For example,
+perps on META, using data from nasdaq basic Meta.
+
+I would like to make a small visualization project to help me view and explore the local price on hyperliquid, the remote price on nasdaq, the bid/ask, and other info (eg. buys and sells on hyperliquid). I would like to be able to zoom, skip, view book depth, all sorts of things (perhaps interactively.
+
+I would like to be able to define other measures that I can view at any moment in time. By default, things like how thick the book is, how thin the book is, the premium (local mid - remote mid), etc.

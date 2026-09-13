@@ -1,0 +1,113 @@
+{
+  // Check if we need to top up isolated margin positions
+  "isolated_margin": [
+    {
+      "thresh": 0.3,
+      "min_pos": 10000,
+      "email": "dbkhanh@gmail.com",
+      "ntfy": "kdb",
+      "pri": "urgent",
+      "loop": 60 // re-check every 1min if triggered
+    },
+    {
+      "thresh": 0.4,
+      "email": "dbkhanh@gmail.com",
+      "ntfy": "kdb",
+      "pri": "high",
+      "loop": 300 // re-check every 5min if triggered
+    },
+    {
+      "thresh": 0.5,
+      "ntfy": "kdb"
+    }
+  ],
+
+  // Check if we need to top up overall account margin
+  "cross_margin": [
+    // {
+    //   "thresh": 10000,
+    //   "email": "dbkhanh@gmail.com",
+    //   "ntfy": "kdb",
+    //   "pri": "urgent",
+    //   "loop": 60 // re-check every 1min if triggered
+    // },
+    // {
+    //   "thresh": 15000,
+    //   "email": "dbkhanh@gmail.com",
+    //   "ntfy": "kdb",
+    //   "pri": "high",
+    //   "loop": 300 // re-check every 5min if triggered
+    // },
+    // {
+    //   "thresh": 20000,
+    //   "ntfy": "kdb"
+    // }
+  ],
+
+  // Check if mark and oracle prices are dislocated
+  "mark_oracle": [
+    {
+      "thresh": 0.1,
+      "ntfy": "kdb",
+      "rate_limit": 60 // minutes
+    }
+  ],
+
+  // Check if HL is reporting new symbols (must specify at most 1 check)
+  "new_syms": [
+    {
+      "email": "dbkhanh@gmail.com",
+      "ntfy": "kdb"
+    }
+  ],
+
+  // Check if we have too few orders out for any symbol
+  "min_orders": [
+    // {
+    //   "thresh": 0,
+    //   "ntfy": "kdb"
+    // }
+  ],
+
+  // Check if we have too many orders out for any symbol
+  "max_orders": [
+    {
+      "thresh": 50,
+      "email": "dbkhanh@gmail.com",
+      "ntfy": "kdb",
+      "pri": "high"
+    }
+  ],
+
+  // Check if our absolute notional position is too big for any symbol
+  "position": [
+    {
+      "include_syms": ["xyz:XYZ100"],
+      "thresh": 1000000,
+      "ntfy": "kdb",
+      "pri": "high"
+    },
+    {
+      "exclude_syms": ["xyz:XYZ100"],
+      "thresh": 600000,
+      "ntfy": "kdb",
+      "pri": "high"
+    }
+  ],
+
+  // Check if our unrealized pnl is too negative for any symbol
+  "upnl": [
+    {
+      "include_syms": ["xyz:XYZ100"],
+      "thresh": -10000,
+      "ntfy": "kdb",
+      "pri": "high"
+    },
+    {
+      "exclude_syms": ["xyz:XYZ100"],
+      "thresh": -5000,
+      "ntfy": "kdb",
+      "pri": "high"
+    }
+  ]
+}

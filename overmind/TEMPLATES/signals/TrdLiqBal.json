@@ -1,0 +1,24 @@
+{
+  "signals": [
+    {
+      "name": "a_name",
+      "type": "SigLiqBalance",
+      "symbol": "BTCUSDT",
+      "books": ["BinanceSPOT"],
+      "liq_type": "EMA_TRDS",
+      "ema_halflife": 300,
+      "ema_mult": 50,
+      "return_price": false,
+
+      "ref_signal": "some_signal",
+      "sigformer_tag": "top_level_signal"
+    },
+    {
+      "name": "mid_price",
+      "type": "SigMid",
+      "symbol": "BTCUSDT",
+      "books": ["BinanceSPOT"],
+      "sigformer_tag": "ref_px"
+    }
+  ]
+}

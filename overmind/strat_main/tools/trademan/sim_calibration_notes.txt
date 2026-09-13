@@ -1,0 +1,115 @@
+SIM LATENCY CALIBRATION NOTES
+==============================
+Last updated: 2026-02-18
+
+CHOSEN SETTINGS
+---------------
+  alo_ord_latency = 550ms  (0.55s)
+  cxl_ord_latency = 750ms  (0.75s)
+
+These apply across equities and commodities (Hyperliquid gateway).
+
+BACKGROUND
+----------
+Live RTT measurements (gf0/combined_metals_sv_0205/all, 5 days 20260211-17):
+  NewOrd->Ack: p50=506ms  p90=822ms  (84k samples)
+  Cancel->Ack: p50=503ms  p90=840ms  (84k samples)
+
+Previous defaults were alo=550ms, cxl=950ms (set via sim_latency_secs or
+hardcoded). The cxl=950 was too conservative.
+
+EXPERIMENTS RUN
+---------------
+
+1. Metals sim-eval (gf0/combined_metals_sv_0205/all, 5 days)
+   Symbols: GOLD (all 5d), COPPER + CL (enabled from 20260216)
+   All 5 days DIRTY (usermsg + inherit events)
+   Result: Live=+288.30  Sim(orig)=-162.50  diff=450.80
+   Cancel fill rate: Live=0.12%  Sim=0.12% (total matched, per-sym diverged)
+
+2. Latency sweep v1: alo={400,450,500,550} x cxl={500,650,800,950}
+   Key finding: CXL dominates, ALO has minimal effect.
+   cxl=500 all profitable (+399 to +517), cxl>=650 all negative.
+   But cxl=500 undershoots cancel fill rate (0.08% vs live 0.12%).
+
+3. Targeted sweep: a550/c750
+   Result: sum_pnl=-270.79 vs live +288.30 (diff=559)
+   Worse than orig on PNL, but not a fair comparison given all-dirty days.
+
+4. Latency sweep v2: alo={400,450,500,550} x cxl={500,650,750,800}
+   Confirmed cxl=500 gives best PNL match but unrealistic CFR.
+   Confirmed ALO doesn't matter (identical results across ALO values
+   for GOLD-only days; minor variation on multi-symbol days).
+
+ANALYSIS & DECISION
+--------------------
+- cxl=500 produces PNL closest to live (|diff|=111 for a550c500) but
+  undershoots cancel fill rate (0.08% vs 0.12% live). This means sim
+  cancels more successfully than live, reducing adverse selection and
+  inflating sim PNL. Not a more accurate sim, just a more optimistic one.
+
+- cxl=750 threads the needle between equities and commodities settings,
+  keeping latency parameters consistent across strats.
+
+- The large sim-live PNL gap is driven primarily by:
+  (a) All days being DIRTY (usermsg/inherit replay inaccuracies)
+  (b) CL: 48 live trades vs 1 sim trade on 20260216 (usermsg-driven)
+  (c) Inherent limitations of replaying manual interventions in sim
+
+- No evidence of gateway blockage effects at any latency threshold tested.
+  PNL improvement is monotonic as cxl decreases, no cliff or step change.
+
+- ALO latency has negligible impact across the tested range (400-550ms).
+  Kept at 550ms to match observed p50 RTT.
+
+OPEN ISSUE: FIXED RTT vs LIVE TAIL LATENCY (2026-03-30)
+-------------------------------------------------------
+Sim uses fixed RTTs (alo=550ms, cxl=750ms) with zero variance. Live RTTs
+have significant tail latency that the sim does not model.
+
+Example: CL on gf0/allday_search_20260311, 2026-03-23 07:00-08:00 window
+(large price drop, high activity):
+
+                  Live        Sim
+  NewOrd->Ack:
+    p50           608ms       550ms (fixed)
+    p90           850ms       550ms (fixed)
+    p99          1338ms       550ms (fixed)
+    max          2138ms       550ms (fixed)
+  Cancel->Ack:
+    p50           616ms       750ms (fixed)
+    p90           867ms       750ms (fixed)
+    p99          1216ms       750ms (fixed)
+    max          2187ms       750ms (fixed)
+
+  Orders sent:    934        1650
+  Execs:          111         674
+  Fill rate:     11.9%       40.9%  (by count)
+  Fill rate:      5.0%        5.5%  (by shs)
+  VWAP:         88.93       88.87
+
+The sim's fixed 550ms is near the live median, but:
+  1. Sim sends ~1.8x more orders (zero-latency quoting allows faster
+     re-entry after cancel/fill cycles).
+  2. Sim fill rate by count is 3.4x higher (40.9% vs 11.9%). By shares
+     it's similar (5.5% vs 5.0%), suggesting sim fills many small orders
+     that live misses due to latency.
+  3. During fast-moving sessions, live p90-p99 RTTs (850-1338ms) mean
+     orders sit exposed much longer, leading to more adverse selection
+     and missed opportunities. The sim never experiences this.
+
+Also observed: sim starts sending orders immediately at session open
+(e.g., 18:00:00), while live has a startup delay (~46s on this day).
+This lets sim capture early-session fills that live misses entirely.
+
+No solution yet. Possible approaches:
+  - Add RTT jitter to sim (e.g., sample from live RTT distribution)
+  - Add configurable warmup delay to sim
+  - Discount early-session sim PnL in reports
+  - Accept the gap and use sim as directional/relative tool only
+
+REPORTS
+-------
+  ~/scratch/simeval/gf0/combined_metals_sv_0205/all/simeval_report.txt
+  ~/scratch/simeval/latency_sweep/metals_sweep_report.txt      (v1: cxl=500,650,800,950)
+  ~/scratch/simeval/latency_sweep/metals_sweep_report_v2.txt   (v2: cxl=500,650,750,800)

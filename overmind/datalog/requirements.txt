@@ -1,0 +1,5 @@
+requests
+hyperliquid-python-sdk
+websockets
+tenacity
+uvloop

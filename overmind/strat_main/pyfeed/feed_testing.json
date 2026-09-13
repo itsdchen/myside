@@ -1,0 +1,33 @@
+{
+  "subscriptions": {
+
+    "Hyperliquid": {
+      "is_mainnet": true,
+      "wss_endpoint": "wss://api.hyperliquid.xyz/ws",
+      "snapshot_endpoint": "https://api.hyperliquid.xyz/info",
+      "symbols": ["xyz:XYZ100"]
+    },
+
+    "PolygonEquities": {
+      "symbols.old": ["NVDA", "TSLA"],
+      "symbols": []
+    },
+
+    "DataBentoCME": {
+      "symbols": ["NQ"]
+    },
+
+    "DataBentoEquities": {
+      "symbols": ["NVDA", "TSLA"],
+      "symbols.old": []
+    },
+
+    "Pyth": {
+      "symbols": ["GOLD"],
+      "symbols.old": []
+    }
+
+  },
+  "snapshot_frequency": 10000,
+  "pub_socket": "ipc:///tmp/feed-sock"
+}

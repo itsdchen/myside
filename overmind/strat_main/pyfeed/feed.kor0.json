@@ -1,0 +1,46 @@
+{
+	"subscriptions": {
+		"Hyperliquid": {
+			"is_mainnet": true,
+			"wss_endpoint": "wss://api.hyperliquid.xyz/ws",
+			"snapshot_endpoint": "https://api.hyperliquid.xyz/info",
+		    "symbols": [
+			"BTC",
+			"xyz:SKHX",
+			"xyz:SMSN",
+			"xyz:HYUNDAI"
+		    ]
+		},
+		"PolygonEquities": {
+			"symbols": []
+		},
+		"DataBentoEquities": {
+			"symbols": []
+		},
+		"DataBentoCME": {
+			"symbols": []
+		},
+		"PolygonFX": {
+			"symbols": []
+		},
+		"Pyth": {
+			"symbols": []
+		},
+		"Refinitiv": {
+			"service": "ELEKTRON_DD",
+			"session": "KRX",
+			"symbols": {
+			    "SMSN:krx": { "calendar_type": "krx_equities", "ric": "005930.KS", "convert_from": "KRW" },
+			    "SMSN:nxt": { "calendar_type": "krx_nxt_equities", "ric": "005930.KNT", "convert_from": "KRW" },
+
+			    "SKHX:krx": { "calendar_type": "krx_equities", "ric": "000660.KS", "convert_from": "KRW" },
+			    "SKHX:nxt": { "calendar_type": "krx_nxt_equities", "ric": "000660.KNT", "convert_from": "KRW" },
+
+			    "HYUNDAI:krx": { "calendar_type": "krx_equities", "ric": "005380.KS", "convert_from": "KRW" },
+			    "HYUNDAI:nxt": { "calendar_type": "krx_nxt_equities", "ric": "005380.KNT", "convert_from": "KRW" }
+			}
+		}
+	},
+	"snapshot_frequency": 10000,
+	"pub_socket": "ipc:///tmp/feed-sock"
+}

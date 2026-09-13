@@ -1,0 +1,135 @@
+{
+  "settings": {
+    "commissions": {
+      "tiers": {
+        "Hyperliquid": "HIP3_3"
+      },
+      "promo_tier": "Silver",
+      "use_promo": true
+    },
+    "start_t": "18:00:00 America/New_York",
+    "end_t": "17:59:55 America/New_York"
+  },
+  "simulation": {
+    "Hyperliquid": {
+      "cxl_frac_ahead": 0.3,
+      "use_one_way_latency": false,
+      "sim_latency_secs": 1.0
+    }
+  },
+  "pktraders": [
+    {
+      "traded_symbol": "xyz:COPPER",
+      "enabled": true,
+      "size_mult": 1,
+      "risk": {
+        "max_notional": 40000,
+        "max_position": "100000",
+        "max_orders": 20,
+        "base_currency": "USDT",
+        "global_inherit": true,
+        "load_overnight_pos": false,
+        "min_pnl": -2000,
+        "fv_limit": 2,
+        "timeout_minfv": 900
+      },
+      "ordex": {
+        "type": "RelWideMM2",
+        "markets": [
+          "Hyperliquid"
+        ],
+        "trade_caller": "remote_tradecall_tempo_hg",
+        "riskfree_rate": 0,
+        "max_pos": "10",
+        "order_size": "1",
+        "tgt_order_notional": 4000,
+        "tgt_maxpos_notional": 40000,
+        "order_size.old": "2.4",
+        "restrict_near_book": true,
+        "max_back_levels": 8,
+        "front_rung_spacing_mult": 0.5,
+        "rung_spacing_mult": 2,
+        "per_backlevel_rung_spacing_mult": 3,
+        "front_order_random_upper_limit": 1.2,
+        "front_order_random_lower_limit": 0.8,
+        "order_random_upper_limit": 1.1,
+        "order_random_lower_limit": 0.5,
+        "can_cross": false,
+        "cross_thresh": 0.002,
+        "ms_between_cross": 500,
+        "cross_limit_maxpos_frac": 0.25,
+        "ms_between_place": 50,
+        "ms_between_cxl": 50,
+        "local_sig": "local_mid_hg",
+        "remote_sig": "remote_mid_hg",
+        "relative_sig": "rel_mid_hg",
+        "snapshot_interval_s": 60,
+        "relative_beta": 0.1,
+        "beta_uncertainty_coef": 0.0,
+        "beta_uncertainty_coef.o.d": 0.4,
+        "last_perm_snapshot_rel_px.old": 107634,
+        "last_perm_snapshot_remote_px.old": 6283,
+        "min_ord_lifetime": 0.5,
+        "premium_ema_coef": 0.8,
+        "premium_tdc_s": 120,
+        "place_thresh": 0.00045,
+        "cancel_buffer": 0.27,
+        "curv_impulse_tdc": 240,
+        "curv_impulse_coef": 0,
+        "pred_momentum_tdc": 10,
+        "pred_momentum_coef": 0.5,
+        "enable_queue_jump": false,
+        "queue_jump_size_mult": 3,
+        "mm_gtc": false,
+        "ladder_one_sided": false,
+        "per_order_widen_frac": 0.8,
+        "order_decrease_coef": 0.7,
+        "print_ords": false,
+        "print_ords_every": 100
+      },
+      "signals": [
+        {
+          "name": "local_mid_hg",
+          "type": "SigMid",
+          "symbol": "xyz:COPPER",
+          "books": [
+            "Hyperliquid"
+          ],
+          "use_flagged": true,
+          "sigformer_tag": "top_level_signal"
+        },
+        {
+          "name": "rel_mid_hg",
+          "type": "SigMid",
+          "symbol": "BTC",
+          "books": [
+            "Hyperliquid"
+          ],
+          "use_flagged": true,
+          "sigformer_tag": "top_level_signal"
+        },
+        {
+          "name": "remote_mid_hg",
+          "type": "SigQuoteMid",
+          "symbol": "HG",
+          "books": [
+            "TopBookCme"
+          ],
+          "use_flagged": true,
+          "sigformer_tag": "top_level_signal"
+        }
+      ],
+      "tempos": [
+        {
+          "name": "remote_tradecall_tempo_hg",
+          "type": "FinalTempo",
+          "symbol": "BTC",
+          "markets": [
+            "Hyperliquid"
+          ]
+        }
+      ],
+      "extra_subs": []
+    }
+  ]
+}

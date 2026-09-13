@@ -1,0 +1,8 @@
+Actual Hyperliquid names for the spot tickers.
+
+@151: UETH
+@142: UBTC
+@156: USOL
+@188: UPUMP
+@162: UFART
+

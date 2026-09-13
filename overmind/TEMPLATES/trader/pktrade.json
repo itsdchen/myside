@@ -1,0 +1,115 @@
+{
+  "comment.settings": "This contains our sim settings.",
+  "settings": {
+    "colo": "AWSTokA",
+    "strat_name": "spot_1",
+    "comment_here": "We should probably switch to some fxn of look-ahead ",
+    "commissions": {
+      "tiers": {
+        "BinanceSPOT": "VIP1",
+        "BinanceUSDM": "VIP2USDT"
+      },
+      "use_promo": false
+    },
+    "start_t": "08:00:00 America/New_York",
+    "end_t": "16:00:00 America/New_York"
+  },
+  "simulation": {
+    "BinanceSPOT": {
+      "sim_latency_secs": 0.010
+    }
+  },
+  "comment.pktraders": "Each one of these is a single trading instance. A trader should be startable with one or multiple.",
+  "pktraders": [
+    {
+      "traded_symbol": "DOGEUSDT",
+      "enabled": true,
+      "size_mult": 1,
+      "ins_dates": "",
+      "ins_stats": {},
+      "oos_dates": "",
+      "oos_stats": {},
+      "risk": {
+        "max_notional": 50000,
+        "max_position": "750",
+        "max_orders": 4,
+        "base_currency": "USDT",
+        "precog_miss": true,
+        "precog_fastest_possible_rtt": 0.008,
+        "min_pnl": -500,
+        "fv_limit": 2,
+        "timeout_minfv": 1200
+      },
+      "ordex": {
+        "comment": "No comment m8",
+        "type": "SimpleCross",
+        "markets": [
+          "BinanceSPOT"
+        ],
+        "max_pos": "750",
+        "min_order_sz": "0.2",
+        "enter_thresh": 0.00004,
+        "alpha_mult": 1.1,
+        "exit_adjust": 1.0,
+        "exit_time_const": 10,
+        "ref_sig": "sym_mid",
+        "pred_sig": "sym_predsig",
+        "trade_caller": "sym_msg_tempo",
+        "t_between_retries_s": 0.1,
+        "t_between_execs_s": 2
+      },
+      "signals": [
+        {
+          "name": "sym_predsig",
+          "type": "SigDer",
+          "pred_signal": "sym_deepbook",
+          "tgt_signal": "sym_mid",
+          "take_pred_returns": false,
+          "time_decay": 10,
+          "tick_decay": 0.98,
+          "tgt_decay_agree": 0.7,
+          "tgt_decay_disagree": 0.88,
+          "sigformer_tag": "top_level_signal"
+        },
+        {
+          "name": "sym_deepbook",
+          "type": "SigDeepBook",
+          "symbol": "MATICUSDT",
+          "books": [
+            "BinanceSPOT"
+          ],
+          "BINANCE_SPOT.Weight": 1,
+          "px_decay": 0.005,
+          "min_px_weight": 1e-5,
+          "insides_before_recalc": 100,
+          "sz_decay_type": "exp_shares",
+          "sz_decay": 200,
+          "bounding_val": 0.5,
+          "return_price": false,
+          "ref_signal": "sym_mid",
+          "calc_style": "diff_ratio",
+          "sigformer_tag": "top_level_signal"
+        },
+        {
+          "name": "sym_mid",
+          "type": "SigMid",
+          "symbol": "MATICUSDT",
+          "books": [
+            "BinanceSPOT"
+          ],
+          "sigformer_tag": "top_level_signal"
+        }
+      ],
+      "tempos": [
+        {
+          "name": "sym_msg_tempo",
+          "type": "MsgTempo",
+          "symbol": "MATICUSDT",
+          "markets": [
+            "BinanceSPOT"
+          ]
+        }
+      ]
+    }
+  ]
+}

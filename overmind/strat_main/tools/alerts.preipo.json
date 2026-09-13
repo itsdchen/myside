@@ -1,0 +1,52 @@
+{
+  // Check if we need to top up isolated margin positions
+  "isolated_margin": [
+  ],
+
+  // Check if we need to top up overall account margin
+  "cross_margin": [
+  ],
+
+  // Check if mark and oracle prices are dislocated
+  "mark_oracle": [
+  ],
+
+  // Check if HL is reporting new symbols (must specify at most 1 check)
+  "new_syms": [
+  ],
+
+  // Check if we have too few orders out for any symbol
+  "min_orders": [
+    {
+      "thresh": 0,
+      "ntfy": "kdb"
+    }
+  ],
+
+  // Check if we have too many orders out for any symbol
+  "max_orders": [
+    {
+      "thresh": 50,
+      "ntfy": "kdb",
+      "pri": "high"
+    }
+  ],
+
+  // Check if our absolute notional position is too big for any symbol
+  "position": [
+    {
+      "thresh": 100000,
+      "ntfy": "kdb",
+      "rate_limit": 180
+    }
+  ],
+
+  // Check if our unrealized pnl is too negative for any symbol
+  "upnl": [
+    {
+      "thresh": -5000,
+      "ntfy": "kdb",
+      "rate_limit": 180
+    }
+  ]
+}

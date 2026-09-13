@@ -1,0 +1,12 @@
+{
+  "built_at": "20260509",
+  "bundle_version": 1,
+  "end_date": "20260508",
+  "quality": "provisional",
+  "score": null,
+  "sha256": "cdc776b465688bf1503efad36c991b4ab9d71fdc03cd047dbecb787c40488427",
+  "source_dir": "/home/pktrade/scratch/relwide_autobuild/autobuild_xyz_HYUNDAI_20260509/coef_lair",
+  "start_date": "20260408",
+  "symbol": "xyz:HYUNDAI",
+  "venue": "Hyperliquid"
+}

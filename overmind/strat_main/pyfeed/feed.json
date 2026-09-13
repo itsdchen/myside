@@ -1,0 +1,27 @@
+{
+	"subscriptions": {
+		"Hyperliquid": {
+			"is_mainnet": true,
+			"wss_endpoint": "wss://api.hyperliquid.xyz/ws",
+			"snapshot_endpoint": "https://api.hyperliquid.xyz/info",
+			"symbols": [
+				"BTC",
+				"xyz:XYZ100",
+				"xyz:TSLA",
+				"xyz:NVDA"
+			]
+		},
+		"PolygonEquities": {
+			"symbols": [
+				"NVDA", "TSLA"
+			]
+		},
+		"DataBentoCME": {
+			"symbols": [
+				"NQ"
+			]
+		}
+	},
+	"snapshot_frequency": 10000,
+	"pub_socket": "ipc:///tmp/feed-sock"
+}

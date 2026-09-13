@@ -1,0 +1,16 @@
+Trying to keep a log of all incidents/live issues we've come across.
+
+
+20251121-part of 25:
+- The gateways on bfx1 and bfx2 were started up with identical --id arguments. That created hash collisions for multiple days, because nonces would coincide because they'd fall int othe same mod-20 bucket.
+
+
+
+
+past:
+  - snapshots. David forgot to update the snapshots script, and as a result new symbols weren't getting snapshotted. Thsi prevented us from trading on break periods
+  - trading ids. When we separated into two machines with combined-equities strategies, David forgot to give them unique names. This meant that the hl_cloids that we hash to (for fast sending of orders) would collide. Meaning that the strategies on the different machines could perform actions on the other strategy's orders. I think this was also the source of execs being mapped to the wrong symbol, which mean tthat we were interpreting fills from one symbol as another's.
+  - pymultifeed slowness. Khanh had noticed that we were getting pymultifeed slowdowns (sometimes very slow, tens of minutes, fuck). This caused us to institute a number of fixes:
+     - We were running all the strategies individually. We started consolidating them into combined_equities strategies, so we don't run all those pktrades as individual processes
+     - We started skipping messages in live so we would only deliver once every 20 ms for a symbol.
+     - We made a thing to restart polygon if it ever got too slow.

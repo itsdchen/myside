@@ -1,0 +1,521 @@
+{
+  "metadata": {
+    "built_at": "20260407",
+    "bundle_version": 1,
+    "end_date": "20260406",
+    "quality": "provisional",
+    "score": null,
+    "sha256": "1f73edf539f57a8b2785112ea9b5d8156a8339b55eb9c10c2531ef519eb43bbb",
+    "source_dir": "/home/pktrade/scratch/relwide_autobuild/autobuild_xyz_SILVER_20260407/coef_lair",
+    "start_date": "20260307",
+    "symbol": "xyz:SILVER",
+    "venue": "Hyperliquid"
+  },
+  "pred_signal": {
+    "signals": [
+      {
+        "example_sig_coef": 1.1,
+        "lair_10_xyz:SILVER_MondoDeepBookDerxyz:SILVER_10_bound": 0.5,
+        "lair_10_xyz:SILVER_MondoDeepBookDerxyz:SILVER_10_coef": 6.158610204545781e-05,
+        "lair_12_xyz:SILVER_MondoDeepBookDerxyz:SILVER_12_bound": 0.001115715843,
+        "lair_12_xyz:SILVER_MondoDeepBookDerxyz:SILVER_12_coef": 0.1841790886618388,
+        "lair_16_xyz:SILVER_AvgTrdDerxyz:SILVER_16_bound": 0.007809214558,
+        "lair_16_xyz:SILVER_AvgTrdDerxyz:SILVER_16_coef": 0.041486785548462496,
+        "lair_28_xyz:SILVER_DeepBookDerxyz:SILVER_28_bound": 0.001462969032,
+        "lair_28_xyz:SILVER_DeepBookDerxyz:SILVER_28_coef": -0.1384148975715715,
+        "lair_29_xyz:SILVER_BookImpxyz:SILVER_29_bound": 7.720935486,
+        "lair_29_xyz:SILVER_BookImpxyz:SILVER_29_coef": 5.966237931885318e-05,
+        "lair_44_xyz:SILVER_TrdImpxyz:SILVER_44_bound": 2.739000439,
+        "lair_44_xyz:SILVER_TrdImpxyz:SILVER_44_coef": 1.2621230492539336e-05,
+        "lair_53_xyz:SILVER_DeepBookxyz:SILVER_53_bound": 5.787189079e-05,
+        "lair_53_xyz:SILVER_DeepBookxyz:SILVER_53_coef": 0.9139452035646616,
+        "lair_61_xyz:SILVER_BookImpxyz:SILVER_61_bound": 0.5154361364,
+        "lair_61_xyz:SILVER_BookImpxyz:SILVER_61_coef": -0.000688725035831608,
+        "lair_6_xyz:SILVER_DeepBookxyz:SILVER_6_bound": 3.36066e-06,
+        "lair_6_xyz:SILVER_DeepBookxyz:SILVER_6_coef": 32.22962915283973,
+        "lair_9_xyz:SILVER_AvgTrdDerxyz:SILVER_9_bound": 0.02224547488000691,
+        "lair_9_xyz:SILVER_AvgTrdDerxyz:SILVER_9_coef": 0.00658774368136193,
+        "name": "pred_XYZ_SILVER",
+        "offset": 0,
+        "sig_names": [
+          "lair_6_xyz:SILVER_DeepBookxyz:SILVER_6",
+          "lair_9_xyz:SILVER_AvgTrdDerxyz:SILVER_9",
+          "lair_10_xyz:SILVER_MondoDeepBookDerxyz:SILVER_10",
+          "lair_12_xyz:SILVER_MondoDeepBookDerxyz:SILVER_12",
+          "lair_16_xyz:SILVER_AvgTrdDerxyz:SILVER_16",
+          "lair_28_xyz:SILVER_DeepBookDerxyz:SILVER_28",
+          "lair_29_xyz:SILVER_BookImpxyz:SILVER_29",
+          "lair_44_xyz:SILVER_TrdImpxyz:SILVER_44",
+          "lair_53_xyz:SILVER_DeepBookxyz:SILVER_53",
+          "lair_61_xyz:SILVER_BookImpxyz:SILVER_61"
+        ],
+        "sigformer_tag": "top_level_signal",
+        "type": "SigLinear"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 2,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_6_xyz:SILVER_DeepBookxyz:SILVER_6",
+        "px_decay": 0.002009190599204903,
+        "return_price": false,
+        "shadow_decay_frac": 0.981717506511812,
+        "shadow_frac": 0.9967360675298602,
+        "sigformer_tag": "top_level_signal",
+        "symbol": "xyz:SILVER",
+        "sz_decay": 2.1316538485634045,
+        "sz_decay_2": 10,
+        "sz_decay_type": "EXP_NOTIONAL",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 4.6988688673361345,
+        "totstren_tdc_s": 334.72978827594534,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 30,
+        "max_impulse": 0.02,
+        "min_tick_decay": 0.999,
+        "name": "lair_9_xyz:SILVER_AvgTrdDerxyz:SILVER_9",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.007501108890190801,
+        "pred_signal": "lair_9_xyz:SILVER_AvgTrdDerxyz:SILVER_avgtrd_9",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": true,
+        "tgt_decay_agree": 0.4512311160814438,
+        "tgt_decay_denom": 0.00017890411585771366,
+        "tgt_decay_disagree": 0.007865918939690051,
+        "tgt_signal": "lair_9_xyz:SILVER_AvgTrdDerxyz:SILVER_der_decay_9",
+        "tick_decay": 0.99,
+        "time_decay": 300,
+        "type": "SigDer"
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "calc_style": "AVG_REL_PRICE",
+        "name": "lair_9_xyz:SILVER_AvgTrdDerxyz:SILVER_avgtrd_9",
+        "ref_signal": "lair_9_xyz:SILVER_AvgTrdDerxyz:SILVER_refpx_9",
+        "return_price": true,
+        "sigformer_tag": "avg_trd",
+        "symbol": "xyz:SILVER",
+        "sz_decay": 0.13741692926546853,
+        "sz_decay_type": "EXP_SIZE",
+        "tick_decay": 0.96893551174213,
+        "time_decay": 264.95495870478754,
+        "type": "SigTrdPx"
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_9_xyz:SILVER_AvgTrdDerxyz:SILVER_refpx_9",
+        "sigformer_tag": "ref_px",
+        "symbol": "xyz:SILVER",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_9_xyz:SILVER_AvgTrdDerxyz:SILVER_der_decay_9",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:SILVER",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.03,
+        "min_tick_decay": 0.9999,
+        "name": "lair_10_xyz:SILVER_MondoDeepBookDerxyz:SILVER_10",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.020843977487298007,
+        "pred_signal": "lair_10_xyz:SILVER_MondoDeepBookDerxyz:SILVER_deepbook_10",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": false,
+        "tgt_decay_agree": 0.9816119378462324,
+        "tgt_decay_denom": 6.967488179261824e-05,
+        "tgt_decay_disagree": 0.0017386687096840195,
+        "tgt_signal": "lair_10_xyz:SILVER_MondoDeepBookDerxyz:SILVERder_decay_10",
+        "tick_decay": 0.9993789173103578,
+        "time_decay": 0.3425911499848823,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_10_xyz:SILVER_MondoDeepBookDerxyz:SILVER_deepbook_10",
+        "px_decay": 0.05883757248374079,
+        "return_price": false,
+        "shadow_decay_frac": 0.696800231677935,
+        "shadow_frac": 0.20089995334105293,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:SILVER",
+        "sz_decay": 0.8688829893222461,
+        "sz_decay_2": 0.000545650439513188,
+        "sz_decay_type": "EXP_NOTIONAL_AND_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 0.002972723086987151,
+        "totstren_tdc_s": 495.4481363083736,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_10_xyz:SILVER_MondoDeepBookDerxyz:SILVERder_decay_10",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:SILVER",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.03,
+        "min_tick_decay": 0.9999,
+        "name": "lair_12_xyz:SILVER_MondoDeepBookDerxyz:SILVER_12",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.11731917220545235,
+        "pred_signal": "lair_12_xyz:SILVER_MondoDeepBookDerxyz:SILVER_deepbook_12",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": false,
+        "tgt_decay_agree": 0.9827981972479183,
+        "tgt_decay_denom": 0.0009507044533508132,
+        "tgt_decay_disagree": 0.8780644628849827,
+        "tgt_signal": "lair_12_xyz:SILVER_MondoDeepBookDerxyz:SILVERder_decay_12",
+        "tick_decay": 0.999925690156703,
+        "time_decay": 872.6598339591784,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_12_xyz:SILVER_MondoDeepBookDerxyz:SILVER_deepbook_12",
+        "px_decay": 0.00018215922735766467,
+        "return_price": false,
+        "shadow_decay_frac": 0.3789357674236617,
+        "shadow_frac": 0.5811306495037902,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:SILVER",
+        "sz_decay": 1649378.515603624,
+        "sz_decay_2": 2.088769052366804,
+        "sz_decay_type": "EXP_NOTIONAL_AND_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 0.2836485601353713,
+        "totstren_tdc_s": 999.9999999999998,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_12_xyz:SILVER_MondoDeepBookDerxyz:SILVERder_decay_12",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:SILVER",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 30,
+        "max_impulse": 0.02,
+        "min_tick_decay": 0.999,
+        "name": "lair_16_xyz:SILVER_AvgTrdDerxyz:SILVER_16",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.051982536108061445,
+        "pred_signal": "lair_16_xyz:SILVER_AvgTrdDerxyz:SILVER_avgtrd_16",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": true,
+        "tgt_decay_agree": 0.9842803913090225,
+        "tgt_decay_denom": 3.6632536967612536e-05,
+        "tgt_decay_disagree": 0.06148898567637079,
+        "tgt_signal": "lair_16_xyz:SILVER_AvgTrdDerxyz:SILVER_der_decay_16",
+        "tick_decay": 0.99,
+        "time_decay": 300,
+        "type": "SigDer"
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "calc_style": "AVG_REL_PRICE",
+        "name": "lair_16_xyz:SILVER_AvgTrdDerxyz:SILVER_avgtrd_16",
+        "ref_signal": "lair_16_xyz:SILVER_AvgTrdDerxyz:SILVER_refpx_16",
+        "return_price": true,
+        "sigformer_tag": "avg_trd",
+        "symbol": "xyz:SILVER",
+        "sz_decay": 2198.1357594662213,
+        "sz_decay_type": "EXP_SIZE",
+        "tick_decay": 0.12253019651558165,
+        "time_decay": 0.015073153569173842,
+        "type": "SigTrdPx"
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_16_xyz:SILVER_AvgTrdDerxyz:SILVER_refpx_16",
+        "sigformer_tag": "ref_px",
+        "symbol": "xyz:SILVER",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_16_xyz:SILVER_AvgTrdDerxyz:SILVER_der_decay_16",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:SILVER",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.01,
+        "min_tick_decay": 0.9999,
+        "name": "lair_28_xyz:SILVER_DeepBookDerxyz:SILVER_28",
+        "output_sigmoid": false,
+        "output_sigmoid_denom": 0.01,
+        "pred_signal": "lair_28_xyz:SILVER_DeepBookDerxyz:SILVER_deepbook_28",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": true,
+        "tgt_decay_agree": 0.0011161455782857457,
+        "tgt_decay_denom": 1.5234841889034254e-05,
+        "tgt_decay_disagree": 0.9627816234702451,
+        "tgt_signal": "lair_28_xyz:SILVER_DeepBookDerxyz:SILVERder_decay_28",
+        "tick_decay": 0.9996902523708127,
+        "time_decay": 292.8792612482193,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_28_xyz:SILVER_DeepBookDerxyz:SILVER_deepbook_28",
+        "px_decay": 1.4891336545979138e-07,
+        "return_price": true,
+        "shadow_decay_frac": 0.057323713607686747,
+        "shadow_frac": 0.544444346931269,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:SILVER",
+        "sz_decay": 4020731.679240779,
+        "sz_decay_2": 10,
+        "sz_decay_type": "EXP_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 0.017696519928620685,
+        "totstren_tdc_s": 611.4117301781067,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_28_xyz:SILVER_DeepBookDerxyz:SILVERder_decay_28",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:SILVER",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "BinanceSPOT.weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bungee_denom": 4.950395043998923e-05,
+        "bungee_mult_frac": 0.3259369395612202,
+        "min_tick_decay": 1,
+        "name": "lair_29_xyz:SILVER_BookImpxyz:SILVER_29",
+        "pred_boost_offset": 0.7539992115189239,
+        "pred_boost_timeconst_s": 36276.408767628694,
+        "pred_decay": 0.9894497994311137,
+        "pred_decay_agree": 0.5412166971337811,
+        "pred_decay_denom": 0.0005567595431058311,
+        "px_decay": 0.3049034498912265,
+        "ref_signal": "lair_29_xyz:SILVER_BookImpxyz:SILVER_refpx_29",
+        "sigformer_tag": "top_level_signal",
+        "symbol": "xyz:SILVER",
+        "sz_decay": 1959.49626969585,
+        "sz_decay_type": "EXP_SIZE",
+        "tick_decay": 0.9999047867539562,
+        "ticker_weight": 0.5,
+        "time_behind_const": 49.53075132205473,
+        "time_decay": 5977.0205458055025,
+        "trade_weight": 0.6575139700504486,
+        "type": "SigBookImpulse",
+        "update_weight": 0.015906391711814724
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_29_xyz:SILVER_BookImpxyz:SILVER_refpx_29",
+        "sigformer_tag": "ref_px",
+        "symbol": "xyz:SILVER",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "BinanceSPOT.weight": 1,
+        "batch": false,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bungee_denom": 0.4488652269364064,
+        "bungee_mult_frac": 0.9992994242938287,
+        "draped_tdc_s": 0.0764382576078428,
+        "killed_lvl_boost": 1.2848058200536412,
+        "min_tgt_diff_bps": 1e-05,
+        "name": "lair_44_xyz:SILVER_TrdImpxyz:SILVER_44",
+        "normalize_size_draped_inside": true,
+        "oob_scale": 0.1,
+        "px_decay": 0.00016613763877435707,
+        "sigformer_tag": "top_level_signal",
+        "symbol": "xyz:SILVER",
+        "sz_decay": 2.197279470626461e-05,
+        "sz_decay_type": "EXP_NOTIONAL",
+        "tgt_decay_disagree": 0.9970757735949278,
+        "tgt_sig_decay": 0.9999936442457293,
+        "tgt_signal": "lair_44_xyz:SILVER_TrdImpxyz:SILVER_refpx_44",
+        "tick_decay": 0.9999914555164792,
+        "time_decay": 259.50254822368424,
+        "type": "SigTrdImpulse",
+        "use_killed_lvl_boost": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_44_xyz:SILVER_TrdImpxyz:SILVER_refpx_44",
+        "sigformer_tag": "ref_px",
+        "symbol": "xyz:SILVER",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 2,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_53_xyz:SILVER_DeepBookxyz:SILVER_53",
+        "px_decay": 7.525991113330061e-05,
+        "return_price": false,
+        "shadow_decay_frac": 0.9862950155612951,
+        "shadow_frac": 0.721792440109232,
+        "sigformer_tag": "top_level_signal",
+        "symbol": "xyz:SILVER",
+        "sz_decay": 1412.6425945283565,
+        "sz_decay_2": 0.27406783040462096,
+        "sz_decay_type": "EXP_NOTIONAL_AND_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 1.7608891410143035,
+        "totstren_tdc_s": 2144.879840882456,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "BinanceSPOT.weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bungee_denom": 0.22291377103024965,
+        "bungee_mult_frac": 0.07092630449540714,
+        "min_tick_decay": 1,
+        "name": "lair_61_xyz:SILVER_BookImpxyz:SILVER_61",
+        "pred_boost_offset": 0.721173692774888,
+        "pred_boost_timeconst_s": 1128.5807553557918,
+        "pred_decay": 0.9732825270184221,
+        "pred_decay_agree": 0.6087010701660475,
+        "pred_decay_denom": 4.539886353549757e-05,
+        "px_decay": 0.0002218424336600664,
+        "ref_signal": "lair_61_xyz:SILVER_BookImpxyz:SILVER_refpx_61",
+        "sigformer_tag": "top_level_signal",
+        "symbol": "xyz:SILVER",
+        "sz_decay": 28886.39919491841,
+        "sz_decay_type": "EXP_SIZE",
+        "tick_decay": 0.9994400529613301,
+        "ticker_weight": 0.5,
+        "time_behind_const": 0.07799252009932985,
+        "time_decay": 303.6292519824302,
+        "trade_weight": 0.8384323818886344,
+        "type": "SigBookImpulse",
+        "update_weight": 0.23957699801126897
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_61_xyz:SILVER_BookImpxyz:SILVER_refpx_61",
+        "sigformer_tag": "ref_px",
+        "symbol": "xyz:SILVER",
+        "type": "SigMid",
+        "use_flagged": true
+      }
+    ]
+  },
+  "ref_signal": {
+    "signals": [
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "ref_XYZ_SILVER",
+        "sigformer_tag": "top_level_signal",
+        "symbol": "xyz:SILVER",
+        "type": "SigMid",
+        "use_flagged": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "built_at": "20260407",
+  "bundle_version": 1,
+  "end_date": "20260406",
+  "quality": "provisional",
+  "score": null,
+  "sha256": "1f73edf539f57a8b2785112ea9b5d8156a8339b55eb9c10c2531ef519eb43bbb",
+  "source_dir": "/home/pktrade/scratch/relwide_autobuild/autobuild_xyz_SILVER_20260407/coef_lair",
+  "start_date": "20260307",
+  "symbol": "xyz:SILVER",
+  "venue": "Hyperliquid"
+}

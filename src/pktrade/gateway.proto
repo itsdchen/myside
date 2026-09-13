@@ -1,0 +1,140 @@
+syntax = "proto3";
+
+package pktrade.gateway;
+
+// Actually, let's do a quick cleanup.  Not all of these are used.
+
+// Used when strat wants to send a new order and passes it through ZMQ to the gateway.
+message PbNewOrder {
+  // executor_id + executor_order_id --> pk_coid
+  string strategy_id = 1;
+  // TODO (next change): rename this to pk_order_id because this is what it's called elsewhere.
+  int32 executor_order_id = 2;
+
+  string symbol = 3;
+  int32 market = 4;
+  int32 side = 5;
+  string qty = 6;
+  string px = 7;
+  int32 order_type = 8;
+  int32 time_in_force = 9;
+  bool post_only = 10;
+  bool reduce_only = 11;
+}
+
+// Used when strat wants to cancel an order and passes it through ZMQ to the gateway.
+// Not currently supported, because we're only doing IOC orders rn. But will need to be used
+// and tested once we try add liq.
+message PbCancelOrder {
+  string strategy_id = 1;
+  int32 executor_order_id = 2;
+}
+
+// Used when the gateway sends or rejects an order.
+// TODO: only turn this into a reject. The ack is not important and pretty much slows us down.
+message PbGatewayAck {
+  string strategy_id = 1;
+  int32 executor_order_id = 2;
+  bool rejected = 4;
+  string reason = 5;
+}
+
+
+// I don't think this is very useful? Might want to see if I can just get away with not
+// delivering it.
+// In the ideal case, this is the feedback from the exchange telling us details about
+// our order, whether it posted or executed or rejected.
+message PbNewOrderAck {
+  string strategy_id = 1;
+  int32 executor_order_id = 2;
+
+  string pk_coid = 4;
+  // Binance gives this in int64_t, but leaving this as a string to support potential other
+  // exchanges. At some point, let's survey everything and maybe pack this back into a long.
+  string exch_oid = 5;
+
+  // If the exchange gives us a timestamp.
+  int64 exch_transact_time = 6;
+}
+
+// Not sure when this should be used just yet.
+message PbCancelOrderAck {
+  string strategy_id = 1;
+  int32 executor_order_id = 2;
+
+  // If the exchange gives us a timestamp, we use it.
+  int64 exch_transact_time = 3;
+}
+
+// When we hear about an exec back from the exchange.
+// This is received right now on the user acct stream. I might want to switch this up to
+// start listening to the actual http response.
+message PbOrderExecute {
+  string strategy_id = 1;
+  int32 executor_order_id = 2;
+  string trade_qty = 4;
+  string trade_px = 5;
+  int32 feed_trade_id = 6; // If they give us an identifier for the trade.
+  int64 exch_transact_time = 7;
+  // If it was an add-liquidity execution or not.
+  bool add_liq = 8;
+}
+
+// When an IOC gets back.
+message PbOrderElimination {
+  string strategy_id = 1;
+  int32 executor_order_id = 2;
+}
+
+// Rejected from the market.
+message PbNewOrderReject {
+  string strategy_id = 1;
+  int32 executor_order_id = 2;
+  string reason = 4;
+}
+
+message PbCancelOrderReject {
+  string strategy_id = 1;
+  int32 executor_order_id = 2;
+  string reason = 4;
+}
+
+message PbMessage {
+  oneof payload {
+    PbNewOrder new_order = 100;
+    PbCancelOrder cancel_order = 101;
+    // Market to us.
+    PbNewOrderAck new_ack = 102;
+    PbCancelOrderAck cancel_ack = 103;
+    PbOrderElimination elim = 104;
+    PbOrderExecute execution = 105;
+    PbNewOrderReject new_reject = 106;
+    PbCancelOrderReject cancel_reject = 107;
+    // Gateway to us.
+    PbGatewayAck gateway_ack = 108;
+  }
+}
+
+message PbControl {
+  string strategy_id = 1;
+  bool trading_enabled = 2;
+}
+
+// I want to create UserMsgs.
+// Maybe use that instead. Eventually, switch over the UserMsg port over to using this instead.
+message PbUserMsg {
+  bool for_gateway = 1;
+  // Eventually could be a regex.
+  string strategy_id = 2;
+
+  int32 usermsg_type = 3;
+
+  string symbol = 4;
+
+  // Give it a few payload types.
+  int32 int_payload_1 = 5;
+  double double_payload_1 = 6;
+  bool bool_payload_1 = 7;
+  string string_payload_1 = 8;
+
+}

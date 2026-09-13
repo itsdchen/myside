@@ -1,0 +1,596 @@
+{
+  "metadata": {
+    "built_at": "20260413",
+    "bundle_version": 1,
+    "end_date": "20260412",
+    "quality": "provisional",
+    "score": null,
+    "sha256": "b23c197c0ef739573b62dec7ec6a4f5d22c47184fc3fdeb2063c2efb9b5aefdb",
+    "source_dir": "/home/pktrade/scratch/relwide_autobuild/autobuild_xyz_COIN_20260413/coef_lair",
+    "start_date": "20260313",
+    "symbol": "xyz:COIN",
+    "venue": "Hyperliquid"
+  },
+  "pred_signal": {
+    "signals": [
+      {
+        "example_sig_coef": 1.1,
+        "lair_16_xyz:COIN_AvgTrdDerxyz:COIN_16_bound": 0.0172429626,
+        "lair_16_xyz:COIN_AvgTrdDerxyz:COIN_16_coef": 0.02643103393595027,
+        "lair_1_xyz:COIN_DeepBookDerxyz:COIN_1_bound": 0.0005162748801000001,
+        "lair_1_xyz:COIN_DeepBookDerxyz:COIN_1_coef": 0.47685664960160995,
+        "lair_27_xyz:COIN_DeepBookDerxyz:COIN_27_bound": 0.1553013659000008,
+        "lair_27_xyz:COIN_DeepBookDerxyz:COIN_27_coef": 0.0010578492970325624,
+        "lair_31_xyz:COIN_AvgTrdDerxyz:COIN_31_bound": 0.0009729917166,
+        "lair_31_xyz:COIN_AvgTrdDerxyz:COIN_31_coef": -0.22281329910518335,
+        "lair_32_xyz:COIN_MondoDeepBookDerxyz:COIN_32_bound": 0.5,
+        "lair_32_xyz:COIN_MondoDeepBookDerxyz:COIN_32_coef": -0.0001325018596886951,
+        "lair_41_xyz:COIN_TrdImpxyz:COIN_41_bound": 34.70299848000016,
+        "lair_41_xyz:COIN_TrdImpxyz:COIN_41_coef": 4.7551449687968506e-06,
+        "lair_44_xyz:COIN_DeepBookDerxyz:COIN_44_bound": 0.15412218760000077,
+        "lair_44_xyz:COIN_DeepBookDerxyz:COIN_44_coef": 0.0013868956898153452,
+        "lair_63_xyz:COIN_BookImpxyz:COIN_63_bound": 18.778685770000028,
+        "lair_63_xyz:COIN_BookImpxyz:COIN_63_coef": 9.827298609546237e-06,
+        "lair_7_xyz:COIN_AvgTrdDerxyz:COIN_7_bound": 0.09829233527,
+        "lair_7_xyz:COIN_AvgTrdDerxyz:COIN_7_coef": 0.0042279025014907755,
+        "lair_8_xyz:COIN_MondoDeepBookDerxyz:COIN_8_bound": 0.5,
+        "lair_8_xyz:COIN_MondoDeepBookDerxyz:COIN_8_coef": 0.0003674672509547137,
+        "name": "pred_XYZ_COIN",
+        "offset": 0,
+        "sig_names": [
+          "lair_1_xyz:COIN_DeepBookDerxyz:COIN_1",
+          "lair_7_xyz:COIN_AvgTrdDerxyz:COIN_7",
+          "lair_8_xyz:COIN_MondoDeepBookDerxyz:COIN_8",
+          "lair_16_xyz:COIN_AvgTrdDerxyz:COIN_16",
+          "lair_27_xyz:COIN_DeepBookDerxyz:COIN_27",
+          "lair_31_xyz:COIN_AvgTrdDerxyz:COIN_31",
+          "lair_32_xyz:COIN_MondoDeepBookDerxyz:COIN_32",
+          "lair_41_xyz:COIN_TrdImpxyz:COIN_41",
+          "lair_44_xyz:COIN_DeepBookDerxyz:COIN_44",
+          "lair_63_xyz:COIN_BookImpxyz:COIN_63"
+        ],
+        "sigformer_tag": "top_level_signal",
+        "type": "SigLinear"
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.03,
+        "min_tick_decay": 0.9999,
+        "name": "lair_1_xyz:COIN_DeepBookDerxyz:COIN_1",
+        "output_sigmoid": false,
+        "output_sigmoid_denom": 0.01,
+        "pred_signal": "lair_1_xyz:COIN_DeepBookDerxyz:COIN_deepbook_1",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": false,
+        "tgt_decay_agree": 0.9848161794029606,
+        "tgt_decay_denom": 0.008654818632459715,
+        "tgt_decay_disagree": 0.9944538779594774,
+        "tgt_signal": "lair_1_xyz:COIN_DeepBookDerxyz:COINder_decay_1",
+        "tick_decay": 0.99996559424987,
+        "time_decay": 278.2992890732217,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_1_xyz:COIN_DeepBookDerxyz:COIN_deepbook_1",
+        "px_decay": 0.00046031789787096634,
+        "return_price": false,
+        "shadow_decay_frac": 0.74748206651854,
+        "shadow_frac": 0.026402853194434087,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:COIN",
+        "sz_decay": 3917.032548053236,
+        "sz_decay_2": 10,
+        "sz_decay_type": "EXP_NOTIONAL",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 1.3438632726871023,
+        "totstren_tdc_s": 3829.2913278605065,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_1_xyz:COIN_DeepBookDerxyz:COINder_decay_1",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:COIN",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 30,
+        "max_impulse": 0.02,
+        "min_tick_decay": 0.999,
+        "name": "lair_7_xyz:COIN_AvgTrdDerxyz:COIN_7",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.007501108890190801,
+        "pred_signal": "lair_7_xyz:COIN_AvgTrdDerxyz:COIN_avgtrd_7",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": true,
+        "tgt_decay_agree": 0.4512311160814438,
+        "tgt_decay_denom": 0.00017890411585771366,
+        "tgt_decay_disagree": 0.007865918939690051,
+        "tgt_signal": "lair_7_xyz:COIN_AvgTrdDerxyz:COIN_der_decay_7",
+        "tick_decay": 0.99,
+        "time_decay": 300,
+        "type": "SigDer"
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "calc_style": "AVG_REL_PRICE",
+        "name": "lair_7_xyz:COIN_AvgTrdDerxyz:COIN_avgtrd_7",
+        "ref_signal": "lair_7_xyz:COIN_AvgTrdDerxyz:COIN_refpx_7",
+        "return_price": true,
+        "sigformer_tag": "avg_trd",
+        "symbol": "xyz:COIN",
+        "sz_decay": 0.13741692926546853,
+        "sz_decay_type": "EXP_SIZE",
+        "tick_decay": 0.96893551174213,
+        "time_decay": 264.95495870478754,
+        "type": "SigTrdPx"
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_7_xyz:COIN_AvgTrdDerxyz:COIN_refpx_7",
+        "sigformer_tag": "ref_px",
+        "symbol": "xyz:COIN",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_7_xyz:COIN_AvgTrdDerxyz:COIN_der_decay_7",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:COIN",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.03,
+        "min_tick_decay": 0.9999,
+        "name": "lair_8_xyz:COIN_MondoDeepBookDerxyz:COIN_8",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.020843977487298007,
+        "pred_signal": "lair_8_xyz:COIN_MondoDeepBookDerxyz:COIN_deepbook_8",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": false,
+        "tgt_decay_agree": 0.9816119378462324,
+        "tgt_decay_denom": 6.967488179261824e-05,
+        "tgt_decay_disagree": 0.0017386687096840195,
+        "tgt_signal": "lair_8_xyz:COIN_MondoDeepBookDerxyz:COINder_decay_8",
+        "tick_decay": 0.9993789173103578,
+        "time_decay": 0.3425911499848823,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_8_xyz:COIN_MondoDeepBookDerxyz:COIN_deepbook_8",
+        "px_decay": 0.05883757248374079,
+        "return_price": false,
+        "shadow_decay_frac": 0.696800231677935,
+        "shadow_frac": 0.20089995334105293,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:COIN",
+        "sz_decay": 0.8688829893222461,
+        "sz_decay_2": 0.000545650439513188,
+        "sz_decay_type": "EXP_NOTIONAL_AND_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 0.002972723086987151,
+        "totstren_tdc_s": 495.4481363083736,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_8_xyz:COIN_MondoDeepBookDerxyz:COINder_decay_8",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:COIN",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 30,
+        "max_impulse": 0.02,
+        "min_tick_decay": 0.999,
+        "name": "lair_16_xyz:COIN_AvgTrdDerxyz:COIN_16",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.051982536108061445,
+        "pred_signal": "lair_16_xyz:COIN_AvgTrdDerxyz:COIN_avgtrd_16",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": true,
+        "tgt_decay_agree": 0.9842803913090225,
+        "tgt_decay_denom": 3.6632536967612536e-05,
+        "tgt_decay_disagree": 0.06148898567637079,
+        "tgt_signal": "lair_16_xyz:COIN_AvgTrdDerxyz:COIN_der_decay_16",
+        "tick_decay": 0.99,
+        "time_decay": 300,
+        "type": "SigDer"
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "calc_style": "AVG_REL_PRICE",
+        "name": "lair_16_xyz:COIN_AvgTrdDerxyz:COIN_avgtrd_16",
+        "ref_signal": "lair_16_xyz:COIN_AvgTrdDerxyz:COIN_refpx_16",
+        "return_price": true,
+        "sigformer_tag": "avg_trd",
+        "symbol": "xyz:COIN",
+        "sz_decay": 2198.1357594662213,
+        "sz_decay_type": "EXP_SIZE",
+        "tick_decay": 0.12253019651558165,
+        "time_decay": 0.015073153569173842,
+        "type": "SigTrdPx"
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_16_xyz:COIN_AvgTrdDerxyz:COIN_refpx_16",
+        "sigformer_tag": "ref_px",
+        "symbol": "xyz:COIN",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_16_xyz:COIN_AvgTrdDerxyz:COIN_der_decay_16",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:COIN",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.01,
+        "min_tick_decay": 0.9999,
+        "name": "lair_27_xyz:COIN_DeepBookDerxyz:COIN_27",
+        "output_sigmoid": false,
+        "output_sigmoid_denom": 0.01,
+        "pred_signal": "lair_27_xyz:COIN_DeepBookDerxyz:COIN_deepbook_27",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": true,
+        "tgt_decay_agree": 0.9972747295047308,
+        "tgt_decay_denom": 0.0013684525079440178,
+        "tgt_decay_disagree": 0.42725361505520987,
+        "tgt_signal": "lair_27_xyz:COIN_DeepBookDerxyz:COINder_decay_27",
+        "tick_decay": 0.9535620678454845,
+        "time_decay": 26.99298035364439,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_27_xyz:COIN_DeepBookDerxyz:COIN_deepbook_27",
+        "px_decay": 2.1431608439465488e-06,
+        "return_price": true,
+        "shadow_decay_frac": 0.06217129589525206,
+        "shadow_frac": 0.004856619120892952,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:COIN",
+        "sz_decay": 33759.55425401798,
+        "sz_decay_2": 10,
+        "sz_decay_type": "EXP_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 8.56776970949151,
+        "totstren_tdc_s": 334.3939127927302,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_27_xyz:COIN_DeepBookDerxyz:COINder_decay_27",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:COIN",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 30,
+        "max_impulse": 0.02,
+        "min_tick_decay": 0.999,
+        "name": "lair_31_xyz:COIN_AvgTrdDerxyz:COIN_31",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.8001186217125003,
+        "pred_signal": "lair_31_xyz:COIN_AvgTrdDerxyz:COIN_avgtrd_31",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": true,
+        "tgt_decay_agree": 0.01588583456506274,
+        "tgt_decay_denom": 3.166367693790534e-05,
+        "tgt_decay_disagree": 0.9743360094514161,
+        "tgt_signal": "lair_31_xyz:COIN_AvgTrdDerxyz:COIN_der_decay_31",
+        "tick_decay": 0.99,
+        "time_decay": 300,
+        "type": "SigDer"
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "calc_style": "AVG_REL_PRICE",
+        "name": "lair_31_xyz:COIN_AvgTrdDerxyz:COIN_avgtrd_31",
+        "ref_signal": "lair_31_xyz:COIN_AvgTrdDerxyz:COIN_refpx_31",
+        "return_price": true,
+        "sigformer_tag": "avg_trd",
+        "symbol": "xyz:COIN",
+        "sz_decay": 22848.01304809327,
+        "sz_decay_type": "EXP_SIZE",
+        "tick_decay": 0.4627897178125226,
+        "time_decay": 3361.1954811634328,
+        "type": "SigTrdPx"
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_31_xyz:COIN_AvgTrdDerxyz:COIN_refpx_31",
+        "sigformer_tag": "ref_px",
+        "symbol": "xyz:COIN",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_31_xyz:COIN_AvgTrdDerxyz:COIN_der_decay_31",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:COIN",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.03,
+        "min_tick_decay": 0.9999,
+        "name": "lair_32_xyz:COIN_MondoDeepBookDerxyz:COIN_32",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 7.865150577985615e-06,
+        "pred_signal": "lair_32_xyz:COIN_MondoDeepBookDerxyz:COIN_deepbook_32",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": false,
+        "tgt_decay_agree": 0.004451886126093769,
+        "tgt_decay_denom": 1.91667994963724e-05,
+        "tgt_decay_disagree": 0.9921569108663942,
+        "tgt_signal": "lair_32_xyz:COIN_MondoDeepBookDerxyz:COINder_decay_32",
+        "tick_decay": 0.9935594707930092,
+        "time_decay": 56.859069580961666,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_32_xyz:COIN_MondoDeepBookDerxyz:COIN_deepbook_32",
+        "px_decay": 0.0003513847089366207,
+        "return_price": false,
+        "shadow_decay_frac": 0.7731207996663619,
+        "shadow_frac": 0.9369554644550189,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:COIN",
+        "sz_decay": 3416.624956324645,
+        "sz_decay_2": 1.0001352849690588,
+        "sz_decay_type": "EXP_NOTIONAL_AND_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 3.955076722920577,
+        "totstren_tdc_s": 1091.237837307144,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_32_xyz:COIN_MondoDeepBookDerxyz:COINder_decay_32",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:COIN",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "BinanceSPOT.weight": 1,
+        "batch": false,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bungee_denom": 0.999997548716384,
+        "bungee_mult_frac": 0.16570119242603254,
+        "draped_tdc_s": 0.0007992473553795691,
+        "killed_lvl_boost": 1.39338263223305,
+        "min_tgt_diff_bps": 1e-05,
+        "name": "lair_41_xyz:COIN_TrdImpxyz:COIN_41",
+        "normalize_size_draped_inside": true,
+        "oob_scale": 0.1,
+        "px_decay": 0.0011431004512229084,
+        "sigformer_tag": "top_level_signal",
+        "symbol": "xyz:COIN",
+        "sz_decay": 0.10681634561273216,
+        "sz_decay_type": "EXP_NOTIONAL",
+        "tgt_decay_disagree": 0.9985759962046252,
+        "tgt_sig_decay": 0.9999999889037495,
+        "tgt_signal": "lair_41_xyz:COIN_TrdImpxyz:COIN_refpx_41",
+        "tick_decay": 0.9999388287456759,
+        "time_decay": 33.547724747920135,
+        "type": "SigTrdImpulse",
+        "use_killed_lvl_boost": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_41_xyz:COIN_TrdImpxyz:COIN_refpx_41",
+        "sigformer_tag": "ref_px",
+        "symbol": "xyz:COIN",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.01,
+        "min_tick_decay": 0.9999,
+        "name": "lair_44_xyz:COIN_DeepBookDerxyz:COIN_44",
+        "output_sigmoid": false,
+        "output_sigmoid_denom": 0.01,
+        "pred_signal": "lair_44_xyz:COIN_DeepBookDerxyz:COIN_deepbook_44",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": true,
+        "tgt_decay_agree": 0.681597559644286,
+        "tgt_decay_denom": 0.0033115451958692344,
+        "tgt_decay_disagree": 0.29852171671297745,
+        "tgt_signal": "lair_44_xyz:COIN_DeepBookDerxyz:COINder_decay_44",
+        "tick_decay": 0.9508841596516076,
+        "time_decay": 5.035249854080124,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_44_xyz:COIN_DeepBookDerxyz:COIN_deepbook_44",
+        "px_decay": 0.00020943637699860157,
+        "return_price": true,
+        "shadow_decay_frac": 0.8581992196107051,
+        "shadow_frac": 0.10777182518083858,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:COIN",
+        "sz_decay": 1814.359065788248,
+        "sz_decay_2": 10,
+        "sz_decay_type": "EXP_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 7.865609273944892,
+        "totstren_tdc_s": 730.7645506619408,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_44_xyz:COIN_DeepBookDerxyz:COINder_decay_44",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:COIN",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "BinanceSPOT.weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bungee_denom": 0.00015016260094846535,
+        "bungee_mult_frac": 0.11385197981250154,
+        "min_tick_decay": 1,
+        "name": "lair_63_xyz:COIN_BookImpxyz:COIN_63",
+        "pred_boost_offset": 0.8773945413209553,
+        "pred_boost_timeconst_s": 235364808.4424882,
+        "pred_decay": 0.9946013236448885,
+        "pred_decay_agree": 0.9938366224661044,
+        "pred_decay_denom": 0.054326389790760675,
+        "px_decay": 1.5978221415869722e-06,
+        "ref_signal": "lair_63_xyz:COIN_BookImpxyz:COIN_refpx_63",
+        "sigformer_tag": "top_level_signal",
+        "symbol": "xyz:COIN",
+        "sz_decay": 0.01624108312124202,
+        "sz_decay_type": "EXP_SIZE",
+        "tick_decay": 0.8578192446697858,
+        "ticker_weight": 0.5,
+        "time_behind_const": 46459.68933608332,
+        "time_decay": 67.04903710903885,
+        "trade_weight": 0.991133184530713,
+        "type": "SigBookImpulse",
+        "update_weight": 0.0258347520421205
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_63_xyz:COIN_BookImpxyz:COIN_refpx_63",
+        "sigformer_tag": "ref_px",
+        "symbol": "xyz:COIN",
+        "type": "SigMid",
+        "use_flagged": true
+      }
+    ]
+  },
+  "ref_signal": {
+    "signals": [
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "ref_XYZ_COIN",
+        "sigformer_tag": "top_level_signal",
+        "symbol": "xyz:COIN",
+        "type": "SigMid",
+        "use_flagged": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,378 @@
+{
+  "traded_symbols": [
+    "xyz:SILVER"
+  ],
+  "traded_markets": [
+    "Hyperliquid"
+  ],
+  "side_products": [],
+  "remote_product": {
+    "symbol": "SI",
+    "markets": [
+      "TopBookCme"
+    ]
+  },
+  "start_date": "20260101",
+  "end_date": "20260301",
+  "dates_method": "WEEKDAYS",
+
+  "start_date_oos": "20260301",
+  "end_date_oos": "20260320",
+  "blacklist_dates": [],
+  "day_start_regress": "01:30:00 America/New_York",
+  "day_end_regress": "17:00:00 America/New_York",
+  "timer_specs": {
+      "sampling_tempos": [
+          {
+      	    "type": "final",
+        "symbol": "SELF"
+      }
+    ],
+    "markout_tempos": [
+      {
+        "type": "final",
+        "symbol": "SELF"
+      }
+    ]
+  },
+  "fit_specs": {
+    "fit_tgt": 20,
+    "use_daily_markout_rate": false,
+    "calc_fit_tgt_daily": false
+  },
+  "final_fit": {
+    "type": "lair",
+    "inherit": {
+      "use_inherit": true,
+      "traded": {
+        "include": true,
+        "use_default_dir": true,
+        "inherit_globs": [
+          "/root/tradefi/retraded/overmind/sig_inheritance/Hyperliquid/*json"
+        ],
+        "traded_sym_override": true,
+        "src_sym_switcharoo": true,
+        "use_supplement": true,
+        "supplement_to_n": 40,
+        "latest_n_files": 6,
+        "exclude_pattern": "10d"
+      },
+      "side": {
+        "include": true,
+        "use_native_and_override": true,
+        "actually_no_override": true,
+        "use_traded_indeps": true,
+        "inherit_globs": [
+          "/root/tradefi/retraded/overmind/sig_inheritance/Hyperliquid/*/*202*json"
+        ],
+        "use_supplement": true,
+        "supplement_to_n": 125,
+        "latest_n_files": 5,
+        "exclude_pattern": "10d"
+      }
+    },
+    "scribe_densely": false,
+    "num_samples": 800000,
+    "markout_cap": 0.02,
+    "reg_style": "enetcv",
+    "reg_alpha": 4e-02,
+    "num_wanted_signals": 10,
+    "fit_intercept": false,
+    "keep_intercept": false,
+    "use_post_ols_coef": false,
+    "do_post_final_regress": false,
+    "post_regress_specs": {
+      "reg_style": "enetcv",
+      "reg_alpha": 2e-06,
+      "fit_intercept": false,
+      "keep_intercept": false
+    }
+  },
+  "pnlclimb_specs": {
+    "dir_name": "pnlclimb_alpharelwide_4",
+    "sim_final": true,
+    "ordex_type": "alpha_rel_wide_mm",
+    "tradecall_remote_sym": true,
+    "ordex_specs": {
+	"ordersize_usd": 2000,
+	"maxpos_mult": 8,
+
+	"want_cross": false,
+	"cross_order_size_mult": 2,
+	"cross_v2": true,
+	"cross_v2_lspread_thresh": 12,
+	"cross_v2_exit_adjust": 0.9,
+	"cross_v2_sub_thresh": true,
+	"cross_v2_resize_w_thresh": false,
+	"cross_v2_pred_mode": 1,
+
+	"lspread_time_const_s": 120,
+	"lmr_time_const_s": 20,
+	"lmr_ema_mult": 1,
+	"lmr_local_only": false,
+	"sanitize_lspread": true,
+
+	"alpha_mult": 1,
+	"place_thresh": 0.0015,
+	"cancel_buffer_frac": 0.25,
+
+	"place_thresh_mode": 1,
+
+	"adding_no_cutin": false,
+	"adding_skip_prob_filled": false,
+
+	"mm_gtc": false,
+	"rung_spacing_mult": 1,
+	"per_backlevel_rung_spacing_mult": 1.5,
+
+	"front_rung_spacing_mult": 1,
+
+	"max_back_levels": 3,
+	"ms_between_place": 100,
+	"ms_between_cxl": 50,
+	"ms_between_backlevel": 1000,
+
+	"use_ladder_ticks": false,
+	"ladder_one_sided": true,
+	"per_order_widen_frac": 0.2,
+
+	"pcurv_denom_ord_mult": -1,
+	"pcurvicity": 1.0,
+	"pcurvicity_coef": 0.4,
+	"pcurvicity_one_sided": true,
+
+	"signal_dynamic_threshing": false,
+	"signal_dynamic_place_thresh_exp": 1,
+	"signal_dynamic_place_thresh_denom": 0.0005,
+
+	"thresh_mid_sigmoid_scale": false,
+	"dynamic_mid_sigmoid_style": 2,
+	"dynamic_mid_sigmoid_base": 0.01,
+	"dynamic_mid_sigmoid_offset": 0.5,
+	"dynamic_mid_sigmoid_mult": 1,
+
+	"scale_thresh_midmove_spread": false,
+	"scale_thresh_mids_const": 20,
+	"scale_midmove_lower_bound": 0.8,
+
+	"spreadscale_v2": false,
+
+	"narrow_when_few_trades": false,
+	"narrow_thresh_time_const_s": 200,
+	"narrow_minmultiple": 0.8,
+	"narrow_fewtrade_denom": 2,
+
+	"vol_widen_coef": 0.2,
+	"vol_widen_tdc": 2,
+	"vol_widen_scale": 0.0001,
+	"vol_widen_additive": true,
+
+	"pred_momentum_coef": 2,
+	"pred_momentum_tdc": 15,
+
+	"curv_impulse_coef": 2,
+	"curv_impulse_tdc": 20,
+
+	"min_ord_lifetime": 0.5
+
+    },
+    "grid_params": {
+	"place_thresh": [
+	    0.0008,
+	    0.0010,
+	    0.0012,
+	    0.0015,
+	    0.0018,
+	    0.0022
+	],
+	"lmr_time_const_s": [
+	    2, 4, 20, 60
+	],
+	"vol_widen_coef": [
+	    0, 0.1, 0.2, 0.4
+	],
+	"pred_momentum_coef": [
+	    0, 2, 4
+	]
+    },
+
+    "pcurvicity": {
+      "name": "pcurvicity",
+      "proj_type": "LOGISTIC",
+      "proj_value": 1,
+      "proj_mult": 4,
+      "stepsize": 0.25,
+      "chill_n_steps": 3
+    },
+    "climb_params": {
+      "place_thresh": {
+        "name": "place_thresh",
+        "proj_type": "EXP",
+        "proj_value": 0.0008,
+        "stepsize": 0.15
+      },
+      "cancel_buffer_frac": {
+        "name": "cancel_buffer_frac",
+        "proj_type": "EXP",
+        "proj_value": 0.1,
+        "stepsize": 0.1,
+        "chill_n_steps": 2
+      },
+      "lmr_time_const_s": {
+        "name": "lmr_time_const_s",
+        "proj_type": "EXP",
+        "proj_value": 20,
+        "stepsize": 0.15,
+        "chill_n_steps": 2
+      },
+
+      "pcurvicity": {
+        "name": "pcurvicity",
+        "proj_type": "EXP",
+        "proj_value": 1,
+        "stepsize": 0.02,
+        "chill_n_steps": 3
+      },
+
+      "pcurvicity_coef": {
+        "name": "pcurvicity_coef",
+        "proj_type": "LOGISTIC",
+        "proj_value": 0.3,
+        "stepsize": 0.15,
+        "chill_n_steps": 3
+      },
+
+      "pred_momentum_coef": {
+        "name": "pred_momentum_coef",
+        "proj_type": "EXP",
+        "proj_value": 2,
+        "stepsize": 0.2,
+        "chill_n_steps": 2
+      },
+
+      "pred_momentum_tdc": {
+        "name": "pred_momentum_tdc",
+        "proj_type": "EXP",
+        "proj_value": 15,
+        "stepsize": 0.15,
+        "chill_n_steps": 2
+      },
+
+      "curv_impulse_coef": {
+        "name": "curv_impulse_coef",
+        "proj_type": "EXP",
+        "proj_value": 2,
+        "stepsize": 0.2,
+        "chill_n_steps": 2
+      },
+
+      "curv_impulse_tdc": {
+        "name": "curv_impulse_tdc",
+        "proj_type": "EXP",
+        "proj_value": 20,
+        "stepsize": 0.15,
+        "chill_n_steps": 2
+      },
+
+      "vol_widen_coef": {
+        "name": "vol_widen_coef",
+        "proj_type": "LOGISTIC",
+        "proj_value": 0.2,
+        "stepsize": 0.15,
+        "chill_n_steps": 2
+      },
+
+      "scale_thresh_mids_const": {
+        "name": "scale_thresh_mids_const",
+        "proj_type": "EXP",
+        "proj_value": 20,
+        "stepsize": 0.1,
+        "chill_n_steps": 2
+      },
+      "mid_ems_tdc_s": {
+        "name": "mid_ems_tdc_s",
+        "proj_type": "EXP",
+        "proj_value": 100,
+        "stepsize": 0.1,
+        "chill_n_steps": 0
+      },
+      "cross_v2_lspread_thresh": {
+        "name": "cross_v2_lspread_thresh",
+        "proj_type": "EXP",
+        "proj_value": 12,
+        "stepsize": 0.05,
+        "chill_n_steps": 4
+      },
+      "cross_v2_exit_adjust": {
+        "name": "cross_v2_exit_adjust",
+        "proj_type": "EXP",
+        "proj_value": 0.8,
+        "stepsize": 0.25,
+        "chill_n_steps": 4
+      }
+    },
+
+    "scoring_spec": {
+      "style": "wins_pnl_charminvol_pct",
+	"vol_limit": 100,
+	"vol_style": "avg_med_numtrds",
+	"vol_scale": "linear_frac_bounded",
+
+	"penalty": -10,
+	"penalty_mult": 1.5
+    },
+    "num_iters": 14,
+    "climb_type": "CMAES",
+    "qc_specs": {
+      "min_epochs": 1,
+      "max_epochs": 14,
+      "n_particles": 10,
+      "initial_sigma": 0.3,
+      "params": []
+    },
+    "global_settings": {
+      "colo": "AWSTokA",
+      "strat_name": "spot_1",
+      "comment_here": "v4: noclamp, fixed lmr_ema_mult=1, place_thresh_mode=1, ladder_one_sided, vol_widen, pcurvicity_one_sided; climbs pred_momentum and curv_impulse; CMAES",
+      "commissions": {
+        "tiers": {
+          "BinanceSPOT": "VIP1",
+          "BinanceFutures": "VIP8USDT",
+          "Hyperliquid": "HIP3_3"
+        },
+        "promo_tier": "Silver",
+        "use_promo": true
+      },
+      "start_t": "18:00:00 America/New_York",
+      "end_t": "17:00:00 America/New_York"
+    },
+    "risk_settings": {
+      "max_notional": 10000000,
+      "max_position": "40",
+      "global_inherit": true,
+      "load_overnight_pos": false,
+      "max_orders": 12,
+      "base_currency": "USDT",
+      "min_pnl": -4000,
+      "fv_limit": 2,
+      "timeout_minfv": 900
+    },
+    "sim_settings": {
+      "BinanceSPOT": {
+        "cxl_frac_ahead": 0.3,
+        "sim_latency_secs": 0.015
+      },
+      "BinanceFutures": {
+        "cxl_frac_ahead": 0.3,
+        "use_one_way_latency": true,
+        "sim_latency_secs": 0.015
+      },
+      "Hyperliquid": {
+        "cxl_frac_ahead": 0.3,
+        "use_one_way_latency": false,
+        "sim_latency_secs": 1
+      }
+    },
+    "golive_minpnl_maxpos_mult": 0.025
+  }
+}

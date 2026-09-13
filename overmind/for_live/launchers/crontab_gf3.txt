@@ -1,0 +1,136 @@
+# Edit this file to introduce tasks to be run by cron.
+#
+# Each task to run has to be defined through a single line
+# indicating with different fields when the task will be run
+# and what command to run for the task
+#
+# To define the time you can provide concrete values for
+# minute (m), hour (h), day of month (dom), month (mon),
+# and day of week (dow) or use '*' in these fields (for 'any').
+#
+# Notice that tasks will be started based on the cron's system
+# daemon's notion of time and timezones.
+#
+# Output of the crontab jobs (including errors) is sent through
+# email to the user the crontab file belongs to (unless redirected).
+#
+# For example, you can run a backup of all your user accounts
+# at 5 a.m every week with:
+# 0 5 * * 1 tar -zcf /var/backups/home.tgz /home/
+#
+# For more information see the manual pages of crontab(5) and cron(8)
+#
+# m h  dom mon dow   command
+
+
+# Send email if anything is sent to stdout/stderr
+MAILTO="pktrade@googlegroups.com"
+
+# Note: run Python scripts directly with the venv's python because each ; separated command starts up its own shell, which means the activate won't actually activate.
+
+# pymultifeed (for Refinitiv) and pkmultifeed (for HL and DB)
+#0 18 * * * cd /home/ubuntu/estrader/ && /home/ubuntu/.venvs/v1/bin/python feed/pymultifeed.py --conf feed/feed.gf3.json >> /home/ubuntu/estrader/logs/feed_logs_$(date +\%Y\%m\%d).log
+
+#0 18 * * 0-4 /home/ubuntu/estrader/launchers/run_feed.sh cppfeed/pkmultifeed_0 feed.gf3.cpp.json tomorrow
+#0 18 * * 5-6 /home/ubuntu/estrader/launchers/run_feed.sh cppfeed/pkmultifeed_0 feed.gf3.cpp.weekend.json tomorrow
+
+# Run the daily wsgateway
+#0 18 * * * cd /home/ubuntu/estrader/ && /home/ubuntu/.venvs/v1/bin/python gateway/wsgateway.py --market Hyperliquid --creds /home/ubuntu/.creds/.Hyperliquid.creds.json --date TOMORROW --wait_secs 5 --id 3 --local-ips 172.31.35.167,172.31.32.246  >> /home/ubuntu/estrader/logs/gw_logs_$(date +\%Y\%m\%d).log
+
+# Daily check that processes exited properly at EOD
+#1 18 * * * /home/ubuntu/.venvs/v1/bin/python /home/ubuntu/scripts/eod_safeguard.py --wsgateway 1 --pymultifeed 1 --pkmultifeed 1 --ntfy kdb
+
+# Trading processes.
+
+# "normal day" traders
+
+#00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1  combined_foreign_gf3/cov_0511/pk_korean_combined_winners.json tomorrow
+#00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1  combined_foreign_gf3/cov_0521/pk_gf3_kor.json tomorrow
+#00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1  combined_foreign_gf3/cov_0706/pk_gf3_asian_krxday.json tomorrow
+#00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1  combined_foreign_gf3/cov_0727_pm/pk_gf3_kor_krxday_restofday.json tomorrow
+
+# KOSPI200
+#00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1  kr200/allday/pk_kr200_rel_ks_allday.json tomorrow
+#00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1  kr200/cov_0706/pk_gf3_asian_krxday.json tomorrow
+#00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1  kr200/cov_0727/pk_gf3_kor_futures_krxday_futures.json tomorrow
+
+# JP225
+#00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1  jp225/cov_0521/pk_gf3_jp.json tomorrow
+#00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1  jp225/cov_0727/pk_gf3_jp_jpxday.json tomorrow
+
+#00 1 * * 1-5 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1  jp225/extended_late/pk_jp225_rel_niy_extended_late.json today
+#00 1 * * 1-5 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1  jp225/cx_0713/pk_cx_gf3_jp_1.json today
+
+
+
+# hk
+#00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 hkstocks/am/pk_hkex_am.json tomorrow
+#30 0 * * 1-5 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1  hkstocks/pm/pk_hkex_pm.json today
+
+#00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 hkstocks/0706_am/pk_gf3_asian_hkxday_am.json tomorrow
+#30 0 * * 1-5 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1  hkstocks/0706_pm/pk_gf3_asian_hkxday_pm.json today
+
+
+#00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 hkstocks/0727_am/pk_gf3_hk_hkxday_am.json tomorrow
+#30 0 * * 1-5 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1  hkstocks/0727_pm/pk_gf3_hk_hkxday_pm.json today
+
+
+
+
+#00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 hkstocks/cx_1/pk_cx_gf3_hkg_1.json tomorrow
+#00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 hkstocks/cx_2_am/pk_cx_gf3_hkg_1.json tomorrow
+#30 0 * * 1-5 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1  hkstocks/cx_2_pm/pk_cx_gf3_hkg_pm_1.json today
+
+# double-down experiment (at size 0.25 x original) -- ZHIPU, MINIMAX, SKHX
+#00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_dd hkstocks/0706_am_dd/pk_gf3_asian_hkxday_am_dd.json tomorrow
+#30 0 * * 1-5 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_dd  hkstocks/0706_pm_dd/pk_gf3_asian_hkxday_pm_dd.json today
+#00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_dd skhx_cov_0521_dd/pk_cov_0521_dd.json tomorrow
+
+
+#kioxia soon jp
+
+#00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 japan/am/pk_japan_am.json tomorrow
+#00 21 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 japan/pm/pk_japan_pm.json tomorrow
+
+# Turn it off while I figure things out
+#00 18 * * 5-6 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 weekend_all/v4_protection/pk_weekend_0626.json tomorrow
+#00 18 * * 5-6 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 weekend_all/v5_mode4/pk_weekend_0626_m4.json tomorrow
+
+
+# Now, starting stuff for next day
+# gf3 equities
+#00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 combined_equities_bfx3/rel_nq_allday_boats/pk_rel_nq_allday_boats.json  tomorrow
+#00 09 * * 1-5 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 combined_equities_bfx3/usday/pk_usday.json  today
+# Testing RelWideMM2 with crossing (just PURRDAT and STRC, other symbols unchanged)
+#00 09 * * 1-5 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_rwcx combined_equities_bfx3/usday/pk_usday_cx.json  today
+
+#00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 combined_equities_bfx3/rel_nq_cov_0516_boats/pk_newsyms_combined_relnqallday_boats.json tomorrow
+#00 18 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 combined_equities_bfx3/allday_0706/pk_gf3_allday.json tomorrow
+
+# This is doing terribly
+#00 09 * * 1-5 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 combined_equities_bfx3/usday_cov_0516/pk_newsyms_combined_usday.json today
+#00 09 * * 1-5 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 combined_equities_bfx3/usday_cov_0616/pk_gf3_usday.json today
+
+# Don't run postus on Fridays.
+#59 15 * * 1-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 combined_equities_bfx3/postusa/pk_postusa.json  today
+
+#00 09 * * 1-5 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1  cross/v3/pk_cx_gf3_1.json  today
+#00 09 * * 1-5 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1  cross/v4/pk_cx_gf3_1.json  today
+#00 09 * * 1-5 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1  cross/v5/pk_cx_gf3_1.json  today
+
+# korea crossers
+#00 19 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 combined_foreign_gf3/cross_0527/gf3_kor_relcross_v4.json tomorrow
+#00 19 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 combined_foreign_gf3/cross_0616/pk_cx_gf3_kor_1.json tomorrow
+#00 19 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 combined_foreign_gf3/kor_cross_0713/pk_cx_gf3_kor_1.json tomorrow
+
+#00 19 * * 0-4 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 combined_foreign_gf3/kor_cross_0727_am/pk_cx_gf3_kor_1.json today
+#00 00 * * 1-5 /home/ubuntu/estrader/launchers/run_strat.sh pktrade_1 combined_foreign_gf3/kor_cross_0727_pm/pk_cx_gf3_kor_pm_1.json today
+
+# Snapshots
+#00 18 * * *  /home/ubuntu/.venvs/v1/bin/python scripts/supabase_snapshots.py >> /home/ubuntu/estrader/logs/snapshot_logs_$(date +\%Y\%m\%d).log
+
+#00 18 * * *  /home/ubuntu/.venvs/v1/bin/python estrader/datalog/pydatalog.py --date TOMORROW --outdir /home/ubuntu/histdata  >> /home/ubuntu/estrader/logs/datalog_logs_$(date +\%Y\%m\%d).log
+
+
+# Upload Korea equity histdata after market close (e.g., 15:00 US)
+#0 13 * * 1-5 /home/ubuntu/scripts/upload-gf3-histdata.sh >> /home/ubuntu/estrader/logs/upload-gf3-histdata.log 2>&1

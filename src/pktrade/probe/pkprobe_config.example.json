@@ -1,0 +1,9 @@
+{
+    "_comment": "Shared config for pkprobe_send (us-east-2) and pkprobe_recv (Tokyo). The sender uses all fields; the receiver only uses base_port, num_lanes, output_dir. tokyo_ip MUST be the receiver's PRIVATE IP (VPC peering only routes private addresses). Add UDP base_port..base_port+num_lanes-1 to the Tokyo box's security group from the us-east-2 VPC CIDR.",
+
+    "tokyo_ip": "172.31.43.108",
+    "base_port": 5000,
+    "num_lanes": 16,
+    "rate_per_lane_hz": 10,
+    "output_dir": "/home/ubuntu/logs/pkprobe"
+}

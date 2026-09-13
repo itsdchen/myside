@@ -1,0 +1,12 @@
+nq relationships:
+
+- weekend correlation w/ BTC: correlation coeff is 0.186
+(r2 is .27)
+work is here:
+https://docs.google.com/spreadsheets/d/1lrQw6uWb_T96fxnnEbnUVbP3qlv1Iem1fNErPq84pQE/edit?gid=460479148#gid=460479148
+
+I don't remember what weekday corr is.
+
+- NQ corr with QQQ is like 1. But the values are v misaligned. The ratio is about 41:1.
+
+Natural price for NQ is something like 22k right now.

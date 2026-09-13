@@ -1,0 +1,774 @@
+[
+  {
+    "classname": "DeepBookDer",
+    "symbol": "xyz:MSFT",
+    "markets": [
+      "Hyperliquid"
+    ],
+    "traded_symbol": "xyz:MSFT",
+    "traded_markets": [
+      "Hyperliquid"
+    ],
+    "param_vals": {
+      "time_decay": 109.81083039758641,
+      "tick_decay": 0.9995839668893834,
+      "tgt_decay_agree": 0.9872156596848637,
+      "tgt_decay_disagree": 0.9166953182740742,
+      "tgt_decay_denom": 0.00024064473735587114,
+      "a_pxdecay": 0.0002199184892165355,
+      "a_szdecay": 5805.380872964966,
+      "shadow_frac": 0.3097676801122122,
+      "shadow_decay_frac": 0.6405891490037784,
+      "totstren_tdc_s": 1032.7199422514361,
+      "totstren_ema_power": 2.143830473478609
+    },
+    "fixed_vals": {
+      "top_level_signal": {
+        "take_pred_returns": true,
+        "defer_decay": false,
+        "max_impulse": 0.01,
+        "max_bound_mult": 50,
+        "min_tick_decay": 0.9999,
+        "tgt_decay_denom": -1,
+        "output_sigmoid": false,
+        "output_sigmoid_denom": 0.01,
+        "name": "round0_xyz:MSFT_DeepBookDer_px_Self",
+        "pred_signal": "round0_xyz:MSFT_DeepBookDer_px_Self_deepbook",
+        "tgt_signal": "round0_xyz:MSFT_DeepBookDer_px_Selfder_decay"
+      },
+      "deep_book": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "min_px_weight": 1e-10,
+        "max_pct_away": 0.02,
+        "insides_before_recalc": 30,
+        "ignore_recalc_thresh_mult": 0.7,
+        "sz_decay_type": "EXP_SIZE",
+        "sz_decay_2": 10,
+        "bounding_val": 100.0,
+        "return_price": true,
+        "calc_style": "LOG_RATIO",
+        "use_flagged": true,
+        "use_shadow": true,
+        "totstren_ema_bound": 8,
+        "name": "round0_xyz:MSFT_DeepBookDer_px_Self_deepbook"
+      },
+      "der_decay_signal": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "use_flagged": true,
+        "name": "round0_xyz:MSFT_DeepBookDer_px_Selfder_decay"
+      }
+    },
+    "signame_key": "DeepBookDer__px_Self"
+  },
+  {
+    "classname": "MondoDeepBookDer",
+    "symbol": "xyz:MSFT",
+    "markets": [
+      "Hyperliquid"
+    ],
+    "traded_symbol": "xyz:MSFT",
+    "traded_markets": [
+      "Hyperliquid"
+    ],
+    "param_vals": {
+      "time_decay": 872.6598339591784,
+      "tick_decay": 0.999925690156703,
+      "tgt_decay_agree": 0.9827981972479183,
+      "tgt_decay_disagree": 0.8780644628849827,
+      "tgt_decay_denom": 0.0009507044533508132,
+      "output_sigmoid_denom": 0.11731917220545235,
+      "a_pxdecay": 0.00018215922735766467,
+      "a_szdecay": 1649378.515603624,
+      "sz_decay_2": 2.088769052366804,
+      "shadow_frac": 0.5811306495037902,
+      "shadow_decay_frac": 0.3789357674236617,
+      "totstren_tdc_s": 999.9999999999998,
+      "totstren_ema_power": 0.2836485601353713
+    },
+    "fixed_vals": {
+      "top_level_signal": {
+        "take_pred_returns": false,
+        "defer_decay": false,
+        "max_impulse": 0.03,
+        "max_bound_mult": 50,
+        "min_tick_decay": 0.9999,
+        "tgt_decay_denom": -1,
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.01,
+        "name": "round0_xyz:MSFT_MondoDeepBookDer_Self",
+        "pred_signal": "round0_xyz:MSFT_MondoDeepBookDer_Self_deepbook",
+        "tgt_signal": "round0_xyz:MSFT_MondoDeepBookDer_Selfder_decay"
+      },
+      "deep_book": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "min_px_weight": 1e-10,
+        "max_pct_away": 0.02,
+        "insides_before_recalc": 30,
+        "ignore_recalc_thresh_mult": 0.7,
+        "sz_decay_type": "EXP_NOTIONAL_AND_SIZE",
+        "sz_decay_2": 10,
+        "bounding_val": 100.0,
+        "return_price": false,
+        "calc_style": "LOG_RATIO",
+        "use_flagged": true,
+        "use_shadow": true,
+        "totstren_ema_bound": 8,
+        "name": "round0_xyz:MSFT_MondoDeepBookDer_Self_deepbook"
+      },
+      "der_decay_signal": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "use_flagged": true,
+        "name": "round0_xyz:MSFT_MondoDeepBookDer_Selfder_decay"
+      }
+    },
+    "signame_key": "MondoDeepBookDer__Self"
+  },
+  {
+    "classname": "DeepBookDer",
+    "symbol": "xyz:MSFT",
+    "markets": [
+      "Hyperliquid"
+    ],
+    "traded_symbol": "xyz:MSFT",
+    "traded_markets": [
+      "Hyperliquid"
+    ],
+    "param_vals": {
+      "time_decay": 1389.1220077524306,
+      "tick_decay": 0.9949071977808276,
+      "tgt_decay_agree": 0.73176648984974,
+      "tgt_decay_disagree": 0.9507869828933528,
+      "tgt_decay_denom": 7.580319833249209e-05,
+      "a_pxdecay": 0.00018011521284494938,
+      "a_szdecay": 3439.5943894747543,
+      "shadow_frac": 0.09452982275680605,
+      "shadow_decay_frac": 0.28175846948336103,
+      "totstren_tdc_s": 821.9791270563045,
+      "totstren_ema_power": 1.409417290470183
+    },
+    "fixed_vals": {
+      "top_level_signal": {
+        "take_pred_returns": true,
+        "defer_decay": false,
+        "max_impulse": 0.01,
+        "max_bound_mult": 50,
+        "min_tick_decay": 0.9999,
+        "tgt_decay_denom": -1,
+        "output_sigmoid": false,
+        "output_sigmoid_denom": 0.01,
+        "name": "round1_xyz:MSFT_DeepBookDer_px_Self",
+        "pred_signal": "round1_xyz:MSFT_DeepBookDer_px_Self_deepbook",
+        "tgt_signal": "round1_xyz:MSFT_DeepBookDer_px_Selfder_decay"
+      },
+      "deep_book": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "min_px_weight": 1e-10,
+        "max_pct_away": 0.02,
+        "insides_before_recalc": 30,
+        "ignore_recalc_thresh_mult": 0.7,
+        "sz_decay_type": "EXP_SIZE",
+        "sz_decay_2": 10,
+        "bounding_val": 100.0,
+        "return_price": true,
+        "calc_style": "LOG_RATIO",
+        "use_flagged": true,
+        "use_shadow": true,
+        "totstren_ema_bound": 8,
+        "name": "round1_xyz:MSFT_DeepBookDer_px_Self_deepbook"
+      },
+      "der_decay_signal": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "use_flagged": true,
+        "name": "round1_xyz:MSFT_DeepBookDer_px_Selfder_decay"
+      }
+    },
+    "signame_key": "DeepBookDer__px_Self"
+  },
+  {
+    "classname": "BookImp",
+    "symbol": "xyz:MSFT",
+    "markets": [
+      "Hyperliquid"
+    ],
+    "traded_symbol": "xyz:MSFT",
+    "traded_markets": [
+      "Hyperliquid"
+    ],
+    "param_vals": {
+      "sz_decay": 13010.603095575018,
+      "px_decay": 0.0006047051420164636,
+      "time_decay": 38.378631496812226,
+      "tick_decay": 0.9957429735819385,
+      "time_behind_const": 57.04959143981731,
+      "pred_decay": 0.9921366929541636,
+      "pred_decay_agree": 0.9935790456918201,
+      "pred_decay_denom": 0.0021925040839592177,
+      "pred_boost_timeconst_s": 42286.67834660846,
+      "pred_boost_offset": 0.7382499710995761,
+      "update_weight": 0.5745125725981161,
+      "trade_weight": 0.9547825265167125,
+      "bungee_mult_frac": 0.6798614934952247,
+      "bungee_denom": 0.22039093080615815
+    },
+    "fixed_vals": {
+      "top_level_signal": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "sz_decay_type": "EXP_SIZE",
+        "min_tick_decay": 1,
+        "pred_decay": 0.98,
+        "bungee_mult_frac": 0,
+        "bungee_denom": 5,
+        "name": "round1_xyz:MSFT_BookImp_Self",
+        "ref_signal": "round1_xyz:MSFT_BookImp_Self_refpx"
+      },
+      "ref_px": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "use_flagged": true,
+        "name": "round1_xyz:MSFT_BookImp_Self_refpx"
+      }
+    },
+    "signame_key": "BookImp__Self"
+  },
+  {
+    "classname": "AvgTrdDer",
+    "symbol": "xyz:MSFT",
+    "markets": [
+      "Hyperliquid"
+    ],
+    "traded_symbol": "xyz:MSFT",
+    "traded_markets": [
+      "Hyperliquid"
+    ],
+    "param_vals": {
+      "time_decay": 4.948394202175492e-05,
+      "tick_decay": 0.923345177855986,
+      "tgt_decay_agree": 0.9888690357289535,
+      "tgt_decay_disagree": 2.1536024805884267e-05,
+      "tgt_decay_denom": 0.00012954600793581067,
+      "output_sigmoid_denom": 6.457961106251743,
+      "sz_decay": 3452.434827816206
+    },
+    "fixed_vals": {
+      "top_level_signal": {
+        "take_pred_returns": true,
+        "defer_decay": false,
+        "max_impulse": 0.02,
+        "max_bound_mult": 30,
+        "min_tick_decay": 0.999,
+        "tgt_decay_denom": -1,
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.01,
+        "name": "round2_xyz:MSFT_AvgTrdDer_px_Self",
+        "pred_signal": "round2_xyz:MSFT_AvgTrdDer_px_Self_avgtrd",
+        "tgt_signal": "round2_xyz:MSFT_AvgTrdDer_px_Self_der_decay"
+      },
+      "avg_trd": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "sz_decay_type": "EXP_SIZE",
+        "return_price": true,
+        "calc_style": "AVG_REL_PRICE",
+        "name": "round2_xyz:MSFT_AvgTrdDer_px_Self_avgtrd",
+        "ref_signal": "round2_xyz:MSFT_AvgTrdDer_px_Self_refpx"
+      },
+      "ref_px": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "use_flagged": true,
+        "name": "round2_xyz:MSFT_AvgTrdDer_px_Self_refpx"
+      },
+      "der_decay_signal": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "use_flagged": true,
+        "name": "round2_xyz:MSFT_AvgTrdDer_px_Self_der_decay"
+      }
+    },
+    "signame_key": "AvgTrdDer__px_Self"
+  },
+  {
+    "classname": "BookImp",
+    "symbol": "xyz:MSFT",
+    "markets": [
+      "Hyperliquid"
+    ],
+    "traded_symbol": "xyz:MSFT",
+    "traded_markets": [
+      "Hyperliquid"
+    ],
+    "param_vals": {
+      "sz_decay": 648158.7807051655,
+      "px_decay": 0.7866833719052566,
+      "time_decay": 73.18931022520519,
+      "tick_decay": 0.9993148267003176,
+      "time_behind_const": 0.0026261296051236335,
+      "pred_decay": 0.99198933088653,
+      "pred_decay_agree": 0.9772585656149315,
+      "pred_decay_denom": 0.000493322110822236,
+      "pred_boost_timeconst_s": 76187.01374597868,
+      "pred_boost_offset": 0.8109366408671169,
+      "update_weight": 0.14003491562777276,
+      "trade_weight": 0.31270571980279593,
+      "bungee_mult_frac": 0.0067883174324206595,
+      "bungee_denom": 0.8685567025486352
+    },
+    "fixed_vals": {
+      "top_level_signal": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "sz_decay_type": "EXP_SIZE",
+        "min_tick_decay": 1,
+        "pred_decay": 0.98,
+        "bungee_mult_frac": 0,
+        "bungee_denom": 5,
+        "name": "round2_xyz:MSFT_BookImp_Self",
+        "ref_signal": "round2_xyz:MSFT_BookImp_Self_refpx"
+      },
+      "ref_px": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "use_flagged": true,
+        "name": "round2_xyz:MSFT_BookImp_Self_refpx"
+      }
+    },
+    "signame_key": "BookImp__Self"
+  },
+  {
+    "classname": "AvgTrdDer",
+    "symbol": "xyz:MSFT",
+    "markets": [
+      "Hyperliquid"
+    ],
+    "traded_symbol": "xyz:MSFT",
+    "traded_markets": [
+      "Hyperliquid"
+    ],
+    "param_vals": {
+      "time_decay": 0.015073153569173842,
+      "tick_decay": 0.12253019651558165,
+      "tgt_decay_agree": 0.9842803913090225,
+      "tgt_decay_disagree": 0.06148898567637079,
+      "tgt_decay_denom": 3.6632536967612536e-05,
+      "output_sigmoid_denom": 0.051982536108061445,
+      "sz_decay": 2198.1357594662213
+    },
+    "fixed_vals": {
+      "top_level_signal": {
+        "take_pred_returns": true,
+        "defer_decay": false,
+        "max_impulse": 0.02,
+        "max_bound_mult": 30,
+        "min_tick_decay": 0.999,
+        "tgt_decay_denom": -1,
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.01,
+        "name": "round3_xyz:MSFT_AvgTrdDer_px_Self",
+        "pred_signal": "round3_xyz:MSFT_AvgTrdDer_px_Self_avgtrd",
+        "tgt_signal": "round3_xyz:MSFT_AvgTrdDer_px_Self_der_decay"
+      },
+      "avg_trd": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "sz_decay_type": "EXP_SIZE",
+        "return_price": true,
+        "calc_style": "AVG_REL_PRICE",
+        "name": "round3_xyz:MSFT_AvgTrdDer_px_Self_avgtrd",
+        "ref_signal": "round3_xyz:MSFT_AvgTrdDer_px_Self_refpx"
+      },
+      "ref_px": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "use_flagged": true,
+        "name": "round3_xyz:MSFT_AvgTrdDer_px_Self_refpx"
+      },
+      "der_decay_signal": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "use_flagged": true,
+        "name": "round3_xyz:MSFT_AvgTrdDer_px_Self_der_decay"
+      }
+    },
+    "signame_key": "AvgTrdDer__px_Self"
+  },
+  {
+    "classname": "MondoDeepBookDer",
+    "symbol": "xyz:MSFT",
+    "markets": [
+      "Hyperliquid"
+    ],
+    "traded_symbol": "xyz:MSFT",
+    "traded_markets": [
+      "Hyperliquid"
+    ],
+    "param_vals": {
+      "time_decay": 86.39915780267283,
+      "tick_decay": 0.9953883959658819,
+      "tgt_decay_agree": 0.004668418406953038,
+      "tgt_decay_disagree": 0.9987650529740939,
+      "tgt_decay_denom": 0.0021509052099025192,
+      "output_sigmoid_denom": 0.02044285407603598,
+      "a_pxdecay": 0.0001930857056602681,
+      "a_szdecay": 395398774.0608385,
+      "sz_decay_2": 0.08019785640603294,
+      "shadow_frac": 0.77768448630036,
+      "shadow_decay_frac": 0.9968146209260184,
+      "totstren_tdc_s": 1199.4409390190333,
+      "totstren_ema_power": 1.0175332378326538
+    },
+    "fixed_vals": {
+      "top_level_signal": {
+        "take_pred_returns": false,
+        "defer_decay": false,
+        "max_impulse": 0.03,
+        "max_bound_mult": 50,
+        "min_tick_decay": 0.9999,
+        "tgt_decay_denom": -1,
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.01,
+        "name": "round3_xyz:MSFT_MondoDeepBookDer_Self",
+        "pred_signal": "round3_xyz:MSFT_MondoDeepBookDer_Self_deepbook",
+        "tgt_signal": "round3_xyz:MSFT_MondoDeepBookDer_Selfder_decay"
+      },
+      "deep_book": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "min_px_weight": 1e-10,
+        "max_pct_away": 0.02,
+        "insides_before_recalc": 30,
+        "ignore_recalc_thresh_mult": 0.7,
+        "sz_decay_type": "EXP_NOTIONAL_AND_SIZE",
+        "sz_decay_2": 10,
+        "bounding_val": 100.0,
+        "return_price": false,
+        "calc_style": "LOG_RATIO",
+        "use_flagged": true,
+        "use_shadow": true,
+        "totstren_ema_bound": 8,
+        "name": "round3_xyz:MSFT_MondoDeepBookDer_Self_deepbook"
+      },
+      "der_decay_signal": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "use_flagged": true,
+        "name": "round3_xyz:MSFT_MondoDeepBookDer_Selfder_decay"
+      }
+    },
+    "signame_key": "MondoDeepBookDer__Self"
+  },
+  {
+    "classname": "MondoDeepBookDer",
+    "symbol": "xyz:MSFT",
+    "markets": [
+      "Hyperliquid"
+    ],
+    "traded_symbol": "xyz:MSFT",
+    "traded_markets": [
+      "Hyperliquid"
+    ],
+    "param_vals": {
+      "time_decay": 428.1454776294185,
+      "tick_decay": 0.9973351391778901,
+      "tgt_decay_agree": 0.979381923294155,
+      "tgt_decay_disagree": 0.9766962296361478,
+      "tgt_decay_denom": 0.05343961885820603,
+      "output_sigmoid_denom": 2.9865288778812866,
+      "a_pxdecay": 0.006767172269675338,
+      "a_szdecay": 7216.006801484707,
+      "sz_decay_2": 0.04635985892900736,
+      "shadow_frac": 0.7357595549236033,
+      "shadow_decay_frac": 0.6013929100452957,
+      "totstren_tdc_s": 217.62377421096508,
+      "totstren_ema_power": 2.2748812307637283
+    },
+    "fixed_vals": {
+      "top_level_signal": {
+        "take_pred_returns": false,
+        "defer_decay": false,
+        "max_impulse": 0.03,
+        "max_bound_mult": 50,
+        "min_tick_decay": 0.9999,
+        "tgt_decay_denom": -1,
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.01,
+        "name": "round4_xyz:MSFT_MondoDeepBookDer_Self",
+        "pred_signal": "round4_xyz:MSFT_MondoDeepBookDer_Self_deepbook",
+        "tgt_signal": "round4_xyz:MSFT_MondoDeepBookDer_Selfder_decay"
+      },
+      "deep_book": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "min_px_weight": 1e-10,
+        "max_pct_away": 0.02,
+        "insides_before_recalc": 30,
+        "ignore_recalc_thresh_mult": 0.7,
+        "sz_decay_type": "EXP_NOTIONAL_AND_SIZE",
+        "sz_decay_2": 10,
+        "bounding_val": 100.0,
+        "return_price": false,
+        "calc_style": "LOG_RATIO",
+        "use_flagged": true,
+        "use_shadow": true,
+        "totstren_ema_bound": 8,
+        "name": "round4_xyz:MSFT_MondoDeepBookDer_Self_deepbook"
+      },
+      "der_decay_signal": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "use_flagged": true,
+        "name": "round4_xyz:MSFT_MondoDeepBookDer_Selfder_decay"
+      }
+    },
+    "signame_key": "MondoDeepBookDer__Self"
+  },
+  {
+    "classname": "DeepBookDer",
+    "symbol": "xyz:MSFT",
+    "markets": [
+      "Hyperliquid"
+    ],
+    "traded_symbol": "xyz:MSFT",
+    "traded_markets": [
+      "Hyperliquid"
+    ],
+    "param_vals": {
+      "time_decay": 661.6010963553617,
+      "tick_decay": 0.9999997189711504,
+      "tgt_decay_agree": 0.985267503037055,
+      "tgt_decay_disagree": 0.7634353235867641,
+      "tgt_decay_denom": 0.2751224895039412,
+      "a_pxdecay": 0.00035191795912235346,
+      "a_szdecay": 206.92677048214958,
+      "shadow_frac": 0.006415801452705368,
+      "shadow_decay_frac": 0.13767566067806716,
+      "totstren_tdc_s": 1991.2349241953036,
+      "totstren_ema_power": 3.6663121423115417
+    },
+    "fixed_vals": {
+      "top_level_signal": {
+        "take_pred_returns": false,
+        "defer_decay": false,
+        "max_impulse": 0.03,
+        "max_bound_mult": 50,
+        "min_tick_decay": 0.9999,
+        "tgt_decay_denom": -1,
+        "output_sigmoid": false,
+        "output_sigmoid_denom": 0.01,
+        "name": "round4_xyz:MSFT_DeepBookDer_Self",
+        "pred_signal": "round4_xyz:MSFT_DeepBookDer_Self_deepbook",
+        "tgt_signal": "round4_xyz:MSFT_DeepBookDer_Selfder_decay"
+      },
+      "deep_book": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "min_px_weight": 1e-10,
+        "max_pct_away": 0.02,
+        "insides_before_recalc": 30,
+        "ignore_recalc_thresh_mult": 0.7,
+        "sz_decay_type": "EXP_NOTIONAL",
+        "sz_decay_2": 10,
+        "bounding_val": 100.0,
+        "return_price": false,
+        "calc_style": "LOG_RATIO",
+        "use_flagged": true,
+        "use_shadow": true,
+        "totstren_ema_bound": 8,
+        "name": "round4_xyz:MSFT_DeepBookDer_Self_deepbook"
+      },
+      "der_decay_signal": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "use_flagged": true,
+        "name": "round4_xyz:MSFT_DeepBookDer_Selfder_decay"
+      }
+    },
+    "signame_key": "DeepBookDer__Self"
+  },
+  {
+    "classname": "MondoDeepBookDer",
+    "symbol": "xyz:MSFT",
+    "markets": [
+      "Hyperliquid"
+    ],
+    "traded_symbol": "xyz:MSFT",
+    "traded_markets": [
+      "Hyperliquid"
+    ],
+    "param_vals": {
+      "time_decay": 313.5558274091081,
+      "tick_decay": 0.9990115314730632,
+      "tgt_decay_agree": 0.9645045858357247,
+      "tgt_decay_disagree": 0.9697437571149327,
+      "tgt_decay_denom": 0.00023021120433812305,
+      "output_sigmoid_denom": 0.05323383920208336,
+      "a_pxdecay": 0.006862608898180315,
+      "a_szdecay": 9080.031155623863,
+      "sz_decay_2": 0.9001898953672863,
+      "shadow_frac": 0.8983314203229046,
+      "shadow_decay_frac": 0.9526080686387709,
+      "totstren_tdc_s": 657.6927421613084,
+      "totstren_ema_power": 1.850981634104237
+    },
+    "fixed_vals": {
+      "top_level_signal": {
+        "take_pred_returns": false,
+        "defer_decay": false,
+        "max_impulse": 0.03,
+        "max_bound_mult": 50,
+        "min_tick_decay": 0.9999,
+        "tgt_decay_denom": -1,
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.01,
+        "name": "round5_xyz:MSFT_MondoDeepBookDer_Self",
+        "pred_signal": "round5_xyz:MSFT_MondoDeepBookDer_Self_deepbook",
+        "tgt_signal": "round5_xyz:MSFT_MondoDeepBookDer_Selfder_decay"
+      },
+      "deep_book": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "min_px_weight": 1e-10,
+        "max_pct_away": 0.02,
+        "insides_before_recalc": 30,
+        "ignore_recalc_thresh_mult": 0.7,
+        "sz_decay_type": "EXP_NOTIONAL_AND_SIZE",
+        "sz_decay_2": 10,
+        "bounding_val": 100.0,
+        "return_price": false,
+        "calc_style": "LOG_RATIO",
+        "use_flagged": true,
+        "use_shadow": true,
+        "totstren_ema_bound": 8,
+        "name": "round5_xyz:MSFT_MondoDeepBookDer_Self_deepbook"
+      },
+      "der_decay_signal": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "use_flagged": true,
+        "name": "round5_xyz:MSFT_MondoDeepBookDer_Selfder_decay"
+      }
+    },
+    "signame_key": "MondoDeepBookDer__Self"
+  },
+  {
+    "classname": "DeepBookDer",
+    "symbol": "xyz:MSFT",
+    "markets": [
+      "Hyperliquid"
+    ],
+    "traded_symbol": "xyz:MSFT",
+    "traded_markets": [
+      "Hyperliquid"
+    ],
+    "param_vals": {
+      "time_decay": 9.181620436339418,
+      "tick_decay": 0.9999011628356024,
+      "tgt_decay_agree": 0.9612173114763025,
+      "tgt_decay_disagree": 0.9870099387830571,
+      "tgt_decay_denom": 0.0045150521067879945,
+      "a_pxdecay": 0.00020424167083589586,
+      "a_szdecay": 488.32422976483537,
+      "shadow_frac": 0.017454736668740093,
+      "shadow_decay_frac": 0.1351977631437933,
+      "totstren_tdc_s": 755.7875895480947,
+      "totstren_ema_power": 11.724499797570742
+    },
+    "fixed_vals": {
+      "top_level_signal": {
+        "take_pred_returns": true,
+        "defer_decay": false,
+        "max_impulse": 0.01,
+        "max_bound_mult": 50,
+        "min_tick_decay": 0.9999,
+        "tgt_decay_denom": -1,
+        "output_sigmoid": false,
+        "output_sigmoid_denom": 0.01,
+        "name": "round5_xyz:MSFT_DeepBookDer_px_Self",
+        "pred_signal": "round5_xyz:MSFT_DeepBookDer_px_Self_deepbook",
+        "tgt_signal": "round5_xyz:MSFT_DeepBookDer_px_Selfder_decay"
+      },
+      "deep_book": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "min_px_weight": 1e-10,
+        "max_pct_away": 0.02,
+        "insides_before_recalc": 30,
+        "ignore_recalc_thresh_mult": 0.7,
+        "sz_decay_type": "EXP_SIZE",
+        "sz_decay_2": 10,
+        "bounding_val": 100.0,
+        "return_price": true,
+        "calc_style": "LOG_RATIO",
+        "use_flagged": true,
+        "use_shadow": true,
+        "totstren_ema_bound": 8,
+        "name": "round5_xyz:MSFT_DeepBookDer_px_Self_deepbook"
+      },
+      "der_decay_signal": {
+        "symbol": "xyz:MSFT",
+        "books": [
+          "Hyperliquid"
+        ],
+        "use_flagged": true,
+        "name": "round5_xyz:MSFT_DeepBookDer_px_Selfder_decay"
+      }
+    },
+    "signame_key": "DeepBookDer__px_Self"
+  }
+]

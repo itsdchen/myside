@@ -1,0 +1,72 @@
+{
+  "ordex": {
+    "type": "WideMM",
+    "markets": ["BinanceSPOT"],
+    "ref_sig": "sym_mid",
+    "pred_sig": "sym_predsig",
+    "trade_caller": "sym_msg_tempo",
+
+    "max_pos": "20",
+    "order_size": "5",
+
+    "max_back_levels": 6,
+
+    "front_rung_spacing_mult": 1,
+    "rung_spacing_mult": 2,
+    "per_backlevel_rung_spacing_mult": 1.5,
+
+    "ms_between_place": 20,
+    "ms_between_cxl": 20,
+    "ms_between_cross": 10000,
+    "ms_between_backlevel": 2000,
+    "min_ord_lifetime": 1,
+
+    "alpha_mult": 1,
+
+    "want_cross": false,
+    "cross_thresh": 0.0008,
+    "cross_order_size_mult": 2,
+
+    "place_thresh_mode": 0,
+    "place_thresh_spread_coef": 0.5,
+    "place_thresh": 0.0002,
+    "cancel_buffer_frac": 0.25,
+
+    "TL2_aggr_exit_thresh": 0.5,
+
+    "mm_gtc": false,
+
+    "adding_no_cutin": true,
+
+    "pcurv_denom_ord_mult": -1,
+    "pcurvicity": 1,
+    "pcurvicity_coef": 0.5,
+
+    "use_ladder_ticks": true,
+    "ladder_one_sided": true,
+    "per_order_widen_frac": 0.2,
+
+    "mid_ems_tdc_s": 10,
+
+    "scale_thresh_midmove_spread": false,
+    "scale_thresh_mids_const": 2000,
+    "scale_midmove_lower_bound": 0.3,
+
+    "narrow_when_few_trades": false,
+    "narrow_fewtrade_minmultiple": 0.8,
+    "narrow_thresh_time_const_s": 500,
+    "narrow_fewtrade_denom": 2,
+
+    "spreadscale_v2": false,
+    "spreadscale_v2_bias": false,
+    "spreadscale_v2_bias_coef": 1,
+    "spreadscale_v2_momentum": false,
+    "spreadscale_v2_shape": 0,
+    "spreadscale_v2_mult": 1,
+    "spreadscale_v2_denom_const": 20,
+
+    "print_ords": false,
+
+    "getflat_pct_away": 0.01
+  }
+}

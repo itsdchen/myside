@@ -1,0 +1,109 @@
+{
+  "traded_symbols": ["ADAUSDT"],
+  "traded_markets": ["BinanceSPOT"],
+  "side_products": [{ "symbol": "ADAUSDT", "markets": ["BinanceFutures"] }],
+
+  "start_date": "20230501",
+  "end_date": "20230520",
+
+  "start_date_oos": "20230501",
+  "end_date_oos": "20230520",
+
+  "day_start_regress": "01:00:00 America/New_York",
+  "day_end_regress": "23:00:00 America/New_York",
+  "day_start_trade": "01:00:00 America/New_York",
+  "day_end_trade": "23:00:00 America/New_York",
+
+  "work_dir": "/home/david/modeltrain/golive_20230522/train_ada",
+  "data_dir": "/home/david/tardis_datasets",
+  "data_format": "own_capture",
+
+  "timer_specs": {
+    "sampling_tempos": [{ "type": "msg", "symbol": "SELF" }],
+    "markout_tempos": [{ "type": "msg", "symbol": "SELF" }]
+  },
+
+  "modelclimb_specs": {
+    "num_rounds": 8,
+    "merge_type": "group_regress",
+    "run_combined_signalclimb": true,
+    "reinit_prev": true,
+    "dispatch_style": "slow_rampup",
+    "inherited_params_path": "",
+    "markout_secs": 30,
+    "signals_per_round": 4,
+    "num_samples": 120000,
+    "fit_intercept": true,
+    "keep_intercept": false,
+    "qc_specs": {
+      "min_epochs": 6,
+      "max_epochs": 12,
+      "can_snapback": true,
+      "snapback_frac": 0.92,
+      "prefer_best": true,
+      "expand_quad_up": true,
+      "required_delta_params": 0,
+      "stop_condition": {
+        "center_pct_increase": 0.05,
+        "pct_change_variants": 0.05
+      },
+      "params": []
+    }
+  },
+
+  "pnlclimb_specs": {
+    "scoring_spec": {
+      "style": "pnl_hardvol",
+      "vol_limit": 30,
+      "penalty": -1000
+    },
+    "num_iters": 10,
+    "qc_specs": {
+      "min_epochs": 4,
+      "max_epochs": 10,
+      "can_snapback": true,
+      "snapback_frac": 0.92,
+      "prefer_best": true,
+      "expand_quad_up": true,
+      "required_delta_params": 0,
+      "stop_condition": {
+        "center_pct_increase": 0.05,
+        "pct_change_variants": 0.05
+      },
+      "params": []
+    },
+
+    "global_settings": {
+      "colo": "AWSTokA",
+      "strat_name": "spot_1",
+      "commissions": {
+        "tiers": { "BinanceSPOT": "VIP4", "BinanceFutures": "VIP4USDT" },
+        "use_promo": false
+      },
+      "start_t": "08:00:00 America/New_York",
+      "end_t": "18:00:00 America/New_York"
+    },
+
+    "risk_settings": {
+      "max_position": "50",
+      "max_orders": 2,
+      "base_currency": "USDT",
+      "min_pnl": -4000,
+      "fv_limit": 2,
+      "timeout_minfv": 1200
+    },
+
+    "sim_settings": {
+      "BinanceSPOT": { "sim_latency_secs": 0.01 },
+      "BinanceFutures": { "sim_latency_secs": 0.01 }
+    }
+  },
+
+  "simoos_specs": {
+    "risk_settings": {
+      "min_pnl": -400
+    }
+  },
+
+  "oos_eval_specs": {}
+}

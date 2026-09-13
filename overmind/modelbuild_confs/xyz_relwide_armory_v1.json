@@ -1,0 +1,321 @@
+{
+  "traded_symbols": [
+    "xyz:XYZ100"
+  ],
+  "traded_markets": [
+    "Hyperliquid"
+  ],
+  "side_products": [],
+  "remote_product": {
+    "symbol": "NQ",
+    "markets": [
+      "TopBookCme"
+    ]
+  },
+  "start_date": "20251106",
+  "end_date": "20251130",
+  "dates_method": "WEEKDAYS",
+  "start_date_oos": "20251130",
+  "end_date_oos": "20251210",
+  "blacklist_dates": [],
+  "day_start_regress": "09:30:00 America/New_York",
+  "day_end_regress": "16:00:00 America/New_York",
+  "timer_specs": {
+    "sampling_tempos": [
+      {
+        "type": "final",
+        "symbol": "SELF"
+      }
+    ],
+    "markout_tempos": [
+      {
+        "type": "final",
+        "symbol": "SELF"
+      }
+    ]
+  },
+  "fit_specs": {
+    "fit_tgt": 10,
+    "use_daily_markout_rate": false,
+    "calc_fit_tgt_daily": false
+  },
+  "final_fit": {
+    "type": "lair",
+    "inherit": {
+      "use_inherit": true,
+      "traded": {
+        "include": true,
+        "use_default_dir": true,
+        "inherit_globs": [
+          "/root/tradefi/retraded/overmind/sig_inheritance/Hyperliquid/*json"
+        ],
+        "traded_sym_override": true,
+        "src_sym_switcharoo": true,
+        "use_supplement": true,
+        "supplement_to_n": 40,
+        "latest_n_files": 6,
+        "exclude_pattern": "10d"
+      },
+      "side": {
+        "include": true,
+        "use_native_and_override": true,
+        "actually_no_override": true,
+        "use_traded_indeps": true,
+        "inherit_globs": [
+          "/root/tradefi/retraded/overmind/sig_inheritance/Hyperliquid/*/*202*json"
+        ],
+        "use_supplement": true,
+        "supplement_to_n": 125,
+        "latest_n_files": 5,
+        "exclude_pattern": "10d"
+      }
+    },
+    "scribe_densely": false,
+    "num_samples": 800000,
+    "markout_cap": 0.02,
+    "reg_style": "omp",
+    "reg_alpha": 0.04,
+    "num_wanted_signals": 10,
+    "fit_intercept": false,
+    "keep_intercept": false,
+    "use_post_ols_coef": false,
+    "do_post_final_regress": false,
+    "post_regress_specs": {
+      "reg_style": "enetcv",
+      "reg_alpha": 2e-06,
+      "fit_intercept": false,
+      "keep_intercept": false
+    }
+  },
+  "pnlclimb_specs": {
+    "dir_name": "pnlclimb_bootstrap",
+    "sim_final": true,
+    "ordex_type": "alpha_rel_wide_mm",
+    "tradecall_remote_sym": true,
+    "ordex_specs": {
+      "ordersize_usd": 2000,
+      "maxpos_mult": 8,
+      "want_cross": false,
+      "cross_order_size_mult": 2,
+      "cross_v2": true,
+      "cross_v2_lspread_thresh": 12,
+      "cross_v2_exit_adjust": 0.9,
+      "cross_v2_sub_thresh": false,
+      "cross_v2_resize_w_thresh": false,
+      "cross_v2_pred_mode": 1,
+      "mm_gtc": false,
+      "rung_spacing_mult": 1,
+      "max_back_levels": 2,
+      "ms_between_place": 100,
+      "ms_between_cxl": 50,
+      "pcurvicity_one_sided": false,
+      "oneside_pcurv_increases_thresh": false,
+      "pcurvicity": 1,
+      "pcurvicity_coef": 0.4,
+      "signal_dynamic_threshing": false,
+      "take_passive_profit": false,
+      "passive_profit_t": 1,
+      "passive_profit_pct": 0.0075,
+      "signal_dynamic_place_thresh_exp": 1,
+      "signal_dynamic_place_thresh_denom": 0.0005,
+      "thresh_mid_sigmoid_scale": false,
+      "dynamic_mid_sigmoid_style": 2,
+      "dynamic_mid_sigmoid_base": 0.01,
+      "dynamic_mid_sigmoid_offset": 0.5,
+      "dynamic_mid_sigmoid_mult": 1,
+      "scale_thresh_midmove_spread": true,
+      "scale_thresh_mids_const": 20,
+      "scale_midmove_lower_bound": 0.8,
+      "narrow_when_few_trades": true,
+      "narrow_thresh_time_const_s": 200,
+      "narrow_minmultiple": 0.8,
+      "narrow_fewtrade_denom": 2,
+      "ms_between_cross": 1000,
+      "min_ord_lifetime": 0.3,
+      "cross_thresh": 0.0004
+    },
+    "grid_params": {
+      "cross_v2_lspread_thresh": [
+        9,
+        12,
+        15
+      ],
+      "exit_adjust": [
+        0.9,
+        0.999
+      ],
+      "place_thresh": [
+        0.0006,
+        0.0008,
+        0.001,
+        0.0012
+      ]
+    },
+    "pcurvicity": {
+      "name": "pcurvicity",
+      "proj_type": "LOGISTIC",
+      "proj_value": 1,
+      "proj_mult": 4,
+      "stepsize": 0.25,
+      "chill_n_steps": 3
+    },
+    "climb_params": {
+      "alpha_mult": {
+        "name": "alpha_mult",
+        "proj_type": "EXP",
+        "proj_value": 1,
+        "stepsize": 0.15
+      },
+      "place_thresh": {
+        "name": "place_thresh",
+        "proj_type": "EXP",
+        "proj_value": 0.0008,
+        "stepsize": 0.15
+      },
+      "cancel_buffer_frac": {
+        "name": "cancel_buffer_frac",
+        "proj_type": "EXP",
+        "proj_value": 0.1,
+        "stepsize": 0.1,
+        "chill_n_steps": 2
+      },
+      "lmr_time_const_s": {
+        "name": "lmr_time_const_s",
+        "proj_type": "EXP",
+        "proj_value": 60,
+        "stepsize": 0.15,
+        "chill_n_steps": 2
+      },
+      "pcurvicity_coef": {
+        "name": "pcurvicity_coef",
+        "proj_type": "LOGISTIC",
+        "proj_value": 0.3,
+        "stepsize": 0.15,
+        "chill_n_steps": 3
+      },
+      "cross_v2_lspread_thresh": {
+        "name": "cross_v2_lspread_thresh",
+        "proj_type": "EXP",
+        "proj_value": 10,
+        "stepsize": 0.1,
+        "chill_n_steps": 4
+      },
+      "cross_v2_exit_adjust": {
+        "name": "cross_v2_exit_adjust",
+        "proj_type": "LOGISTIC",
+        "proj_value": 0.99,
+        "stepsize": 0.1,
+        "chill_n_steps": 4
+      },
+      "scale_thresh_mids_const": {
+        "name": "scale_thresh_mids_const",
+        "proj_type": "EXP",
+        "proj_value": 20,
+        "stepsize": 0.1,
+        "chill_n_steps": 2
+      },
+      "mid_ems_tdc_s": {
+        "name": "mid_ems_tdc_s",
+        "proj_type": "EXP",
+        "proj_value": 100,
+        "stepsize": 0.1,
+        "chill_n_steps": 0
+      },
+      "narrow_minmultiple": {
+        "name": "narrow_minmultiple",
+        "proj_type": "LOGISTIC",
+        "proj_value": 0.8,
+        "stepsize": 0.25,
+        "chill_n_steps": 4
+      },
+      "narrow_thresh_time_const_s": {
+        "name": "narrow_thresh_time_const_s",
+        "proj_type": "EXP",
+        "proj_value": 500,
+        "stepsize": 0.25,
+        "chill_n_steps": 4
+      },
+      "narrow_fewtrade_denom": {
+        "name": "narrow_fewtrade_denom",
+        "proj_type": "EXP",
+        "proj_value": 2,
+        "stepsize": 0.05,
+        "chill_n_steps": 4
+      }
+    },
+    "scoring_spec": {
+      "style": "wins_pnl_charminvol_pct",
+      "vol_limit": 30,
+      "vol_style": "avg_med_numtrds",
+      "vol_scale": "linear_frac_bounded",
+      "penalty": -10,
+      "penalty_mult": 1.5
+    },
+    "num_iters": 5,
+    "climb_type": "PARTICLE",
+    "qc_specs": {
+      "min_epochs": 1,
+      "max_epochs": 20,
+      "n_particles": 15,
+      "inertia_w": 0.7298,
+      "low_inertia_w": 0.2,
+      "c_self": 1.49618,
+      "low_c_self": 0.4,
+      "c_global": 1.49618,
+      "inertia_w.0": 0.5,
+      "c_self.0": 0.5,
+      "c_global.0": 2,
+      "do_snapback": true,
+      "snapback_frac": 0.85,
+      "snapback_min_epoch": 2,
+      "snapback_global_frac": 0.7,
+      "snapback_v_damp_frac": 0.5,
+      "params": []
+    },
+    "global_settings": {
+      "colo": "AWSTokA",
+      "strat_name": "spot_1",
+      "comment_here": "We should probably switch to some fxn of look-ahead ",
+      "commissions": {
+        "tiers": {
+          "BinanceSPOT": "VIP1",
+          "BinanceFutures": "VIP8USDT",
+          "Hyperliquid": "HIP3_3"
+        },
+        "promo_tier": "Silver",
+        "use_promo": true
+      },
+      "start_t": "08:00:00 America/New_York",
+      "end_t": "18:00:00 America/New_York"
+    },
+    "risk_settings": {
+      "max_notional": 10000000,
+      "max_position": "40",
+      "global_inherit": true,
+      "load_overnight_pos": false,
+      "max_orders": 12,
+      "base_currency": "USDT",
+      "min_pnl": -4000,
+      "fv_limit": 2,
+      "timeout_minfv": 900
+    },
+    "sim_settings": {
+      "BinanceSPOT": {
+        "cxl_frac_ahead": 0.3,
+        "sim_latency_secs": 0.015
+      },
+      "BinanceFutures": {
+        "cxl_frac_ahead": 0.3,
+        "use_one_way_latency": true,
+        "sim_latency_secs": 0.015
+      },
+      "Hyperliquid": {
+        "cxl_frac_ahead": 0.3,
+        "use_one_way_latency": false,
+        "sim_latency_secs": 1
+      }
+    },
+    "golive_minpnl_maxpos_mult": 0.025,
+    "run": false
+  }
+}

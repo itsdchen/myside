@@ -1,0 +1,1 @@
+I noticed that when I ran the sim of the aggregate conffile, that the results seemed to do worse than sims on the individual ones. I don't think it's random because they all seemed worse? Look into it.

@@ -1,0 +1,10 @@
+{
+  "tempos": [
+    {
+      "name": "a_name",
+      "type": "TimeTempo",
+      "symbol": "na_here_for_convenience",
+      "thresh": 11.2
+    }
+  ]
+}

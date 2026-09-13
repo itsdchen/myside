@@ -1,0 +1,572 @@
+{
+  "metadata": {
+    "built_at": "20260413",
+    "bundle_version": 1,
+    "end_date": "20260412",
+    "quality": "provisional",
+    "score": null,
+    "sha256": "0ade78730d47898d9997c79160caa1bfea5c9ab0db4f489815ef1346a4d2c480",
+    "source_dir": "/home/pktrade/scratch/relwide_autobuild/autobuild_xyz_GOOGL_20260413/coef_lair",
+    "start_date": "20260313",
+    "symbol": "xyz:GOOGL",
+    "venue": "Hyperliquid"
+  },
+  "pred_signal": {
+    "signals": [
+      {
+        "example_sig_coef": 1.1,
+        "lair_11_xyz:GOOGL_MondoDeepBookDerxyz:GOOGL_11_bound": 0.0006148190308,
+        "lair_11_xyz:GOOGL_MondoDeepBookDerxyz:GOOGL_11_coef": 0.26475637294961163,
+        "lair_16_xyz:GOOGL_AvgTrdDerxyz:GOOGL_16_bound": 0.009369791374,
+        "lair_16_xyz:GOOGL_AvgTrdDerxyz:GOOGL_16_coef": 0.019789137510839657,
+        "lair_1_xyz:GOOGL_DeepBookDerxyz:GOOGL_1_bound": 0.0003772753162000583,
+        "lair_1_xyz:GOOGL_DeepBookDerxyz:GOOGL_1_coef": 0.1452257675800457,
+        "lair_27_xyz:GOOGL_DeepBookDerxyz:GOOGL_27_bound": 0.136897,
+        "lair_27_xyz:GOOGL_DeepBookDerxyz:GOOGL_27_coef": 0.0004482426668455911,
+        "lair_30_xyz:GOOGL_BookImpxyz:GOOGL_30_bound": 0.681834099,
+        "lair_30_xyz:GOOGL_BookImpxyz:GOOGL_30_coef": -0.00014518244695872992,
+        "lair_38_xyz:GOOGL_DeepBookDerxyz:GOOGL_38_bound": 0.000954567175,
+        "lair_38_xyz:GOOGL_DeepBookDerxyz:GOOGL_38_coef": -0.13896986262243655,
+        "lair_41_xyz:GOOGL_BookImpxyz:GOOGL_41_bound": 0.09408535897001587,
+        "lair_41_xyz:GOOGL_BookImpxyz:GOOGL_41_coef": 0.0010459867040434644,
+        "lair_43_xyz:GOOGL_DeepBookDerxyz:GOOGL_43_bound": 0.13204512010000222,
+        "lair_43_xyz:GOOGL_DeepBookDerxyz:GOOGL_43_coef": 0.0006447004888104473,
+        "lair_54_xyz:GOOGL_DeepBookxyz:GOOGL_54_bound": 0.00012824064570002438,
+        "lair_54_xyz:GOOGL_DeepBookxyz:GOOGL_54_coef": 0.9933472171430574,
+        "lair_9_xyz:GOOGL_MondoDeepBookDerxyz:GOOGL_9_bound": 0.5,
+        "lair_9_xyz:GOOGL_MondoDeepBookDerxyz:GOOGL_9_coef": 0.00016429976481184265,
+        "name": "pred_XYZ_GOOGL",
+        "offset": 0,
+        "sig_names": [
+          "lair_1_xyz:GOOGL_DeepBookDerxyz:GOOGL_1",
+          "lair_9_xyz:GOOGL_MondoDeepBookDerxyz:GOOGL_9",
+          "lair_11_xyz:GOOGL_MondoDeepBookDerxyz:GOOGL_11",
+          "lair_16_xyz:GOOGL_AvgTrdDerxyz:GOOGL_16",
+          "lair_27_xyz:GOOGL_DeepBookDerxyz:GOOGL_27",
+          "lair_30_xyz:GOOGL_BookImpxyz:GOOGL_30",
+          "lair_38_xyz:GOOGL_DeepBookDerxyz:GOOGL_38",
+          "lair_41_xyz:GOOGL_BookImpxyz:GOOGL_41",
+          "lair_43_xyz:GOOGL_DeepBookDerxyz:GOOGL_43",
+          "lair_54_xyz:GOOGL_DeepBookxyz:GOOGL_54"
+        ],
+        "sigformer_tag": "top_level_signal",
+        "type": "SigLinear"
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.03,
+        "min_tick_decay": 0.9999,
+        "name": "lair_1_xyz:GOOGL_DeepBookDerxyz:GOOGL_1",
+        "output_sigmoid": false,
+        "output_sigmoid_denom": 0.01,
+        "pred_signal": "lair_1_xyz:GOOGL_DeepBookDerxyz:GOOGL_deepbook_1",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": false,
+        "tgt_decay_agree": 0.9848161794029606,
+        "tgt_decay_denom": 0.008654818632459715,
+        "tgt_decay_disagree": 0.9944538779594774,
+        "tgt_signal": "lair_1_xyz:GOOGL_DeepBookDerxyz:GOOGLder_decay_1",
+        "tick_decay": 0.99996559424987,
+        "time_decay": 278.2992890732217,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_1_xyz:GOOGL_DeepBookDerxyz:GOOGL_deepbook_1",
+        "px_decay": 0.00046031789787096634,
+        "return_price": false,
+        "shadow_decay_frac": 0.74748206651854,
+        "shadow_frac": 0.026402853194434087,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:GOOGL",
+        "sz_decay": 3917.032548053236,
+        "sz_decay_2": 10,
+        "sz_decay_type": "EXP_NOTIONAL",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 1.3438632726871023,
+        "totstren_tdc_s": 3829.2913278605065,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_1_xyz:GOOGL_DeepBookDerxyz:GOOGLder_decay_1",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:GOOGL",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.03,
+        "min_tick_decay": 0.9999,
+        "name": "lair_9_xyz:GOOGL_MondoDeepBookDerxyz:GOOGL_9",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.020843977487298007,
+        "pred_signal": "lair_9_xyz:GOOGL_MondoDeepBookDerxyz:GOOGL_deepbook_9",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": false,
+        "tgt_decay_agree": 0.9816119378462324,
+        "tgt_decay_denom": 6.967488179261824e-05,
+        "tgt_decay_disagree": 0.0017386687096840195,
+        "tgt_signal": "lair_9_xyz:GOOGL_MondoDeepBookDerxyz:GOOGLder_decay_9",
+        "tick_decay": 0.9993789173103578,
+        "time_decay": 0.3425911499848823,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_9_xyz:GOOGL_MondoDeepBookDerxyz:GOOGL_deepbook_9",
+        "px_decay": 0.05883757248374079,
+        "return_price": false,
+        "shadow_decay_frac": 0.696800231677935,
+        "shadow_frac": 0.20089995334105293,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:GOOGL",
+        "sz_decay": 0.8688829893222461,
+        "sz_decay_2": 0.000545650439513188,
+        "sz_decay_type": "EXP_NOTIONAL_AND_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 0.002972723086987151,
+        "totstren_tdc_s": 495.4481363083736,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_9_xyz:GOOGL_MondoDeepBookDerxyz:GOOGLder_decay_9",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:GOOGL",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.03,
+        "min_tick_decay": 0.9999,
+        "name": "lair_11_xyz:GOOGL_MondoDeepBookDerxyz:GOOGL_11",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.11731917220545235,
+        "pred_signal": "lair_11_xyz:GOOGL_MondoDeepBookDerxyz:GOOGL_deepbook_11",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": false,
+        "tgt_decay_agree": 0.9827981972479183,
+        "tgt_decay_denom": 0.0009507044533508132,
+        "tgt_decay_disagree": 0.8780644628849827,
+        "tgt_signal": "lair_11_xyz:GOOGL_MondoDeepBookDerxyz:GOOGLder_decay_11",
+        "tick_decay": 0.999925690156703,
+        "time_decay": 872.6598339591784,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_11_xyz:GOOGL_MondoDeepBookDerxyz:GOOGL_deepbook_11",
+        "px_decay": 0.00018215922735766467,
+        "return_price": false,
+        "shadow_decay_frac": 0.3789357674236617,
+        "shadow_frac": 0.5811306495037902,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:GOOGL",
+        "sz_decay": 1649378.515603624,
+        "sz_decay_2": 2.088769052366804,
+        "sz_decay_type": "EXP_NOTIONAL_AND_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 0.2836485601353713,
+        "totstren_tdc_s": 999.9999999999998,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_11_xyz:GOOGL_MondoDeepBookDerxyz:GOOGLder_decay_11",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:GOOGL",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 30,
+        "max_impulse": 0.02,
+        "min_tick_decay": 0.999,
+        "name": "lair_16_xyz:GOOGL_AvgTrdDerxyz:GOOGL_16",
+        "output_sigmoid": true,
+        "output_sigmoid_denom": 0.051982536108061445,
+        "pred_signal": "lair_16_xyz:GOOGL_AvgTrdDerxyz:GOOGL_avgtrd_16",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": true,
+        "tgt_decay_agree": 0.9842803913090225,
+        "tgt_decay_denom": 3.6632536967612536e-05,
+        "tgt_decay_disagree": 0.06148898567637079,
+        "tgt_signal": "lair_16_xyz:GOOGL_AvgTrdDerxyz:GOOGL_der_decay_16",
+        "tick_decay": 0.99,
+        "time_decay": 300,
+        "type": "SigDer"
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "calc_style": "AVG_REL_PRICE",
+        "name": "lair_16_xyz:GOOGL_AvgTrdDerxyz:GOOGL_avgtrd_16",
+        "ref_signal": "lair_16_xyz:GOOGL_AvgTrdDerxyz:GOOGL_refpx_16",
+        "return_price": true,
+        "sigformer_tag": "avg_trd",
+        "symbol": "xyz:GOOGL",
+        "sz_decay": 2198.1357594662213,
+        "sz_decay_type": "EXP_SIZE",
+        "tick_decay": 0.12253019651558165,
+        "time_decay": 0.015073153569173842,
+        "type": "SigTrdPx"
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_16_xyz:GOOGL_AvgTrdDerxyz:GOOGL_refpx_16",
+        "sigformer_tag": "ref_px",
+        "symbol": "xyz:GOOGL",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_16_xyz:GOOGL_AvgTrdDerxyz:GOOGL_der_decay_16",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:GOOGL",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.01,
+        "min_tick_decay": 0.9999,
+        "name": "lair_27_xyz:GOOGL_DeepBookDerxyz:GOOGL_27",
+        "output_sigmoid": false,
+        "output_sigmoid_denom": 0.01,
+        "pred_signal": "lair_27_xyz:GOOGL_DeepBookDerxyz:GOOGL_deepbook_27",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": true,
+        "tgt_decay_agree": 0.9972747295047308,
+        "tgt_decay_denom": 0.0013684525079440178,
+        "tgt_decay_disagree": 0.42725361505520987,
+        "tgt_signal": "lair_27_xyz:GOOGL_DeepBookDerxyz:GOOGLder_decay_27",
+        "tick_decay": 0.9535620678454845,
+        "time_decay": 26.99298035364439,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_27_xyz:GOOGL_DeepBookDerxyz:GOOGL_deepbook_27",
+        "px_decay": 2.1431608439465488e-06,
+        "return_price": true,
+        "shadow_decay_frac": 0.06217129589525206,
+        "shadow_frac": 0.004856619120892952,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:GOOGL",
+        "sz_decay": 33759.55425401798,
+        "sz_decay_2": 10,
+        "sz_decay_type": "EXP_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 8.56776970949151,
+        "totstren_tdc_s": 334.3939127927302,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_27_xyz:GOOGL_DeepBookDerxyz:GOOGLder_decay_27",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:GOOGL",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "BinanceSPOT.weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bungee_denom": 4.950395043998923e-05,
+        "bungee_mult_frac": 0.3259369395612202,
+        "min_tick_decay": 1,
+        "name": "lair_30_xyz:GOOGL_BookImpxyz:GOOGL_30",
+        "pred_boost_offset": 0.7539992115189239,
+        "pred_boost_timeconst_s": 36276.408767628694,
+        "pred_decay": 0.9894497994311137,
+        "pred_decay_agree": 0.5412166971337811,
+        "pred_decay_denom": 0.0005567595431058311,
+        "px_decay": 0.3049034498912265,
+        "ref_signal": "lair_30_xyz:GOOGL_BookImpxyz:GOOGL_refpx_30",
+        "sigformer_tag": "top_level_signal",
+        "symbol": "xyz:GOOGL",
+        "sz_decay": 1959.49626969585,
+        "sz_decay_type": "EXP_SIZE",
+        "tick_decay": 0.9999047867539562,
+        "ticker_weight": 0.5,
+        "time_behind_const": 49.53075132205473,
+        "time_decay": 5977.0205458055025,
+        "trade_weight": 0.6575139700504486,
+        "type": "SigBookImpulse",
+        "update_weight": 0.015906391711814724
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_30_xyz:GOOGL_BookImpxyz:GOOGL_refpx_30",
+        "sigformer_tag": "ref_px",
+        "symbol": "xyz:GOOGL",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.01,
+        "min_tick_decay": 0.9999,
+        "name": "lair_38_xyz:GOOGL_DeepBookDerxyz:GOOGL_38",
+        "output_sigmoid": false,
+        "output_sigmoid_denom": 0.01,
+        "pred_signal": "lair_38_xyz:GOOGL_DeepBookDerxyz:GOOGL_deepbook_38",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": true,
+        "tgt_decay_agree": 0.8325338564279202,
+        "tgt_decay_denom": 3.25156775151889e-05,
+        "tgt_decay_disagree": 0.3946576650178686,
+        "tgt_signal": "lair_38_xyz:GOOGL_DeepBookDerxyz:GOOGLder_decay_38",
+        "tick_decay": 0.9958069284102328,
+        "time_decay": 0.6562473354548655,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_38_xyz:GOOGL_DeepBookDerxyz:GOOGL_deepbook_38",
+        "px_decay": 0.00023988752939671,
+        "return_price": true,
+        "shadow_decay_frac": 0.34974666280847877,
+        "shadow_frac": 0.26382038120240486,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:GOOGL",
+        "sz_decay": 8337.24039357016,
+        "sz_decay_2": 10,
+        "sz_decay_type": "EXP_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 0.9394130628134758,
+        "totstren_tdc_s": 892.2330490680494,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_38_xyz:GOOGL_DeepBookDerxyz:GOOGLder_decay_38",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:GOOGL",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "BinanceSPOT.weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bungee_denom": 0.04861797718919909,
+        "bungee_mult_frac": 0.9925585094392512,
+        "min_tick_decay": 1,
+        "name": "lair_41_xyz:GOOGL_BookImpxyz:GOOGL_41",
+        "pred_boost_offset": 0.10850853982308037,
+        "pred_boost_timeconst_s": 143174.65839724743,
+        "pred_decay": 0.9709196792187194,
+        "pred_decay_agree": 0.9852277940443559,
+        "pred_decay_denom": 0.005094366822704605,
+        "px_decay": 0.00026052308622942646,
+        "ref_signal": "lair_41_xyz:GOOGL_BookImpxyz:GOOGL_refpx_41",
+        "sigformer_tag": "top_level_signal",
+        "symbol": "xyz:GOOGL",
+        "sz_decay": 648.2294722707128,
+        "sz_decay_type": "EXP_SIZE",
+        "tick_decay": 0.9974470526569269,
+        "ticker_weight": 0.5,
+        "time_behind_const": 0.4493702392953926,
+        "time_decay": 306.0454333358975,
+        "trade_weight": 0.8948467402743164,
+        "type": "SigBookImpulse",
+        "update_weight": 0.06295458962627173
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_41_xyz:GOOGL_BookImpxyz:GOOGL_refpx_41",
+        "sigformer_tag": "ref_px",
+        "symbol": "xyz:GOOGL",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "defer_decay": false,
+        "max_bound_mult": 50,
+        "max_impulse": 0.01,
+        "min_tick_decay": 0.9999,
+        "name": "lair_43_xyz:GOOGL_DeepBookDerxyz:GOOGL_43",
+        "output_sigmoid": false,
+        "output_sigmoid_denom": 0.01,
+        "pred_signal": "lair_43_xyz:GOOGL_DeepBookDerxyz:GOOGL_deepbook_43",
+        "sigformer_tag": "top_level_signal",
+        "take_pred_returns": true,
+        "tgt_decay_agree": 0.681597559644286,
+        "tgt_decay_denom": 0.0033115451958692344,
+        "tgt_decay_disagree": 0.29852171671297745,
+        "tgt_signal": "lair_43_xyz:GOOGL_DeepBookDerxyz:GOOGLder_decay_43",
+        "tick_decay": 0.9508841596516076,
+        "time_decay": 5.035249854080124,
+        "type": "SigDer"
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 100.0,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_43_xyz:GOOGL_DeepBookDerxyz:GOOGL_deepbook_43",
+        "px_decay": 0.00020943637699860157,
+        "return_price": true,
+        "shadow_decay_frac": 0.8581992196107051,
+        "shadow_frac": 0.10777182518083858,
+        "sigformer_tag": "deep_book",
+        "symbol": "xyz:GOOGL",
+        "sz_decay": 1814.359065788248,
+        "sz_decay_2": 10,
+        "sz_decay_type": "EXP_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 7.865609273944892,
+        "totstren_tdc_s": 730.7645506619408,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      },
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "lair_43_xyz:GOOGL_DeepBookDerxyz:GOOGLder_decay_43",
+        "sigformer_tag": "der_decay_signal",
+        "symbol": "xyz:GOOGL",
+        "type": "SigMid",
+        "use_flagged": true
+      },
+      {
+        "BinanceSPOT.Weight": 1,
+        "books": [
+          "Hyperliquid"
+        ],
+        "bounding_val": 2,
+        "calc_style": "LOG_RATIO",
+        "ignore_recalc_thresh_mult": 0.7,
+        "insides_before_recalc": 30,
+        "max_pct_away": 0.02,
+        "min_px_weight": 1e-10,
+        "name": "lair_54_xyz:GOOGL_DeepBookxyz:GOOGL_54",
+        "px_decay": 7.525991113330061e-05,
+        "return_price": false,
+        "shadow_decay_frac": 0.9862950155612951,
+        "shadow_frac": 0.721792440109232,
+        "sigformer_tag": "top_level_signal",
+        "symbol": "xyz:GOOGL",
+        "sz_decay": 1412.6425945283565,
+        "sz_decay_2": 0.27406783040462096,
+        "sz_decay_type": "EXP_NOTIONAL_AND_SIZE",
+        "totstren_ema_bound": 8,
+        "totstren_ema_power": 1.7608891410143035,
+        "totstren_tdc_s": 2144.879840882456,
+        "type": "SigDeepBook",
+        "use_flagged": true,
+        "use_shadow": true
+      }
+    ]
+  },
+  "ref_signal": {
+    "signals": [
+      {
+        "books": [
+          "Hyperliquid"
+        ],
+        "name": "ref_XYZ_GOOGL",
+        "sigformer_tag": "top_level_signal",
+        "symbol": "xyz:GOOGL",
+        "type": "SigMid",
+        "use_flagged": true
+      }
+    ]
+  }
+}

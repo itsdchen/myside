@@ -1,0 +1,27 @@
+{
+  "signals": [
+    {
+      "name": "a_name",
+      "type": "SigTrdPx",
+      "symbol": "BTCUSDT",
+      "books": ["BinanceSPOT"],
+
+      "time_decay": 20,
+      "tick_decay": 0.922,
+      "sz_decay": 18,
+      "sz_decay_type": "EXP_SIZE",
+      "calc_style": "AVG_PX",
+      "return_price": false,
+      "ref_signal": "some_signal",
+      "sigformer_tag": "top_level_signal"
+    },
+
+    {
+      "name": "mid_price",
+      "type": "SigMid",
+      "symbol": "BTCUSDT",
+      "books": ["BinanceSPOT"],
+      "sigformer_tag": "ref_px"
+    }
+  ]
+}

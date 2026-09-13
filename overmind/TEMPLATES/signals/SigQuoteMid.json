@@ -1,0 +1,12 @@
+{
+  "signals": [
+    {
+      "name": "a_name",
+      "type": "SigQuoteMid",
+      "symbol": "NQ",
+      "books": ["TopBookCme"],
+      "use_flagged": false,
+      "sigformer_tag": "top_level_signal"
+    }
+  ]
+}

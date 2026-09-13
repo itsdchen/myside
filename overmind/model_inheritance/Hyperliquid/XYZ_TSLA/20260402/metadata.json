@@ -1,0 +1,12 @@
+{
+  "built_at": "20260402",
+  "bundle_version": 1,
+  "end_date": "20260401",
+  "quality": "provisional",
+  "score": null,
+  "sha256": "5091a8f3c0a4da84466cf0eff98329811195358dc73138e559e2aa1f8aa25175",
+  "source_dir": "/home/pktrade/scratch/relwide_autobuild/autobuild_xyz_TSLA_20260402/coef_lair",
+  "start_date": "20260302",
+  "symbol": "xyz:TSLA",
+  "venue": "Hyperliquid"
+}

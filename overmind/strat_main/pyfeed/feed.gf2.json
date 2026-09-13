@@ -1,0 +1,103 @@
+{
+    "subscriptions": {
+        "Hyperliquid.disabled": {
+            "is_mainnet": true,
+            "wss_endpoint": "wss://api.hyperliquid.xyz/ws",
+            "snapshot_endpoint": "https://api.hyperliquid.xyz/info",
+            "symbols": [
+                "BTC",
+                "xyz:AAPL",
+                "xyz:MSFT",
+                "xyz:META",
+                "xyz:COIN",
+                "xyz:HOOD",
+                "xyz:AMD",
+                "xyz:MSTR",
+                "xyz:INTC",
+                "xyz:ORCL",
+                "xyz:CRCL",
+                "xyz:MU",
+                "xyz:SNDK",
+                "xyz:NFLX",
+                "xyz:TSM",
+                "xyz:USAR",
+                "xyz:CRWV",
+                "xyz:URNM",
+                "xyz:EWY",
+                "xyz:EWJ",
+                "xyz:LLY",
+                "xyz:COST",
+                "xyz:DKNG",
+                "xyz:HIMS"
+            ]
+        },
+
+        "HyperliquidNode.disabled": {
+            "books_endpoint": "tcp://172.31.37.166:5555",
+            "fills_endpoint": "tcp://172.31.37.166:5556",
+            "fallback_silent_s": 5.0,
+            "fallback_lag_s": 5.0,
+
+            "symbols": [
+                "BTC",
+                "xyz:AAPL",
+                "xyz:MSFT",
+                "xyz:META",
+                "xyz:COIN",
+                "xyz:HOOD",
+                "xyz:AMD",
+                "xyz:MSTR",
+                "xyz:INTC",
+                "xyz:ORCL",
+                "xyz:CRCL",
+                "xyz:MU",
+                "xyz:SNDK",
+                "xyz:NFLX",
+                "xyz:TSM",
+                "xyz:USAR",
+                "xyz:CRWV",
+                "xyz:URNM",
+                "xyz:EWY",
+                "xyz:EWJ",
+                "xyz:LLY",
+                "xyz:COST",
+                "xyz:DKNG",
+                "xyz:HIMS"
+            ]
+        },
+
+        "PolygonEquities": {
+            "symbols": []
+        },
+        "DataBentoEquities.disabled": {
+            "symbols": [
+                "AAPL",
+                "MSFT",
+                "META",
+                "COIN",
+                "HOOD",
+                "AMD",
+                "MSTR",
+                "INTC",
+                "ORCL",
+                "CRCL",
+                "MU",
+                "SNDK",
+                "NFLX",
+                "TSM",
+                "USAR",
+                "CRWV",
+                "URNM",
+                "EWY",
+                "EWJ"
+            ]
+        },
+        "DataBentoCME.disabled": {
+            "symbols": [
+                "NQ"
+            ]
+        }
+    },
+    "snapshot_frequency": 10000,
+    "pub_socket": "ipc:///tmp/feed-sock"
+}

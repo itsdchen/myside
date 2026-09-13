@@ -1,0 +1,46 @@
+{
+  "signals": [
+    {
+      "name": "a_name",
+      "symbol": "MATICUSDT",
+      "type": "SigBookImpulse",
+      "books": ["BinanceSPOT"],
+      "BinanceSPOT.weight": 1,
+
+      "sz_decay_type": "EXP_SIZE",
+
+      "px_decay": 0.01,
+      "sz_decay": 40,
+
+      "ticker_weight" : 0.5,
+      "update_weight" : 0.5,
+      "trade_weight" : 0.5,
+
+      "time_decay": 81,
+      "tick_decay": 0.998,
+      "min_tick_decay": 0.999,
+      "pred_decay": 0.98,
+
+      "time_behind_const" : 0.5,
+
+      "bungee_mult_frac": 1,
+      "bungee_denom": 5,
+
+      "pred_boost_timeconst_s": 1e10,
+      "pred_boost_offset" : 10,
+
+      "ref_signal": "sig_mid",
+
+      "sigformer_tag": "top_level_signal"
+    },
+    {
+      "name": "sig_mid",
+      "type": "SigMid",
+      "symbol": "MATICUSDT",
+      "books": ["BinanceSPOT"],
+      "use_flagged": false,
+      "sigformer_tag": "ref_px"
+    }
+
+  ]
+}
