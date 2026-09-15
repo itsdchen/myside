@@ -1,0 +1,25 @@
+{
+  "ordex": {
+    "type": "RelWideHip4",
+    "markets": [
+      "Hyperliquid"
+    ],
+    "trade_caller": "hip4_cycle_tempo",
+    "max_pos": "350",
+    "order_size": "25",
+
+    "apply_fraction": 0.1,
+    "ema_time_constant_ms": 120000,
+
+    "place_thresh": 0.02,
+    "rung_threshold_multiplier": 1.0,
+    "max_back_levels": 6,
+    "cancel_buffer": 0.5,
+
+    "outcome_id": 0,
+    "startup_complete_sets": 350,
+
+    "local_sig": "local_mid_hip4",
+    "remote_sig": "reference_mid_hip4"
+  }
+}

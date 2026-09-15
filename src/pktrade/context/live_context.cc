@@ -127,6 +127,25 @@ PKOrderId LiveContext::onNewOrd(const NewOrder& nord) {
   return the_ord.pk_order_id;
 }
 
+PKOrderId LiveContext::onSplitOutcome(const SplitOutcome& split, SymbolId sym) {
+  // Splits have no Order object; assign a correlation id from the shared order-id space and
+  // remember which symbol's riskman to hand the reply back to.
+  PKOrderId split_id = cur_ord_id_;
+  cur_ord_id_++;
+  split_syms_[split_id] = sym;
+
+  pktrade::gateway::PbMessage msg;
+  auto* pb_split = msg.mutable_split_outcome();
+  pb_split->set_strategy_id(pktrade::GlobalVar::strat_id_);
+  pb_split->set_executor_order_id(split_id);
+  pb_split->set_outcome(split.outcome);
+  pb_split->set_amount(std::to_string(split.amount.toDouble()));
+  pb_split->set_merge(split.merge);
+  publish(msg);
+
+  return split_id;
+}
+
 void LiveContext::onCancelOrd(const CancelOrder& cxl) {
   pktrade::gateway::PbMessage msg;
   auto* cxl_ord = msg.mutable_cancel_order();
@@ -187,6 +206,16 @@ void LiveContext::handle(const pktrade::gateway::PbMessage& msg) {
       return;
     }
     handle(msg.gateway_ack());
+  } else if (msg.has_split_ack()) {
+    if (msg.split_ack().strategy_id() != pktrade::GlobalVar::strat_id_) {
+      return;
+    }
+    handle(msg.split_ack());
+  } else if (msg.has_split_reject()) {
+    if (msg.split_reject().strategy_id() != pktrade::GlobalVar::strat_id_) {
+      return;
+    }
+    handle(msg.split_reject());
   }
 
   else {
@@ -287,6 +316,36 @@ void LiveContext::handle(const pktrade::gateway::PbCancelOrderReject& msg) {
 
   pktrade::risk::TradeRiskMan* relevant_riskman = sym_to_riskman_[ord.symbol];
   relevant_riskman->onOE(ord, rej);
+}
+
+void LiveContext::handle(const pktrade::gateway::PbSplitOutcomeAck& msg) {
+  auto it = split_syms_.find(msg.executor_order_id());
+  if (it == split_syms_.end()) {
+    LOG(ERROR) << "LiveContext: got split ack for unknown split id " << msg.executor_order_id();
+    return;
+  }
+  SplitOutcomeAck ack;
+  ack.pk_order_id = msg.executor_order_id();
+  ack.exch_transact_time = msg.exch_transact_time();
+
+  pktrade::risk::TradeRiskMan* relevant_riskman = sym_to_riskman_[it->second];
+  relevant_riskman->onSplitOE(ack);
+  split_syms_.erase(it);
+}
+
+void LiveContext::handle(const pktrade::gateway::PbSplitOutcomeReject& msg) {
+  auto it = split_syms_.find(msg.executor_order_id());
+  if (it == split_syms_.end()) {
+    LOG(ERROR) << "LiveContext: got split reject for unknown split id " << msg.executor_order_id();
+    return;
+  }
+  SplitOutcomeReject rej;
+  rej.pk_order_id = msg.executor_order_id();
+  rej.reason = msg.reason();
+
+  pktrade::risk::TradeRiskMan* relevant_riskman = sym_to_riskman_[it->second];
+  relevant_riskman->onSplitOE(rej);
+  split_syms_.erase(it);
 }
 
 void LiveContext::handle(const pktrade::gateway::PbGatewayAck& msg) {

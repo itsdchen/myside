@@ -99,6 +99,35 @@ message PbCancelOrderReject {
   string reason = 4;
 }
 
+// HIP-4 collateral action: mint (split) collateral into equal YES+NO outcome tokens,
+// or the inverse (merge) when `merge` is true. This is a Hyperliquid L1 `userOutcome`
+// action executed by the gateway; it is not a normal order and does not go through the
+// per-symbol asset map (it is keyed by the outcome id). See hip4_utils.split_outcome.
+message PbSplitOutcome {
+  string strategy_id = 1;
+  int32 executor_order_id = 2;
+  // The HIP-4 outcome id (NOT the per-side asset id). Encoding is 10*outcome + side.
+  int32 outcome = 3;
+  // Collateral / complete-sets amount, sent as a string like qty/px. Whole shares only.
+  string amount = 4;
+  // false = splitOutcome (mint), true = mergeOutcome (burn back to collateral).
+  bool merge = 5;
+}
+
+// Gateway/market -> strat: the split/merge landed.
+message PbSplitOutcomeAck {
+  string strategy_id = 1;
+  int32 executor_order_id = 2;
+  int64 exch_transact_time = 3;
+}
+
+// Gateway/market -> strat: the split/merge was rejected.
+message PbSplitOutcomeReject {
+  string strategy_id = 1;
+  int32 executor_order_id = 2;
+  string reason = 4;
+}
+
 message PbMessage {
   oneof payload {
     PbNewOrder new_order = 100;
@@ -112,6 +141,10 @@ message PbMessage {
     PbCancelOrderReject cancel_reject = 107;
     // Gateway to us.
     PbGatewayAck gateway_ack = 108;
+    // HIP-4 collateral (mint/split) action + its replies.
+    PbSplitOutcome split_outcome = 109;
+    PbSplitOutcomeAck split_ack = 110;
+    PbSplitOutcomeReject split_reject = 111;
   }
 }
 

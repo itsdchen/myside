@@ -1,0 +1,99 @@
+{
+  // HIP-4 relative-value MM for Seahawks vs Chiefs (NFL), outcome 15416.
+  // Ported from hip4maker config/sea_kc_20260829.json. The YES coin is #154160
+  // (outcome_coin(15416, 0)); canonical_yes = Seattle Seahawks.
+  "settings": {
+    "commissions": {
+      "tiers": {
+        "Hyperliquid": "HIP3_3"
+      },
+      "promo_tier": "Silver",
+      "use_promo": true
+    },
+    "start_t": "18:00:00 America/New_York",
+    "end_t": "23:59:00 America/New_York"
+  },
+  "simulation": {
+    "Hyperliquid": {
+      "cxl_frac_ahead": 0.3,
+      "use_one_way_latency": false,
+      "sim_latency_secs": 1.0
+    }
+  },
+  "pktraders": [
+    {
+      "traded_symbol": "#154160",
+      "enabled": true,
+      "size_mult": 1,
+      "risk": {
+        "max_notional": 10000000,
+        "max_position": "350",
+        "max_orders": 20,
+        "base_currency": "USDC",
+        "global_inherit": false,
+        "min_pnl": -1000,
+        "fv_limit": 2,
+        "timeout_minfv": 900
+      },
+      "ordex": {
+        "type": "RelWideHip4",
+        "markets": [
+          "Hyperliquid"
+        ],
+        "trade_caller": "hip4_cycle_tempo_sea_kc",
+        "max_pos": "350",
+        "order_size": "25",
+
+        // basis.py: fair = ref_mid + apply_fraction * EMA(local_mid - ref_mid)
+        "apply_fraction": 0.1,
+        "ema_time_constant_ms": 120000,
+
+        // quotes.py laddering. cancel_buffer is cancel_thresh / place_thresh (0.01 / 0.02).
+        "place_thresh": 0.02,
+        "rung_threshold_multiplier": 1.0,
+        "max_back_levels": 6,
+        "cancel_buffer": 0.5,
+
+        // runner.py startup capitalization: mint 350 complete sets of outcome 15416.
+        "outcome_id": 15416,
+        "startup_complete_sets": 350,
+
+        "local_sig": "local_mid_sea_kc",
+        "remote_sig": "reference_mid_sea_kc"
+      },
+      "signals": [
+        {
+          "name": "local_mid_sea_kc",
+          "type": "SigMid",
+          "symbol": "#154160",
+          "books": [
+            "Hyperliquid"
+          ],
+          "use_flagged": true
+        },
+        {
+          "name": "reference_mid_sea_kc",
+          "type": "SigReference",
+          // The reference feed opens its own Kalshi WS (+ REST fallback) and, if enabled,
+          // Polymarket REST. Composite midpoint is exposed as this signal's value.
+          "kalshi": {
+            "market_ticker": "KXNFLGAME-26AUG28SEAKC-SEA",
+            "creds_file": "/home/david/.creds/.Kalshi.creds.json",
+            "weight": 1.0
+          },
+          "reference_stale_after_ms": 5000,
+          "publish_interval_ms": 250
+        }
+      ],
+      "tempos": [
+        {
+          "name": "hip4_cycle_tempo_sea_kc",
+          "type": "TimeTempo",
+          "symbol": "#154160",
+          "thresh": 1.0
+        }
+      ],
+      "extra_subs": []
+    }
+  ]
+}

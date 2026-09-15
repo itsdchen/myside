@@ -6,6 +6,7 @@ add_pk_library(
   diagnostics_mm.cc
   trade_recorder.cc
   rel_cross.cc
+  rel_wide_hip4.cc
   rel_wide_mm_2.cc
   wide_mm.cc
   widgets/hedge_positioner.cc

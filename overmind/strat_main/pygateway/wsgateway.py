@@ -383,6 +383,14 @@ class HyperliquidGateway:
         # List of rejected cancel_oids that need to be retried.
         self.queued_cancel_pbs = []
 
+        # HIP-4 collateral (mint/split, or merge) actions awaiting send. These are
+        # `userOutcome` L1 actions, not orders; they're infrequent (startup capitalization /
+        # top-ups) so we drain one per send-loop tick. See send_hyperliquid_split.
+        self.queued_split_pbs = []
+        # ws_msg_idx -> the PbSplitOutcome we sent, so the WS "post" response can be turned
+        # into a split ack/reject back to the strategy.
+        self.ws_id_to_split_pb = {}
+
         # We need to ignore cancels for these oids bc they were already cancelled.
         # Maps pkcoid -> time.time() when first marked dead. The timestamp lets
         # the orphan backstop tell a just-cancelled order (still settling on HL)
@@ -1004,6 +1012,10 @@ class HyperliquidGateway:
                     await self.send_hyperliquid_orders(conn, now_t_ms, "fast")
                     self.last_alo_send_t = now_t
 
+                # HIP-4 collateral lane. Infrequent, so drain one split/merge per tick.
+                if self.queued_split_pbs:
+                    await self.send_hyperliquid_split(conn, now_t_ms)
+
                 # Send rejects for any orders dropped above due to liquidation blocks,
                 # after the live orders so we don't delay them (empty in the common case).
                 for one_order_pb in rej_queue:
@@ -1481,6 +1493,15 @@ class HyperliquidGateway:
                     msg_data = msg_dct["data"]
                     msg_id = msg_data["id"]
                     msg_response = msg_data["response"]
+
+                    # HIP-4 split/merge responses are handled on their own track: they were
+                    # sent one-per-message and are keyed by ws_msg_idx in ws_id_to_split_pb,
+                    # so intercept before the order/cancel matching (which would KeyError on
+                    # ws_id_to_pk_cloids_batch[msg_id]).
+                    if msg_id in self.ws_id_to_split_pb:
+                        self._handle_split_response(msg_id, msg_response)
+                        continue
+
                     # This is so annoying tbh.
                     response_type = msg_response["type"]
 
@@ -2022,6 +2043,117 @@ class HyperliquidGateway:
 
 
 
+    async def send_hyperliquid_split(self, conn, now_ms):
+        """Send one queued HIP-4 collateral action (splitOutcome / mergeOutcome).
+
+        Each PbSplitOutcome becomes a Hyperliquid L1 `userOutcome` action -- splitOutcome to
+        mint `amount` collateral into equal YES+NO outcome tokens (the capitalization
+        primitive), or mergeOutcome to burn a paired residual back into collateral. Signed and
+        posted exactly like an order batch (see send_hyperliquid_orders) but one action per
+        message, since these are rare. Wire format ported verbatim from
+        hip4_utils.split_outcome / merge_outcome. NOTE: keyed by the outcome id, so it does NOT
+        go through self.sym_to_idx like orders do.
+        """
+        if not self.queued_split_pbs:
+            return
+
+        next_nonce = self.get_next_nonce(now_ms)
+        if next_nonce == 0:
+            # No nonce space this minute; leave it queued and try again next tick.
+            self.logger.info("Skipping split because no nonce space")
+            return
+        self.last_nonce_used = next_nonce
+
+        split_pb = self.queued_split_pbs.pop(0)
+
+        # merge with an empty/zero amount means "as much as possible" (amount=None); a split
+        # (mint) always carries a positive amount (the strategy gates this before sending).
+        inner_key = "mergeOutcome" if split_pb.merge else "splitOutcome"
+        amt_str = split_pb.amount
+        if split_pb.merge and (amt_str == "" or float(amt_str or 0) == 0):
+            amount_val = None
+        else:
+            amount_val = str(float(amt_str))
+        action = {
+            "type": "userOutcome",
+            inner_key: {
+                "outcome": int(split_pb.outcome),
+                "amount": amount_val,
+            },
+        }
+
+        signature = hl_signing.sign_l1_action(
+            self.eth_wallet,
+            action,
+            self.subaccount_address,  # subaccount if configured, None for main account
+            next_nonce,
+            self.is_mainnet,
+        )
+        payload = {
+            "action": action,
+            "nonce": next_nonce,
+            "signature": signature,
+            "vaultAddress": self.subaccount_address,
+        }
+        ws_payload = {
+            "method": "post",
+            "id": self.ws_msg_idx,
+            "request": {
+                "type": "action",
+                "payload": payload,
+            }
+        }
+
+        # Track so the "post" response can be turned into a split ack/reject.
+        self.ws_id_to_split_pb[self.ws_msg_idx] = split_pb
+        self.ws_msg_idx += 1
+
+        # Count against the per-connection budgets like any other L1 action.
+        conn.num_batches_1min += 1
+        conn.num_msgs_1min += 1
+        conn.num_weighted_1min += 1
+
+        self.logger.info(
+            "Sending HIP-4 {} outcome={} amount={} (strat={} id={})".format(
+                inner_key, split_pb.outcome, amount_val,
+                split_pb.strategy_id, split_pb.executor_order_id))
+        await conn.ws.send(json.dumps(ws_payload))
+
+    def _handle_split_response(self, msg_id, msg_response):
+        """Turn a WS "post" response for a userOutcome action into a split ack/reject.
+
+        msg_response is msg_data["response"], i.e. {"type":"action","payload":{"status":...}}.
+        status == "ok" -> PbSplitOutcomeAck; anything else -> PbSplitOutcomeReject with the
+        error text. Pops the tracking entry so it can't leak.
+        """
+        split_pb = self.ws_id_to_split_pb.pop(msg_id, None)
+        if split_pb is None:
+            return
+
+        payload = msg_response.get("payload") if isinstance(msg_response, dict) else None
+        status = payload.get("status") if isinstance(payload, dict) else None
+
+        pbresponse = gateway_pb2.PbMessage()
+        if status == "ok":
+            ack = pbresponse.split_ack
+            ack.strategy_id = split_pb.strategy_id
+            ack.executor_order_id = split_pb.executor_order_id
+            ack.exch_transact_time = int(time.time() * 1000)
+            self.logger.info(
+                "Split ok: outcome={} amount={} (strat={} id={})".format(
+                    split_pb.outcome, split_pb.amount,
+                    split_pb.strategy_id, split_pb.executor_order_id))
+        else:
+            rej = pbresponse.split_reject
+            rej.strategy_id = split_pb.strategy_id
+            rej.executor_order_id = split_pb.executor_order_id
+            reason = payload.get("response") if isinstance(payload, dict) else msg_response
+            rej.reason = str(reason)[:500]
+            self.logger.error(
+                "Split rejected: {} (strat={} id={})".format(
+                    rej.reason, split_pb.strategy_id, split_pb.executor_order_id))
+        self.acks_pub_socket.send(pbresponse.SerializeToString())
+
     async def send_hyperliquid_cancel(self, conn, now_ms):
         #endpt = self.market_endpoint + "exchange"
 
@@ -2451,6 +2583,9 @@ class HyperliquidGateway:
                         continue
 
                     self.queued_cancel_pbs.append(ord_action_pb.cancel_order)
+                elif ord_action_pb.HasField("split_outcome"):
+                    # HIP-4 collateral action (mint/split, or merge). Queue for the send loop.
+                    self.queued_split_pbs.append(ord_action_pb.split_outcome)
 
             # Making this happen more often.
             await asyncio.sleep(self.zmq_sleep_t)
