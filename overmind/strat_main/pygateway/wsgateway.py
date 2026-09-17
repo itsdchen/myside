@@ -205,6 +205,14 @@ mkt_to_config = {
         # TODO: create simple risk checks later.
         "risk_config": "risk.json",
         "recv_window_ms": 60000,
+        # HIP-4 deployer venue(s) to trade outcomes on (e.g. ["txyz"]). Empty = OFF: no
+        # outcome discovery, no outcome gate (unchanged behavior). When set, the gateway
+        # periodically refreshes the live outcome set on these venues and refuses orders /
+        # capital-reqs for outcome coins not currently live on them. Overridable per-instance
+        # with --outcome-venues.
+        "outcome_venues": [],
+        # How often (minutes) to refresh sym_to_idx (perp/spot) and the live outcome set.
+        "symbol_refresh_mins": 10,
     },
     "HyperliquidTest": {
         "http_api_endpoint": "https://api.hyperliquid-testnet.xyz/",
@@ -218,6 +226,8 @@ mkt_to_config = {
         # TODO: create simple risk checks later.
         "risk_config": "risk.json",
         "recv_window_ms": 60000,
+        "outcome_venues": [],
+        "symbol_refresh_mins": 10,
     },
 
 }
@@ -237,7 +247,8 @@ def hash_to_128bit_hex(s: str) -> str:
     return "0x" + h
 
 class HyperliquidGateway:
-    def __init__(self, market, creds, id, local_ips=None, fast_cancels=True):
+    def __init__(self, market, creds, id, local_ips=None, fast_cancels=True,
+                 outcome_venues=None):
         # Make a logger.
         # Log name should have date.
         current_date = datetime.date.today()
@@ -251,6 +262,20 @@ class HyperliquidGateway:
         self.gateway_config = mkt_to_config[market]
         self.gateway_id = id
         self.fast_cancels = fast_cancels
+
+        # HIP-4 outcome discovery + safety gate. `outcome_venues` (CLI override, else the market
+        # config default) are the deployer venues we trade outcomes on. When non-empty, the
+        # gateway periodically rebuilds `live_outcome_coins` (all "#" coins live on those venues)
+        # and refuses orders / capital-reqs for outcome coins not in it. Empty = feature OFF.
+        self.outcome_venues = (list(outcome_venues) if outcome_venues is not None
+                               else list(self.gateway_config.get("outcome_venues", [])))
+        self.symbol_refresh_mins = self.gateway_config.get("symbol_refresh_mins", 10)
+        self.live_outcome_coins = set()
+        # False until the first successful outcome discovery. While the gate is enabled but not
+        # ready, "#" orders are blocked fail-closed (we don't trade an unverified outcome).
+        self.outcome_gate_ready = False
+        # One-shot alert per coin whose capital-req was refused for being off-venue.
+        self.outcome_gate_alerted = set()
 
         # 5 ms sleep — was 20ms; reduced to pick up new orders sooner.
         # Hits gateway IOC RTT directly. CPU cost from 4x polls is negligible.
@@ -704,6 +729,7 @@ class HyperliquidGateway:
             tasks.add(asyncio.create_task(self.hl_send_orders_loop()))
             tasks.add(asyncio.create_task(self.hl_send_cancels_loop()))
             tasks.add(asyncio.create_task(self.capitalize_loop()))
+            tasks.add(asyncio.create_task(self.refresh_symbols_loop()))
             tasks.add(asyncio.create_task(self.periodic_cleanup()))
             tasks.add(asyncio.create_task(self.watch_block_file()))
             tasks.add(asyncio.create_task(self.eod_event.wait()))
@@ -985,12 +1011,18 @@ class HyperliquidGateway:
                 # empty, so this is one check for the whole batch. When non-empty, two C-level
                 # comprehensions per queue collect the rejects and keep the rest; the rejects are
                 # sent after the live orders go out.
+                # Third gate: the HIP-4 outcome safety gate refuses "#" coins that aren't live on
+                # the configured deployer venue(s) (fail-closed before first discovery).
                 rej_queue = []
                 blocked_syms = self.liq_blocked_syms | self.cap_blocked_syms
-                if blocked_syms:
+
+                def _order_blocked(o):
+                    return o.symbol in blocked_syms or self._outcome_gate_blocks(o.symbol)
+
+                if blocked_syms or self.outcome_venues:
                     for q in (self.queued_priority_ord_pbs, self.queued_fast_ord_pbs):
-                        rej_queue += [o for o in q if o.symbol in blocked_syms]
-                        q[:] = [o for o in q if o.symbol not in blocked_syms]
+                        rej_queue += [o for o in q if _order_blocked(o)]
+                        q[:] = [o for o in q if not _order_blocked(o)]
 
                 # Priority IOC lane. Drained every tick (subject to per-min cap)
                 # so IOC pickup latency is loop-period-bounded (~5ms).
@@ -1033,9 +1065,13 @@ class HyperliquidGateway:
                     new_rej = pbresponse.new_reject
                     new_rej.strategy_id = one_order_pb.strategy_id
                     new_rej.executor_order_id = one_order_pb.executor_order_id
-                    reason = ("not yet capitalized"
-                              if one_order_pb.symbol in self.cap_blocked_syms
-                              else "blocked after liquidation")
+                    if one_order_pb.symbol in self.cap_blocked_syms:
+                        reason = "not yet capitalized"
+                    elif self._outcome_gate_blocks(one_order_pb.symbol):
+                        reason = (f"outcome not live on deployer venue(s) {self.outcome_venues}"
+                                  if self.outcome_gate_ready else "outcome gate not ready")
+                    else:
+                        reason = "blocked after liquidation"
                     new_rej.reason = (
                         f"Symbol {one_order_pb.symbol} {reason}; "
                         f"new orders rejected until unblocked")
@@ -2241,6 +2277,83 @@ class HyperliquidGateway:
             reason = payload.get("response") if isinstance(payload, dict) else msg_response
             self._cap_fail(sym, req, str(reason)[:500])
 
+    # ------------------------------------------------------------------
+    # Periodic symbol refresh + HIP-4 outcome discovery / safety gate
+    # ------------------------------------------------------------------
+
+    async def refresh_symbols_loop(self):
+        """Every symbol_refresh_mins: refresh perp/spot sym_to_idx AND, if outcome_venues is
+        configured, rebuild the live outcome allowlist. Runs one pass immediately at startup so
+        the gate is populated before much order flow arrives.
+
+        load_hyperliquid_assets is synchronous with blocking retry sleeps, so it is offloaded to
+        a thread to avoid stalling the order/cancel loops.
+        """
+        self.logger.info(f"Symbol refresh loop starting (every {self.symbol_refresh_mins} min; "
+                         f"outcome_venues={self.outcome_venues})")
+        async with aiohttp.ClientSession() as session:
+            while not self.eod_event.is_set():
+                try:
+                    maps = await asyncio.to_thread(self.load_hyperliquid_assets)
+                    # Atomic rebind (readers see the old or new dict, never a torn one).
+                    self.sym_to_idx = maps["sym_to_idx"]
+                    self.idx_to_sym = maps["idx_to_sym"]
+                except Exception as e:
+                    self.logger.warning(f"Symbol refresh: load_hyperliquid_assets failed: {e}")
+
+                if self.outcome_venues:
+                    try:
+                        await self._refresh_outcomes(session)
+                    except Exception as e:
+                        # Keep the last good set on a transient outage rather than opening the
+                        # gate (fail-safe), but make the staleness visible.
+                        self.logger.warning(
+                            f"Outcome discovery failed (keeping last "
+                            f"{len(self.live_outcome_coins)} coins): {e}")
+
+                # Sleep in 1s steps so we exit promptly on eod.
+                for _ in range(max(1, int(self.symbol_refresh_mins * 60))):
+                    if self.eod_event.is_set():
+                        break
+                    await asyncio.sleep(1)
+        self.logger.info("Symbol refresh loop exiting")
+
+    async def _refresh_outcomes(self, session):
+        """Rebuild self.live_outcome_coins from outcomeMeta, filtered to self.outcome_venues.
+
+        outcomeMeta has no server-side venue filter, so fetch all and filter on the per-outcome
+        `venue` field. Coins are "#{10*outcome+side}" for both sides.
+        """
+        text = await hyp_fetch(session, self.market_endpoint + "info", {"type": "outcomeMeta"})
+        data = json.loads(text)
+        outs = data.get("outcomes", []) if isinstance(data, dict) else []
+        venues = set(self.outcome_venues)
+        coins = set()
+        for o in outs:
+            if o.get("venue") in venues:
+                oid = o.get("outcome")
+                if oid is None:
+                    continue
+                coins.add("#{}".format(10 * int(oid) + 0))
+                coins.add("#{}".format(10 * int(oid) + 1))
+        self.live_outcome_coins = coins
+        self.outcome_gate_ready = True
+        self.logger.info(
+            f"Outcome discovery: {len(coins)} live outcome coins on venues {sorted(venues)}")
+
+    def _outcome_gate_blocks(self, sym):
+        """True iff the outcome safety gate should refuse this symbol.
+
+        Only applies when outcome_venues is configured and sym is an outcome ("#") coin.
+        Fail-closed: before the first successful discovery, all "#" coins are blocked (we won't
+        trade an unverified outcome).
+        """
+        if not self.outcome_venues or not sym.startswith("#"):
+            return False
+        if not self.outcome_gate_ready:
+            return True
+        return sym not in self.live_outcome_coins
+
     async def send_hyperliquid_cancel(self, conn, now_ms):
         #endpt = self.market_endpoint + "exchange"
 
@@ -2677,18 +2790,35 @@ class HyperliquidGateway:
                     # already hold enough.
                     cr = ord_action_pb.capital_req
                     sym = cr.symbol
-                    self.cap_reqs[sym] = {
-                        "outcome": int(cr.outcome),
-                        "target": float(cr.target_complete_sets),
-                        "strategy_id": cr.strategy_id,
-                        "symbol": sym,
-                        "state": "needed",
-                    }
-                    self.cap_blocked_syms.add(sym)
-                    self.cap_alerted.discard(sym)
-                    self.logger.info(
-                        f"Capital req: {sym} outcome={cr.outcome} "
-                        f"target_complete_sets={cr.target_complete_sets}")
+                    # Outcome safety gate: never mint for an outcome that isn't live on the
+                    # configured deployer venue (settled / unknown / wrong-venue). Block the
+                    # ticker and alert once, rather than splitting collateral into dead tokens.
+                    if self._outcome_gate_blocks(sym):
+                        self.cap_blocked_syms.add(sym)
+                        why = (f"outcome not live on deployer venue(s) {self.outcome_venues}"
+                               if self.outcome_gate_ready else "outcome gate not ready")
+                        self.logger.error(
+                            f"Capital req REFUSED for {sym} (outcome {cr.outcome}): {why}. "
+                            f"Ticker blocked.")
+                        if sym not in self.outcome_gate_alerted:
+                            self.outcome_gate_alerted.add(sym)
+                            email_utils.send_alerts(
+                                "WSGATEWAY HIP-4 CAPITAL REQ OFF-VENUE",
+                                f"Refused capital req for {sym} (outcome {cr.outcome}): {why}")
+                    else:
+                        self.cap_reqs[sym] = {
+                            "outcome": int(cr.outcome),
+                            "target": float(cr.target_complete_sets),
+                            "strategy_id": cr.strategy_id,
+                            "symbol": sym,
+                            "state": "needed",
+                        }
+                        self.cap_blocked_syms.add(sym)
+                        self.cap_alerted.discard(sym)
+                        self.outcome_gate_alerted.discard(sym)
+                        self.logger.info(
+                            f"Capital req: {sym} outcome={cr.outcome} "
+                            f"target_complete_sets={cr.target_complete_sets}")
 
             # Making this happen more often.
             await asyncio.sleep(self.zmq_sleep_t)
@@ -2716,6 +2846,12 @@ async def main():
     parser.add_argument("--local-ips", required=False, default=None,
                         help="Comma-separated local IPs for multi-WS connections, "
                              "e.g. 10.0.1.10,10.0.1.11,10.0.1.12")
+    parser.add_argument("--outcome-venues", required=False, default=None,
+                        help="Comma-separated HIP-4 deployer venues to trade outcomes on "
+                             "(e.g. 'txyz'). Overrides the market config default. When set, the "
+                             "gateway discovers the live outcome set on these venues every "
+                             "symbol_refresh_mins and refuses orders/capital-reqs for outcome "
+                             "coins not live on them.")
     parser.add_argument("--disable-fast-cancels", action="store_true",
                         help="Omit Hyperliquid's top-level f:true fast-cancel flag")
     args = parser.parse_args()
@@ -2753,12 +2889,14 @@ async def main():
     await asyncio.sleep(args.wait_secs)
 
     local_ips = args.local_ips.split(",") if args.local_ips else None
+    outcome_venues = (args.outcome_venues.split(",") if args.outcome_venues else None)
     hl_gw = HyperliquidGateway(
         args.market,
         args.creds,
         args.id,
         local_ips=local_ips,
         fast_cancels=not args.disable_fast_cancels,
+        outcome_venues=outcome_venues,
     )
     await asyncio.sleep(2)
 
