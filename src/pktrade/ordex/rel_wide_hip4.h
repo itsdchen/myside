@@ -7,9 +7,10 @@
 // delivered through a SigReference signal, and capitalizes the book at startup by minting
 // collateral into YES+NO tokens via the gateway's split action.
 //
-// Logic ported from hip4maker:
-//   basis.py   -> time-aware EMA basis + fair value (fair = ref_mid + basis_apply_fraction*basis)
-//   quotes.py  -> inventory-skewed reservation price + laddered quotes
+// Logic ported from hip4maker, using RelWideMM2's vocabulary:
+//   basis.py   -> premium EMA + fair value (premium_adjusted_pred_px = ref_mid +
+//                 premium_ema_coef * EMA(local - ref); hip4maker's "basis" == the premium)
+//   quotes.py  -> inventory-skewed center (adjusted_pred_px) + laddered quotes
 //   runner.py  -> the per-tempo cycle and the startup split capitalization
 //
 // It deliberately does NOT copy RelWideMM2's equities machinery (premium EMA, closing-cross,
@@ -81,12 +82,16 @@ class RelWideHip4 : public Ordex,
   void onFinal(const LevelBook& bk) override {}
 
  protected:
-  // Fair value + quoting. Ported from hip4maker basis.py/quotes.py, named to match the rel_wide
-  // family (RelWideMM2 / base Ordex). `pred_px_` is the raw price we quote around; the inventory
-  // skew is applied as an adjustment to it -> `adjusted_pred_px_` (the analog of RelWideMM2's
-  // premium_adjusted_pred_px_), and the ladder is built around that.
-  bool updatePredPx();                             // basis EMA -> pred_px_; false if not ready
-  void adjustPredPx();                             // pred_px_ + inventory skew -> adjusted_pred_px_
+  // Fair value + quoting, named to match RelWideMM2 exactly. The pipeline mirrors it:
+  //   pred_px_                  = the reference (remote) price we quote around
+  //   premium_ema_              = EMA(local_mid - pred_px_), the local-vs-reference premium
+  //     (hip4maker calls this the "basis"; RelWideMM2 calls it the premium -- same quantity)
+  //   premium_adjusted_pred_px_ = pred_px_ + premium_ema_coef_ * premium_ema_
+  //   adjusted_pred_px_         = premium_adjusted_pred_px_ shifted for inventory skew
+  // and the ladder is built around adjusted_pred_px_.
+  bool updatePredPx();                             // set pred_px_ = reference mid; false if not ready
+  void updatePremiumEma();                         // EMA the local-vs-reference premium -> premium_adjusted_pred_px_
+  void adjustPredPx();                             // premium_adjusted_pred_px_ + inventory skew -> adjusted_pred_px_
   double roundPxToSide(double px, bool round_up);  // fixed 5dp outcome grid; cf. Ordex::roundToSide
   bool shouldCancelPx(double px, Side side) const; // is this resting price off the desired rungs?
   void maybeCancel();                              // cancel resting orders off the desired rungs
@@ -106,17 +111,18 @@ class RelWideHip4 : public Ordex,
   int local_sig_id_ = -1;
   int remote_sig_id_ = -1;
 
-  // basis / fair value
-  double basis_apply_fraction_ = 1.0;
-  double ema_tdc_ms_ = 5000.0;  // basis EMA time constant
-  double basis_ema_ = 0.0;
-  bool basis_initialized_ = false;
-  int64_t basis_last_t_ = 0;
+  // premium (local-vs-reference) EMA + fair value. Same mechanism as RelWideMM2's premium_ema.
+  double premium_ema_coef_ = 1.0;       // fraction of the premium EMA applied (RelWideMM2 name)
+  double premium_tdc_ = 5000.0;         // premium EMA time-decay constant, ms (config: premium_tdc_s)
+  double cur_premium_ = 0.0;            // latest local_mid - pred_px_
+  double premium_ema_ = 0.0;            // time-decayed EMA of cur_premium_
+  bool premium_initialized_ = false;
+  int64_t last_premium_adjust_t_ = 0;
   double local_mid_ = 0.0;
   double remote_mid_ = 0.0;
-  double pred_px_ = 0.0;          // fair value we quote around (rel_wide's pred_px)
-  double adjusted_pred_px_ = 0.0; // pred_px_ shifted for inventory (set each fire); cf.
-                                  // RelWideMM2 premium_adjusted_pred_px_
+  double pred_px_ = 0.0;                    // reference (remote) mid we quote around
+  double premium_adjusted_pred_px_ = 0.0;   // pred_px_ + premium_ema_coef_ * premium_ema_
+  double adjusted_pred_px_ = 0.0;           // premium_adjusted_pred_px_ shifted for inventory
 
   // quoting
   double place_thresh_ = 0.01;

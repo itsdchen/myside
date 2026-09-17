@@ -44,9 +44,9 @@
         "max_pos": "350",
         "order_size": "25",
 
-        // basis.py: fair = ref_mid + basis_apply_fraction * EMA(local_mid - ref_mid)
-        "basis_apply_fraction": 0.1,
-        "ema_time_constant_ms": 120000,
+        // basis.py: premium_adjusted = ref_mid + premium_ema_coef * EMA(local_mid - ref_mid)
+        "premium_ema_coef": 0.1,
+        "premium_tdc_s": 120,
 
         // quotes.py laddering. cancel_buffer is cancel_thresh / place_thresh (0.01 / 0.02).
         "place_thresh": 0.02,

@@ -29,12 +29,17 @@ RelWideHip4::RelWideHip4(SymbolId symbol, const rapidjson::Value& ordex_conf,
   max_pos_ = Quantity{ordex_conf["max_pos"].GetString()};
   order_size_ = Quantity{ordex_conf["order_size"].GetString()};
 
-  // Basis / fair value (basis.py).
-  if (ordex_conf.HasMember("basis_apply_fraction")) {
-    basis_apply_fraction_ = ordex_conf["basis_apply_fraction"].GetDouble();
+  // Premium (local-vs-reference) EMA -> fair value. Same mechanism as RelWideMM2's premium_ema
+  // (hip4maker calls the local-vs-reference spread the "basis"; it's the same quantity).
+  if (ordex_conf.HasMember("premium_ema_coef")) {
+    premium_ema_coef_ = ordex_conf["premium_ema_coef"].GetDouble();
+    if (premium_ema_coef_ < 0.0 || premium_ema_coef_ > 1.0) {
+      throw std::runtime_error(
+          fmt::format("Invalid premium_ema_coef {} (must be in [0,1])", premium_ema_coef_));
+    }
   }
-  if (ordex_conf.HasMember("ema_time_constant_ms")) {
-    ema_tdc_ms_ = ordex_conf["ema_time_constant_ms"].GetDouble();
+  if (ordex_conf.HasMember("premium_tdc_s")) {
+    premium_tdc_ = ordex_conf["premium_tdc_s"].GetDouble() * 1000.0;  // seconds -> ms
   }
 
   // Quoting (quotes.py).
@@ -79,9 +84,9 @@ RelWideHip4::RelWideHip4(SymbolId symbol, const rapidjson::Value& ordex_conf,
   tc_tempo_->addListener(this);
 
   LOG(INFO) << fmt::format(
-      "({}) RelWideHip4: outcome={} basis_apply_fraction={} ema_tdc_ms={} place_thresh={} "
+      "({}) RelWideHip4: outcome={} premium_ema_coef={} premium_tdc_ms={} place_thresh={} "
       "rung_mult={} max_back_levels={} target_sets_override={} (0=use max_pos)",
-      symbol_.get(), outcome_id_, basis_apply_fraction_, ema_tdc_ms_, place_thresh_, rung_mult_,
+      symbol_.get(), outcome_id_, premium_ema_coef_, premium_tdc_, place_thresh_, rung_mult_,
       max_back_levels_, target_complete_sets_);
 }
 
@@ -109,7 +114,8 @@ void RelWideHip4::onSignalValue(int sig_id, double value) {
 }
 
 bool RelWideHip4::updatePredPx() {
-  // Gate on both feeds being valid (basis.py staleness / mapping gates).
+  // pred_px_ is the reference (remote) mid. Gate on both feeds being valid first
+  // (staleness / mapping gates).
   if (local_sig_ == nullptr || remote_sig_ == nullptr) {
     return false;
   }
@@ -121,37 +127,41 @@ bool RelWideHip4::updatePredPx() {
   if (local_mid_ <= 0.0 || local_mid_ >= 1.0 || remote_mid_ <= 0.0 || remote_mid_ >= 1.0) {
     return false;
   }
-
-  // Time-aware EMA of the basis (local - reference).
-  double raw_basis = local_mid_ - remote_mid_;
-  int64_t now = now_fire_t_;
-  if (!basis_initialized_) {
-    basis_ema_ = raw_basis;
-    basis_initialized_ = true;
-  } else {
-    double dt = static_cast<double>(now - basis_last_t_);
-    if (dt < 0) {
-      dt = 0;
-    }
-    double alpha = 1.0 - std::exp(-dt / ema_tdc_ms_);
-    basis_ema_ = alpha * raw_basis + (1.0 - alpha) * basis_ema_;
-  }
-  basis_last_t_ = now;
-
-  // pred_px = reference_mid + basis_apply_fraction * basis, clipped to [0, 1].
-  pred_px_ = std::clamp(remote_mid_ + basis_apply_fraction_ * basis_ema_, 0.0, 1.0);
+  pred_px_ = remote_mid_;
   return true;
 }
 
+void RelWideHip4::updatePremiumEma() {
+  // Time-decayed EMA of the local-vs-reference premium (RelWideMM2::updatePremiumEma). This is
+  // hip4maker's "basis" -- the same local-minus-reference quantity.
+  cur_premium_ = local_mid_ - pred_px_;
+  if (!premium_initialized_) {
+    premium_ema_ = cur_premium_;
+    premium_initialized_ = true;
+  } else {
+    double dt = static_cast<double>(now_fire_t_ - last_premium_adjust_t_);
+    if (dt < 0) {
+      dt = 0;
+    }
+    double alpha = 1.0 - std::exp(-dt / premium_tdc_);
+    premium_ema_ = alpha * cur_premium_ + (1.0 - alpha) * premium_ema_;
+  }
+  last_premium_adjust_t_ = now_fire_t_;
+
+  // Apply premium_ema_coef_ of the premium to the reference mid, clipped to [0, 1].
+  premium_adjusted_pred_px_ =
+      std::clamp(pred_px_ + premium_ema_coef_ * premium_ema_, 0.0, 1.0);
+}
+
 void RelWideHip4::adjustPredPx() {
-  // Apply inventory skew to pred_px_ at quote time (quotes.py): a long position shifts the price
-  // we quote around DOWN so we lean to sell it off, and vice versa.
+  // Apply inventory skew to premium_adjusted_pred_px_ (quotes.py): a long position shifts the
+  // price we quote around DOWN so we lean to sell it off, and vice versa.
   //   skew = (directional_shares / order_size) * 0.5 * place_thresh
   double order_sz = std::max(1.0, order_size_.toDouble());
   double pos = riskman_ == nullptr ? 0.0 : riskman_->getPos().toDouble();
   double eff_thresh = place_thresh_ * thresh_mult_;
   double skew = (pos / order_sz) * 0.5 * eff_thresh;
-  adjusted_pred_px_ = std::clamp(pred_px_ - skew, 0.0, 1.0);
+  adjusted_pred_px_ = std::clamp(premium_adjusted_pred_px_ - skew, 0.0, 1.0);
 }
 
 double RelWideHip4::roundPxToSide(double px, bool round_up) {
@@ -283,7 +293,8 @@ void RelWideHip4::tryFire() {
     return;
   }
 
-  adjustPredPx();
+  updatePremiumEma();  // pred_px_ -> premium_adjusted_pred_px_
+  adjustPredPx();      // -> adjusted_pred_px_ (inventory skew)
   maybeCancel();
   maybePlaceFront();
   manageBacklevels();

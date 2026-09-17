@@ -8,8 +8,8 @@
     "max_pos": "350",
     "order_size": "25",
 
-    "basis_apply_fraction": 0.1,
-    "ema_time_constant_ms": 120000,
+    "premium_ema_coef": 0.1,
+    "premium_tdc_s": 120,
 
     "place_thresh": 0.02,
     "rung_threshold_multiplier": 1.0,
