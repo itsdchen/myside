@@ -58,6 +58,7 @@ import chron
 import argparse
 import bisect
 import getpass
+import math
 import operator
 import requests
 import signal
@@ -383,13 +384,21 @@ class HyperliquidGateway:
         # List of rejected cancel_oids that need to be retried.
         self.queued_cancel_pbs = []
 
-        # HIP-4 collateral (mint/split, or merge) actions awaiting send. These are
-        # `userOutcome` L1 actions, not orders; they're infrequent (startup capitalization /
-        # top-ups) so we drain one per send-loop tick. See send_hyperliquid_split.
-        self.queued_split_pbs = []
-        # ws_msg_idx -> the PbSplitOutcome we sent, so the WS "post" response can be turned
-        # into a split ack/reject back to the strategy.
-        self.ws_id_to_split_pb = {}
+        # HIP-4 capitalization. The strategy declares, per ticker, how many complete sets of an
+        # outcome it needs (PbCapitalReq); the gateway owns making it so: read on-chain balances,
+        # mint the shortfall via a userOutcome/splitOutcome L1 action, and BLOCK order placement
+        # for the ticker until it is capitalized. If capitalization fails, the block stays and we
+        # alert loudly. This is one-directional (strat -> gateway); nothing is sent back.
+        #   cap_reqs: symbol -> {outcome, target, strategy_id, symbol, state}
+        #     state in {"needed", "in_flight", "done", "failed"}
+        self.cap_reqs = {}
+        # Symbols currently refused for placement (pending or failed capitalization). Checked in
+        # the send loop alongside liq_blocked_syms.
+        self.cap_blocked_syms = set()
+        # One-shot failure alert per symbol, so a stuck capitalization doesn't spam email.
+        self.cap_alerted = set()
+        # ws_msg_idx -> symbol for an in-flight capitalization split, to match the WS response.
+        self.ws_id_to_cap_sym = {}
 
         # We need to ignore cancels for these oids bc they were already cancelled.
         # Maps pkcoid -> time.time() when first marked dead. The timestamp lets
@@ -694,6 +703,7 @@ class HyperliquidGateway:
                 tasks.add(asyncio.create_task(self.hl_receive_loop(conn)))
             tasks.add(asyncio.create_task(self.hl_send_orders_loop()))
             tasks.add(asyncio.create_task(self.hl_send_cancels_loop()))
+            tasks.add(asyncio.create_task(self.capitalize_loop()))
             tasks.add(asyncio.create_task(self.periodic_cleanup()))
             tasks.add(asyncio.create_task(self.watch_block_file()))
             tasks.add(asyncio.create_task(self.eod_event.wait()))
@@ -968,16 +978,19 @@ class HyperliquidGateway:
                         f"{conn.num_msgs_1min} msgs, {conn.num_weighted_1min} weighted, "
                         f"{conn.num_priority_batches_1min}/{PRIORITY_BATCHES_CAP_PER_MIN} priority.")
 
-                # Filter out new orders for liquidation-blocked symbols before sending
-                # (cancels go through a different loop and stay allowed). Almost always a
-                # no-op: the block set is empty, so this is one check for the whole batch.
-                # When non-empty, two C-level comprehensions per queue collect the rejects
-                # and keep the rest; the rejects are sent after the live orders go out.
+                # Filter out new orders for blocked symbols before sending (cancels go through a
+                # different loop and stay allowed). Two block sets: liquidation blocks, and HIP-4
+                # capitalization blocks (a ticker is refused until it holds enough complete sets,
+                # and stays refused if capitalization fails). Almost always a no-op: both sets are
+                # empty, so this is one check for the whole batch. When non-empty, two C-level
+                # comprehensions per queue collect the rejects and keep the rest; the rejects are
+                # sent after the live orders go out.
                 rej_queue = []
-                if self.liq_blocked_syms:
+                blocked_syms = self.liq_blocked_syms | self.cap_blocked_syms
+                if blocked_syms:
                     for q in (self.queued_priority_ord_pbs, self.queued_fast_ord_pbs):
-                        rej_queue += [o for o in q if o.symbol in self.liq_blocked_syms]
-                        q[:] = [o for o in q if o.symbol not in self.liq_blocked_syms]
+                        rej_queue += [o for o in q if o.symbol in blocked_syms]
+                        q[:] = [o for o in q if o.symbol not in blocked_syms]
 
                 # Priority IOC lane. Drained every tick (subject to per-min cap)
                 # so IOC pickup latency is loop-period-bounded (~5ms).
@@ -1012,20 +1025,20 @@ class HyperliquidGateway:
                     await self.send_hyperliquid_orders(conn, now_t_ms, "fast")
                     self.last_alo_send_t = now_t
 
-                # HIP-4 collateral lane. Infrequent, so drain one split/merge per tick.
-                if self.queued_split_pbs:
-                    await self.send_hyperliquid_split(conn, now_t_ms)
-
-                # Send rejects for any orders dropped above due to liquidation blocks,
-                # after the live orders so we don't delay them (empty in the common case).
+                # Send rejects for any orders dropped above due to a block (liquidation or
+                # HIP-4 capitalization), after the live orders so we don't delay them (empty in
+                # the common case).
                 for one_order_pb in rej_queue:
                     pbresponse = gateway_pb2.PbMessage()
                     new_rej = pbresponse.new_reject
                     new_rej.strategy_id = one_order_pb.strategy_id
                     new_rej.executor_order_id = one_order_pb.executor_order_id
+                    reason = ("not yet capitalized"
+                              if one_order_pb.symbol in self.cap_blocked_syms
+                              else "blocked after liquidation")
                     new_rej.reason = (
-                        f"Symbol {one_order_pb.symbol} blocked after liquidation; "
-                        f"new orders rejected until manually unblocked")
+                        f"Symbol {one_order_pb.symbol} {reason}; "
+                        f"new orders rejected until unblocked")
                     self.acks_pub_socket.send(pbresponse.SerializeToString())
 
                 # Check if we have sent orders that have expired without an ack
@@ -1494,12 +1507,11 @@ class HyperliquidGateway:
                     msg_id = msg_data["id"]
                     msg_response = msg_data["response"]
 
-                    # HIP-4 split/merge responses are handled on their own track: they were
-                    # sent one-per-message and are keyed by ws_msg_idx in ws_id_to_split_pb,
-                    # so intercept before the order/cancel matching (which would KeyError on
-                    # ws_id_to_pk_cloids_batch[msg_id]).
-                    if msg_id in self.ws_id_to_split_pb:
-                        self._handle_split_response(msg_id, msg_response)
+                    # HIP-4 capitalization split responses are on their own track (keyed by
+                    # ws_msg_idx in ws_id_to_cap_sym), so intercept before the order/cancel
+                    # matching (which would KeyError on ws_id_to_pk_cloids_batch[msg_id]).
+                    if msg_id in self.ws_id_to_cap_sym:
+                        self._handle_cap_response(msg_id, msg_response)
                         continue
 
                     # This is so annoying tbh.
@@ -2043,116 +2055,179 @@ class HyperliquidGateway:
 
 
 
-    async def send_hyperliquid_split(self, conn, now_ms):
-        """Send one queued HIP-4 collateral action (splitOutcome / mergeOutcome).
+    # ------------------------------------------------------------------
+    # HIP-4 capitalization
+    #
+    # The strategy declares (PbCapitalReq) how many complete sets of an outcome it needs to
+    # quote a ticker. The gateway owns satisfying that: read on-chain balances, mint the
+    # shortfall via a splitOutcome L1 action, and keep the ticker order-blocked until it holds
+    # enough (and permanently, loudly, if minting fails).
+    #
+    # Per-req state machine (cap_reqs[sym]["state"]):
+    #   needed     -> query balances; enough? -> done (unblock); else send split -> in_flight
+    #   in_flight  -> waiting on the split's WS response (resolved in _handle_cap_response):
+    #                 ok -> confirming ; err -> failed
+    #   confirming -> query balances (never re-mint here, to avoid double-minting on settlement
+    #                 lag); enough? -> done ; past deadline? -> needed (retry, up to MAX) / failed
+    #   done       -> unblocked, skip
+    #   failed     -> blocked, one-shot alert, skip
+    # Only the `needed` state ever sends a split, so a split is never issued twice concurrently.
+    # ------------------------------------------------------------------
 
-        Each PbSplitOutcome becomes a Hyperliquid L1 `userOutcome` action -- splitOutcome to
-        mint `amount` collateral into equal YES+NO outcome tokens (the capitalization
-        primitive), or mergeOutcome to burn a paired residual back into collateral. Signed and
-        posted exactly like an order batch (see send_hyperliquid_orders) but one action per
-        message, since these are rare. Wire format ported verbatim from
-        hip4_utils.split_outcome / merge_outcome. NOTE: keyed by the outcome id, so it does NOT
-        go through self.sym_to_idx like orders do.
+    CAP_CONFIRM_TIMEOUT_S = 15
+    CAP_MAX_ATTEMPTS = 3
+
+    def _cap_user_address(self):
+        return self.listen_address or self.subaccount_address or self.wallet_address
+
+    async def _query_complete_sets(self, session, outcome):
+        """complete_sets = min(YES total, NO total) for the outcome, from spotClearinghouseState.
+
+        YES/NO balances are the spot tokens "+{10*outcome+0}" / "+{10*outcome+1}".
         """
-        if not self.queued_split_pbs:
-            return
+        payload = {"type": "spotClearinghouseState", "user": self._cap_user_address()}
+        text = await hyp_fetch(session, self.market_endpoint + "info", payload)
+        data = json.loads(text)
+        balances = data.get("balances", []) if isinstance(data, dict) else []
+        yes_tok = "+{}".format(10 * outcome + 0)
+        no_tok = "+{}".format(10 * outcome + 1)
+        yes_total = 0.0
+        no_total = 0.0
+        for b in balances:
+            coin = b.get("coin")
+            if coin == yes_tok:
+                yes_total = float(b.get("total", "0"))
+            elif coin == no_tok:
+                no_total = float(b.get("total", "0"))
+        return min(yes_total, no_total)
 
-        next_nonce = self.get_next_nonce(now_ms)
+    async def _send_cap_split(self, conn, sym, req, need_shares):
+        """Mint `need_shares` complete sets of the outcome (splitOutcome L1 action).
+
+        Whole shares only. Signed/posted exactly like an order batch. Records the WS msg id so
+        _handle_cap_response can resolve success/failure. Returns True if the split was sent.
+        Wire format ported from hip4_utils.split_outcome.
+        """
+        amount = int(math.floor(need_shares))
+        if amount <= 0:
+            return False
+        next_nonce = self.get_next_nonce(int(time.time() * 1000))
         if next_nonce == 0:
-            # No nonce space this minute; leave it queued and try again next tick.
-            self.logger.info("Skipping split because no nonce space")
-            return
+            self.logger.info(f"Capital split for {sym}: no nonce space, will retry")
+            return False
         self.last_nonce_used = next_nonce
 
-        split_pb = self.queued_split_pbs.pop(0)
-
-        # merge with an empty/zero amount means "as much as possible" (amount=None); a split
-        # (mint) always carries a positive amount (the strategy gates this before sending).
-        inner_key = "mergeOutcome" if split_pb.merge else "splitOutcome"
-        amt_str = split_pb.amount
-        if split_pb.merge and (amt_str == "" or float(amt_str or 0) == 0):
-            amount_val = None
-        else:
-            amount_val = str(float(amt_str))
         action = {
             "type": "userOutcome",
-            inner_key: {
-                "outcome": int(split_pb.outcome),
-                "amount": amount_val,
-            },
+            "splitOutcome": {"outcome": int(req["outcome"]), "amount": str(float(amount))},
         }
-
         signature = hl_signing.sign_l1_action(
-            self.eth_wallet,
-            action,
-            self.subaccount_address,  # subaccount if configured, None for main account
-            next_nonce,
-            self.is_mainnet,
-        )
-        payload = {
-            "action": action,
-            "nonce": next_nonce,
-            "signature": signature,
-            "vaultAddress": self.subaccount_address,
-        }
+            self.eth_wallet, action, self.subaccount_address, next_nonce, self.is_mainnet)
         ws_payload = {
             "method": "post",
             "id": self.ws_msg_idx,
-            "request": {
-                "type": "action",
-                "payload": payload,
-            }
+            "request": {"type": "action", "payload": {
+                "action": action,
+                "nonce": next_nonce,
+                "signature": signature,
+                "vaultAddress": self.subaccount_address,
+            }},
         }
-
-        # Track so the "post" response can be turned into a split ack/reject.
-        self.ws_id_to_split_pb[self.ws_msg_idx] = split_pb
+        self.ws_id_to_cap_sym[self.ws_msg_idx] = sym
         self.ws_msg_idx += 1
-
-        # Count against the per-connection budgets like any other L1 action.
         conn.num_batches_1min += 1
         conn.num_msgs_1min += 1
         conn.num_weighted_1min += 1
-
         self.logger.info(
-            "Sending HIP-4 {} outcome={} amount={} (strat={} id={})".format(
-                inner_key, split_pb.outcome, amount_val,
-                split_pb.strategy_id, split_pb.executor_order_id))
+            f"Capital split: minting {amount} complete sets of outcome {req['outcome']} "
+            f"for {sym}")
         await conn.ws.send(json.dumps(ws_payload))
+        return True
 
-    def _handle_split_response(self, msg_id, msg_response):
-        """Turn a WS "post" response for a userOutcome action into a split ack/reject.
+    async def capitalize_loop(self):
+        """Drive every ticker's capitalization to `done` (or `failed`). Runs every ~2s.
 
-        msg_response is msg_data["response"], i.e. {"type":"action","payload":{"status":...}}.
-        status == "ok" -> PbSplitOutcomeAck; anything else -> PbSplitOutcomeReject with the
-        error text. Pops the tracking entry so it can't leak.
+        Only touches `needed` and `confirming` reqs (balance queries; `needed` may also send a
+        split). `in_flight` reqs are resolved by the WS response handler.
         """
-        split_pb = self.ws_id_to_split_pb.pop(msg_id, None)
-        if split_pb is None:
-            return
+        self.logger.info("Capitalization loop starting")
+        async with aiohttp.ClientSession() as session:
+            while not self.eod_event.is_set():
+                for sym, req in list(self.cap_reqs.items()):
+                    state = req.get("state")
+                    if state not in ("needed", "confirming"):
+                        continue
+                    try:
+                        current = await self._query_complete_sets(session, req["outcome"])
+                    except Exception as e:
+                        self.logger.warning(
+                            f"Capital: balance query failed for {sym}: {e}; will retry")
+                        continue
 
+                    if current >= req["target"]:
+                        if state != "done":
+                            req["state"] = "done"
+                            self.cap_blocked_syms.discard(sym)
+                            self.logger.info(
+                                f"Capital: {sym} capitalized "
+                                f"(have {current} >= target {req['target']}); unblocked")
+                        continue
+
+                    if state == "confirming":
+                        # Awaiting settlement of a split that came back ok. Never re-mint here.
+                        if time.time() >= req.get("confirm_deadline", 0):
+                            if req.get("attempts", 0) < self.CAP_MAX_ATTEMPTS:
+                                req["state"] = "needed"  # retry a fresh split
+                            else:
+                                self._cap_fail(
+                                    sym, req,
+                                    f"still short after {self.CAP_MAX_ATTEMPTS} attempts "
+                                    f"(have {current}, target {req['target']})")
+                        continue
+
+                    # state == "needed": mint the shortfall.
+                    conn = self.pick_best_connection(time.time())
+                    if conn is None:
+                        continue  # no connection headroom; retry next loop
+                    req["attempts"] = req.get("attempts", 0) + 1
+                    sent = await self._send_cap_split(conn, sym, req, req["target"] - current)
+                    if sent:
+                        req["state"] = "in_flight"
+                await asyncio.sleep(2.0)
+        self.logger.info("Capitalization loop exiting")
+
+    def _cap_fail(self, sym, req, reason):
+        """Mark a ticker's capitalization failed: stays order-blocked, alert once, log loudly."""
+        req["state"] = "failed"
+        self.cap_blocked_syms.add(sym)
+        msg = (f"HIP-4 capitalization FAILED for {sym} (outcome {req.get('outcome')}): {reason}. "
+               f"Orders for this ticker are blocked until it is capitalized.")
+        self.logger.error(msg)
+        if sym not in self.cap_alerted:
+            self.cap_alerted.add(sym)
+            email_utils.send_alerts("WSGATEWAY HIP-4 CAPITALIZATION FAILED", msg)
+
+    def _handle_cap_response(self, msg_id, msg_response):
+        """Resolve a capitalization split's WS "post" response.
+
+        ok -> confirming (balances re-checked by capitalize_loop before we unblock, so we never
+        trade on an unconfirmed mint); anything else -> failed (blocked + one-shot alert).
+        """
+        sym = self.ws_id_to_cap_sym.pop(msg_id, None)
+        if sym is None:
+            return
+        req = self.cap_reqs.get(sym)
+        if req is None:
+            return
         payload = msg_response.get("payload") if isinstance(msg_response, dict) else None
         status = payload.get("status") if isinstance(payload, dict) else None
-
-        pbresponse = gateway_pb2.PbMessage()
         if status == "ok":
-            ack = pbresponse.split_ack
-            ack.strategy_id = split_pb.strategy_id
-            ack.executor_order_id = split_pb.executor_order_id
-            ack.exch_transact_time = int(time.time() * 1000)
-            self.logger.info(
-                "Split ok: outcome={} amount={} (strat={} id={})".format(
-                    split_pb.outcome, split_pb.amount,
-                    split_pb.strategy_id, split_pb.executor_order_id))
+            req["state"] = "confirming"
+            req["confirm_deadline"] = time.time() + self.CAP_CONFIRM_TIMEOUT_S
+            self.logger.info(f"Capital split ok for {sym}; confirming via balances")
         else:
-            rej = pbresponse.split_reject
-            rej.strategy_id = split_pb.strategy_id
-            rej.executor_order_id = split_pb.executor_order_id
             reason = payload.get("response") if isinstance(payload, dict) else msg_response
-            rej.reason = str(reason)[:500]
-            self.logger.error(
-                "Split rejected: {} (strat={} id={})".format(
-                    rej.reason, split_pb.strategy_id, split_pb.executor_order_id))
-        self.acks_pub_socket.send(pbresponse.SerializeToString())
+            self._cap_fail(sym, req, str(reason)[:500])
 
     async def send_hyperliquid_cancel(self, conn, now_ms):
         #endpt = self.market_endpoint + "exchange"
@@ -2583,9 +2658,25 @@ class HyperliquidGateway:
                         continue
 
                     self.queued_cancel_pbs.append(ord_action_pb.cancel_order)
-                elif ord_action_pb.HasField("split_outcome"):
-                    # HIP-4 collateral action (mint/split, or merge). Queue for the send loop.
-                    self.queued_split_pbs.append(ord_action_pb.split_outcome)
+                elif ord_action_pb.HasField("capital_req"):
+                    # HIP-4 capitalization requirement. Record it and block the ticker until the
+                    # capitalize_loop confirms we hold enough complete sets (fail-safe: never
+                    # place before we're capitalized). The loop unblocks immediately if we
+                    # already hold enough.
+                    cr = ord_action_pb.capital_req
+                    sym = cr.symbol
+                    self.cap_reqs[sym] = {
+                        "outcome": int(cr.outcome),
+                        "target": float(cr.target_complete_sets),
+                        "strategy_id": cr.strategy_id,
+                        "symbol": sym,
+                        "state": "needed",
+                    }
+                    self.cap_blocked_syms.add(sym)
+                    self.cap_alerted.discard(sym)
+                    self.logger.info(
+                        f"Capital req: {sym} outcome={cr.outcome} "
+                        f"target_complete_sets={cr.target_complete_sets}")
 
             # Making this happen more often.
             await asyncio.sleep(self.zmq_sleep_t)

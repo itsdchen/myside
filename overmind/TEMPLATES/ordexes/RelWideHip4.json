@@ -18,6 +18,7 @@
 
     "outcome_id": 0,
     "startup_complete_sets": 350,
+    "_comment_capital": "startup_complete_sets is the capitalization target the gateway mints to (defaults to max_pos if omitted); the gateway blocks orders for the ticker until it holds enough complete sets.",
 
     "local_sig": "local_mid_hip4",
     "remote_sig": "reference_mid_hip4"

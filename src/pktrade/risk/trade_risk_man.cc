@@ -505,51 +505,31 @@ PKOrderId TradeRiskMan::sendOrd(const NewOrder& ord) {
   return oid;
 }
 
-PKOrderId TradeRiskMan::sendSplit(const SplitOutcome& split) {
-  // HIP-4 collateral action. Cheap sanity checks only: the strategy owns account state and is
-  // responsible for balance-aware sizing (min_free_quote, complete-sets target, etc.).
-  if (!can_trade_pk_) {
-    LOG(ERROR) << fmt::format("({}) Ordex trying to sendSplit when can_trade_pk is false!",
-                              symbol_id_.get());
-    return -1;
-  }
-  if (split.amount.toDouble() <= 0) {
-    LOG(ERROR) << fmt::format("({}) Ordex trying to sendSplit with non-positive amount {}",
-                              symbol_id_.get(), split.amount.toDouble());
-    return -1;
+void TradeRiskMan::sendCapitalReq(const CapitalReq& req) {
+  // HIP-4 capitalization requirement. Cheap sanity check only; the gateway does the on-chain
+  // balance query, minting, and order gating.
+  if (req.target_complete_sets.toDouble() <= 0) {
+    LOG(ERROR) << fmt::format("({}) Ordex sendCapitalReq with non-positive target {}",
+                              symbol_id_.get(), req.target_complete_sets.toDouble());
+    return;
   }
 
-  // Split is a Hyperliquid-only L1 action executed by the live wsgateway. There is no on-chain
-  // collateral in sim / paper mode and the local (Binance) gateway does not support it, so skip.
+  // Capitalization is a Hyperliquid-only L1 action executed by the live wsgateway. There is no
+  // on-chain collateral in sim / paper mode and the local (Binance) gateway does not support
+  // it, so skip.
   if (!pktrade::GlobalVar::live_ || pktrade::GlobalVar::paper_trading_mode_) {
-    LOG(INFO) << fmt::format("({}) sendSplit skipped (not in live non-paper mode): {}",
-                             symbol_id_.get(), split.to_string());
-    return -1;
+    LOG(INFO) << fmt::format("({}) sendCapitalReq skipped (not in live non-paper mode): {}",
+                             symbol_id_.get(), req.to_string());
+    return;
   }
   if (live_context_ == nullptr) {
-    LOG(ERROR) << fmt::format("({}) TradeRiskMan: sendSplit: no live context set.",
+    LOG(ERROR) << fmt::format("({}) TradeRiskMan: sendCapitalReq: no live context set.",
                               symbol_id_.get());
-    return -1;
+    return;
   }
 
-  LOG(INFO) << fmt::format("({}) sendSplit: {}", symbol_id_.get(), split.to_string());
-  return live_context_->onSplitOutcome(split, symbol_id_);
-}
-
-void TradeRiskMan::onSplitOE(const SplitOutcomeAck& ack) {
-  LOG(INFO) << fmt::format("({}) split ack id {} (t {})", symbol_id_.get(), ack.pk_order_id,
-                           ack.exch_transact_time);
-  if (ordex_ != nullptr) {
-    ordex_->splitAck(ack);
-  }
-}
-
-void TradeRiskMan::onSplitOE(const SplitOutcomeReject& rej) {
-  LOG(ERROR) << fmt::format("({}) split reject id {}: {}", symbol_id_.get(), rej.pk_order_id,
-                            rej.reason);
-  if (ordex_ != nullptr) {
-    ordex_->splitReject(rej);
-  }
+  LOG(INFO) << fmt::format("({}) sendCapitalReq: {}", symbol_id_.get(), req.to_string());
+  live_context_->onCapitalReq(req, symbol_id_);
 }
 
 // Send this cancel to the simulator.

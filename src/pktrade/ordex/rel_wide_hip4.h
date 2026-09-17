@@ -66,10 +66,6 @@ class RelWideHip4 : public Ordex,
   void ordElimPrecog(Side side, Quantity qty) override {}
   void ordReject(const Order& ord, const NewOrderReject& rej) override;
 
-  // ---- HIP-4 split replies ----
-  void splitAck(const SplitOutcomeAck& ack) override;
-  void splitReject(const SplitOutcomeReject& rej) override;
-
   void cancelOutstandingOrds() override;
 
   // ---- Tempo / signal listeners ----
@@ -90,7 +86,7 @@ class RelWideHip4 : public Ordex,
   double reservationPrice(double fair);          // inventory-skewed center
   double roundPxToSide(double px, bool round_up); // onto the fixed 5dp outcome grid
   void reconcileQuotes(double reservation);      // place/cancel ladder legs
-  void emitStartupSplit();                       // one-shot capitalization
+  void emitCapitalReq();                          // one-shot capitalization requirement
 
   void removeOrder(PKOrderId oid);
 
@@ -123,13 +119,12 @@ class RelWideHip4 : public Ordex,
   double thresh_mult_ = 1.0;
   double size_mult_ = 1.0;
 
-  // startup split
+  // startup capitalization requirement (sent once to the gateway, which owns the mint + gating)
   int outcome_id_ = -1;
-  double startup_complete_sets_ = 0.0;
-  bool split_enabled_ = false;
-  bool split_sent_ = false;
-  bool split_confirmed_ = false;
-  PKOrderId split_id_ = -1;
+  // Target complete sets to request. Defaults to max_pos; a config override wins.
+  double target_complete_sets_ = 0.0;
+  bool cap_enabled_ = false;
+  bool cap_sent_ = false;
 
   // resting orders (canonical YES book)
   std::vector<SimpleOrder> buy_orders_;

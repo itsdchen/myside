@@ -54,7 +54,10 @@
         "max_back_levels": 6,
         "cancel_buffer": 0.5,
 
-        // runner.py startup capitalization: mint 350 complete sets of outcome 15416.
+        // Capitalization requirement declared to the gateway: outcome 15416 needs
+        // target complete sets = startup_complete_sets (or max_pos if omitted). The gateway
+        // reads on-chain balances, mints the shortfall, and blocks orders for this ticker
+        // until it holds enough (and permanently, loudly, if minting fails).
         "outcome_id": 15416,
         "startup_complete_sets": 350,
 

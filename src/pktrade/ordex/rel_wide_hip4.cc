@@ -49,14 +49,16 @@ RelWideHip4::RelWideHip4(SymbolId symbol, const rapidjson::Value& ordex_conf,
     cancel_buffer_ = ordex_conf["cancel_buffer"].GetDouble();
   }
 
-  // Startup capitalization split (runner.py::_emit_startup_split_intent).
+  // Startup capitalization requirement. The strategy declares how many complete sets it needs
+  // (defaults to max_pos); the gateway reads on-chain balances, mints the shortfall, and gates
+  // orders on the ticker until it is capitalized. A config override wins over max_pos.
   if (ordex_conf.HasMember("outcome_id")) {
     outcome_id_ = ordex_conf["outcome_id"].GetInt();
   }
   if (ordex_conf.HasMember("startup_complete_sets")) {
-    startup_complete_sets_ = ordex_conf["startup_complete_sets"].GetDouble();
+    target_complete_sets_ = ordex_conf["startup_complete_sets"].GetDouble();
   }
-  split_enabled_ = (outcome_id_ >= 0 && startup_complete_sets_ > 0.0);
+  cap_enabled_ = (outcome_id_ >= 0);
 
   // Signals + trade caller (same wiring as RelWideMM2).
   local_sig_ = sf->getByName(ordex_conf["local_sig"].GetString());
@@ -78,9 +80,9 @@ RelWideHip4::RelWideHip4(SymbolId symbol, const rapidjson::Value& ordex_conf,
 
   LOG(INFO) << fmt::format(
       "({}) RelWideHip4: outcome={} apply_fraction={} ema_tdc_ms={} place_thresh={} "
-      "rung_mult={} max_back_levels={} startup_sets={}",
+      "rung_mult={} max_back_levels={} target_sets_override={} (0=use max_pos)",
       symbol_.get(), outcome_id_, apply_fraction_, ema_tdc_ms_, place_thresh_, rung_mult_,
-      max_back_levels_, startup_complete_sets_);
+      max_back_levels_, target_complete_sets_);
 }
 
 void RelWideHip4::postSecMaster() {
@@ -252,32 +254,28 @@ void RelWideHip4::reconcileQuotes(double reservation) {
   place_side(Side::Sell, want_asks, sell_orders_);
 }
 
-void RelWideHip4::emitStartupSplit() {
-  // One-shot capitalization: mint `startup_complete_sets_` collateral into YES+NO tokens so we
-  // have inventory to quote both sides. NOTE: unlike hip4maker we don't yet read spot balances,
-  // so we mint the full configured amount once rather than (target - current complete sets).
-  SplitOutcome split;
-  split.pk_order_id = 0;  // assigned by the context
-  split.outcome = outcome_id_;
-  split.amount = Quantity{std::to_string(pktrade::util::hip4::round_outcome_sz(startup_complete_sets_))};
-  split.merge = false;
-  split_id_ = riskman_->sendSplit(split);
-  split_sent_ = true;
-  if (split_id_ == -1) {
-    LOG(WARNING) << fmt::format("({}) RelWideHip4: startup split gated/failed to send",
-                                symbol_.get());
-  } else {
-    LOG(INFO) << fmt::format("({}) RelWideHip4: sent startup split id {} outcome {} amount {}",
-                             symbol_.get(), split_id_, outcome_id_, startup_complete_sets_);
-  }
+void RelWideHip4::emitCapitalReq() {
+  // Declare our capitalization requirement to the gateway once. Target defaults to max_pos
+  // (the inventory needed to quote asks up to our limit); a config override wins. The gateway
+  // reads on-chain balances, mints the shortfall, and refuses to place for this ticker until
+  // it is capitalized (and if capitalization fails).
+  double target = (target_complete_sets_ > 0.0) ? target_complete_sets_ : max_pos_.toDouble();
+  target = pktrade::util::hip4::round_outcome_sz(target);
+  CapitalReq req;
+  req.outcome = outcome_id_;
+  req.target_complete_sets = Quantity{std::to_string(target)};
+  riskman_->sendCapitalReq(req);
+  cap_sent_ = true;
+  LOG(INFO) << fmt::format("({}) RelWideHip4: sent capital req outcome {} target_sets {}",
+                           symbol_.get(), outcome_id_, target);
 }
 
 void RelWideHip4::tryFire() {
   now_fire_t_ = time_utils::nowToMs();
 
-  // Capitalize once, before quoting.
-  if (split_enabled_ && !split_sent_) {
-    emitStartupSplit();
+  // Declare our capitalization requirement once, before quoting.
+  if (cap_enabled_ && !cap_sent_) {
+    emitCapitalReq();
   }
 
   double fair;
@@ -318,20 +316,6 @@ void RelWideHip4::ordElim(const Order& ord, const OrderElimination& elim) {
 void RelWideHip4::ordReject(const Order& ord, const NewOrderReject& rej) {
   LOG(ERROR) << fmt::format("({}) RelWideHip4: order reject: {}", symbol_.get(), rej.reason);
   removeOrder(ord.pk_order_id);
-}
-
-void RelWideHip4::splitAck(const SplitOutcomeAck& ack) {
-  if (ack.pk_order_id == split_id_) {
-    split_confirmed_ = true;
-    LOG(INFO) << fmt::format("({}) RelWideHip4: startup split confirmed", symbol_.get());
-  }
-}
-
-void RelWideHip4::splitReject(const SplitOutcomeReject& rej) {
-  LOG(ERROR) << fmt::format("({}) RelWideHip4: startup split rejected: {}", symbol_.get(),
-                            rej.reason);
-  // Leave split_sent_ = true so we don't retry in a tight loop; capitalization can be retried
-  // by restarting or via an operator action.
 }
 
 void RelWideHip4::cancelOutstandingOrds() {

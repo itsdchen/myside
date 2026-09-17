@@ -33,10 +33,10 @@ class LiveContext {
   // Pushing things to the gateway.
   PKOrderId onNewOrd(const NewOrder& ord);
   void onCancelOrd(const CancelOrder& cxl);
-  // HIP-4 collateral action (mint/split, or merge). `sym` is the requesting strategy's
-  // symbol, remembered so the ack/reject can be routed back to its TradeRiskMan. Returns the
-  // correlation id used to match the reply.
-  PKOrderId onSplitOutcome(const SplitOutcome& split, SymbolId sym);
+  // HIP-4 capitalization requirement (strat -> gateway only). Serializes a PbCapitalReq and
+  // publishes it; the gateway owns minting and order gating, so there is no reply. `sym` is the
+  // requesting strategy's symbol (carried in the message for the gateway's block set).
+  void onCapitalReq(const CapitalReq& req, SymbolId sym);
 
   // Handle messages from the gateway. These are basically acks from the market
   // or the gateway.
@@ -47,8 +47,6 @@ class LiveContext {
   void handle(const pktrade::gateway::PbOrderElimination& msg);
   void handle(const pktrade::gateway::PbNewOrderReject& msg);
   void handle(const pktrade::gateway::PbCancelOrderReject& msg);
-  void handle(const pktrade::gateway::PbSplitOutcomeAck& msg);
-  void handle(const pktrade::gateway::PbSplitOutcomeReject& msg);
   // Maybe... deal with these differently?
   void handle(const pktrade::gateway::PbControl& msg);
   void handle(const pktrade::gateway::PbGatewayAck& msg);
@@ -66,11 +64,6 @@ class LiveContext {
   // I guess the TradeMan gets to set the PKOrderId?
   // OK. I guess we can live with that.
   std::unordered_map<PKOrderId, Order> orders_;
-
-  // HIP-4 split/merge actions have no Order object, so we can't recover their symbol from
-  // orders_. Keep a side map from the split correlation id -> the SymbolId that requested it,
-  // so an incoming split ack/reject can be routed back to the right TradeRiskMan.
-  std::unordered_map<PKOrderId, SymbolId> split_syms_;
 
   // For communicating w/ the gateway, which should be on the same machine.
   std::string oe_outbound_socket_;

@@ -136,11 +136,10 @@ class TradeRiskMan : public Executor, public OEListener, public pktrade::md::Bea
   PKOrderId sendOrd(const NewOrder& ord) override;
   void cancelOrd(const CancelOrder& cxl) override;
   void modOrd(const ModifyOrder& mod) override;
-  // HIP-4 collateral action: request a mint (split) or burn (merge). Returns a correlation id
-  // (>=0) that later matches the split ack/reject, or -1 if the request is gated. Live-only.
-  // Balance-aware sizing is the strategy's responsibility (it holds account state); TRM only
-  // does cheap sanity checks and forwards to the live context.
-  PKOrderId sendSplit(const SplitOutcome& split) override;
+  // HIP-4 capitalization requirement: the strategy declares how many complete sets it needs;
+  // the gateway owns minting the shortfall and gating orders. Live-only; forwards to the live
+  // context. Balance-aware sizing lives on the gateway (it reads on-chain balances).
+  void sendCapitalReq(const CapitalReq& req) override;
 
   // OEListener interface callbacks.
   void onOE(const Order& ord, const GatewayAck& ack) override;
@@ -152,9 +151,6 @@ class TradeRiskMan : public Executor, public OEListener, public pktrade::md::Bea
   void onOE(const Order& ord, const ModifyOrderReject& rej) override;
   void onOE(const Order& ord, const OrderExecute& exec) override;
   void onOE(const Order& ord, const OrderElimination& elim) override;
-  // HIP-4 split/merge replies from the live context; forwarded to the ordex.
-  void onSplitOE(const SplitOutcomeAck& ack) override;
-  void onSplitOE(const SplitOutcomeReject& rej) override;
   // /////////////////////////////////////
 
   // MDBeacon callbacks.

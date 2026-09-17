@@ -104,11 +104,6 @@ class Ordex {
   virtual void ordElimPrecog(Side side, Quantity qty) = 0;
   virtual void ordReject(const Order& ord, const NewOrderReject& rej) = 0;
 
-  // HIP-4 collateral (mint/split, or merge) replies from the gateway. Defaults are no-ops so
-  // only HIP-4 strategies that issue splits need to handle them.
-  virtual void splitAck(const SplitOutcomeAck& ack) {}
-  virtual void splitReject(const SplitOutcomeReject& rej) {}
-
   virtual void cancelOutstandingOrds() {}
 
   virtual void hitMinFv() {}

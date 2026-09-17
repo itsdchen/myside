@@ -131,23 +131,19 @@ struct ModifyOrder {
   Quantity target_qty;
 };
 
-// HIP-4 collateral action: mint (split) collateral into equal YES+NO outcome tokens, or the
-// inverse (merge) back into collateral. This is a Hyperliquid L1 `userOutcome` action executed
-// by the gateway; it is NOT a normal order and is keyed by the outcome id, not a per-symbol
-// asset. See gateway.proto PbSplitOutcome and hip4_utils.split_outcome for the wire format.
-struct SplitOutcome {
-  // Correlation id assigned by the context (shares the order-id space so it never collides).
-  PKOrderId pk_order_id;
+// HIP-4 capitalization requirement: the strategy declares how much inventory (complete sets
+// of an outcome) it needs to quote a ticker; the gateway owns minting the shortfall and gating
+// order placement on it. One-directional (strat -> gateway); no reply. See gateway.proto
+// PbCapitalReq.
+struct CapitalReq {
   // The HIP-4 outcome id (not the per-side asset id). Encoding is 10*outcome + side.
   int outcome;
-  // Collateral / complete-sets amount to mint or burn. Whole shares only (see hip4_ids.h).
-  Quantity amount;
-  // false = splitOutcome (mint), true = mergeOutcome (burn back to collateral).
-  bool merge = false;
+  // How many complete sets the strategy needs (~ its max position). Whole shares.
+  Quantity target_complete_sets;
 
   std::string to_string() const {
-    return std::string("SPLITOUTCOME outcome ") + std::to_string(outcome) + " amount " +
-           std::to_string(amount.toDouble()) + (merge ? " merge" : " split");
+    return std::string("CAPITALREQ outcome ") + std::to_string(outcome) + " target_sets " +
+           std::to_string(target_complete_sets.toDouble());
   }
 };
 
@@ -206,18 +202,6 @@ struct OrderExecute {
 struct OrderElimination {
   PKOrderId order_id;
 };
-
-// Market -> gateway -> trader: a HIP-4 split/merge landed.
-struct SplitOutcomeAck {
-  PKOrderId pk_order_id;
-  int64_t exch_transact_time;
-};
-
-// Market -> gateway -> trader: a HIP-4 split/merge was rejected.
-struct SplitOutcomeReject {
-  PKOrderId pk_order_id;
-  std::string reason;
-};
 /*
 // Just make this available too.
 std::string get_new_client_oid(ExecutorId& executor_id,
@@ -234,10 +218,10 @@ class Executor {
   virtual void cancelOrd(const CancelOrder&) = 0;
   virtual void modOrd(const ModifyOrder&) = 0;
 
-  // HIP-4 collateral (mint/split, or merge) action. Live-only: the default throws so
+  // HIP-4 capitalization requirement (strat -> gateway). Live-only: the default throws so
   // sim/local executors that never handle collateral don't have to implement it.
-  virtual PKOrderId sendSplit(const SplitOutcome&) {
-    throw std::runtime_error("sendSplit is not supported by this Executor");
+  virtual void sendCapitalReq(const CapitalReq&) {
+    throw std::runtime_error("sendCapitalReq is not supported by this Executor");
   }
 };
 
@@ -254,11 +238,6 @@ class OEListener {
   virtual void onOE(const Order&, const ModifyOrderReject&) = 0;
   virtual void onOE(const Order&, const OrderExecute&) = 0;
   virtual void onOE(const Order&, const OrderElimination&) = 0;
-
-  // HIP-4 split/merge replies. Defaults are no-ops so only executors that use collateral
-  // actions (i.e. HIP-4 strategies) need to handle them.
-  virtual void onSplitOE(const SplitOutcomeAck&) {}
-  virtual void onSplitOE(const SplitOutcomeReject&) {}
 };
 
 } // namespace pktrade

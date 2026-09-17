@@ -99,33 +99,22 @@ message PbCancelOrderReject {
   string reason = 4;
 }
 
-// HIP-4 collateral action: mint (split) collateral into equal YES+NO outcome tokens,
-// or the inverse (merge) when `merge` is true. This is a Hyperliquid L1 `userOutcome`
-// action executed by the gateway; it is not a normal order and does not go through the
-// per-symbol asset map (it is keyed by the outcome id). See hip4_utils.split_outcome.
-message PbSplitOutcome {
+// HIP-4 capitalization requirement: the strategy declares how much inventory (complete
+// sets of an outcome) it needs to quote a ticker, and the GATEWAY owns making it so. The
+// gateway reads the current on-chain balances (spotClearinghouseState), mints the shortfall
+// via a Hyperliquid L1 `userOutcome`/`splitOutcome` action (see hip4_utils.split_outcome),
+// and gates order placement on it: until a ticker is capitalized (and if capitalization
+// ever fails) the gateway refuses to place any order for that ticker and logs loudly. This
+// is one-directional (strat -> gateway); the gateway does not report the result back.
+message PbCapitalReq {
   string strategy_id = 1;
-  int32 executor_order_id = 2;
+  // The traded coin symbol (e.g. "#154160"), used for the gateway's order block set.
+  string symbol = 2;
   // The HIP-4 outcome id (NOT the per-side asset id). Encoding is 10*outcome + side.
   int32 outcome = 3;
-  // Collateral / complete-sets amount, sent as a string like qty/px. Whole shares only.
-  string amount = 4;
-  // false = splitOutcome (mint), true = mergeOutcome (burn back to collateral).
-  bool merge = 5;
-}
-
-// Gateway/market -> strat: the split/merge landed.
-message PbSplitOutcomeAck {
-  string strategy_id = 1;
-  int32 executor_order_id = 2;
-  int64 exch_transact_time = 3;
-}
-
-// Gateway/market -> strat: the split/merge was rejected.
-message PbSplitOutcomeReject {
-  string strategy_id = 1;
-  int32 executor_order_id = 2;
-  string reason = 4;
+  // How many complete sets of the outcome the strategy needs (~ its max position). Sent as
+  // a string; whole shares only. The gateway mints max(0, target - current complete sets).
+  string target_complete_sets = 4;
 }
 
 message PbMessage {
@@ -141,10 +130,8 @@ message PbMessage {
     PbCancelOrderReject cancel_reject = 107;
     // Gateway to us.
     PbGatewayAck gateway_ack = 108;
-    // HIP-4 collateral (mint/split) action + its replies.
-    PbSplitOutcome split_outcome = 109;
-    PbSplitOutcomeAck split_ack = 110;
-    PbSplitOutcomeReject split_reject = 111;
+    // HIP-4 capitalization requirement (strat -> gateway only).
+    PbCapitalReq capital_req = 109;
   }
 }
 
