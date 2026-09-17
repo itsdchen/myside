@@ -108,7 +108,7 @@ void RelWideHip4::onSignalValue(int sig_id, double value) {
   }
 }
 
-bool RelWideHip4::computeFairValue(double& fair_out) {
+bool RelWideHip4::updatePredPx() {
   // Gate on both feeds being valid (basis.py staleness / mapping gates).
   if (local_sig_ == nullptr || remote_sig_ == nullptr) {
     return false;
@@ -116,16 +116,14 @@ bool RelWideHip4::computeFairValue(double& fair_out) {
   if (!local_sig_->getValid() || !remote_sig_->getValid()) {
     return false;
   }
-  double local_mid = local_sig_->getValue();
-  double remote_mid = remote_sig_->getValue();
-  if (local_mid <= 0.0 || local_mid >= 1.0 || remote_mid <= 0.0 || remote_mid >= 1.0) {
+  local_mid_ = local_sig_->getValue();
+  remote_mid_ = remote_sig_->getValue();
+  if (local_mid_ <= 0.0 || local_mid_ >= 1.0 || remote_mid_ <= 0.0 || remote_mid_ >= 1.0) {
     return false;
   }
-  local_mid_ = local_mid;
-  remote_mid_ = remote_mid;
 
   // Time-aware EMA of the basis (local - reference).
-  double raw_basis = local_mid - remote_mid;
+  double raw_basis = local_mid_ - remote_mid_;
   int64_t now = now_fire_t_;
   if (!basis_initialized_) {
     basis_ema_ = raw_basis;
@@ -140,65 +138,52 @@ bool RelWideHip4::computeFairValue(double& fair_out) {
   }
   basis_last_t_ = now;
 
-  // fair = reference_mid + apply_fraction * basis, clipped to [0, 1].
-  double fair = remote_mid + apply_fraction_ * basis_ema_;
-  fair = std::clamp(fair, 0.0, 1.0);
-  fair_out = fair;
+  // pred_px = reference_mid + apply_fraction * basis, clipped to [0, 1].
+  pred_px_ = std::clamp(remote_mid_ + apply_fraction_ * basis_ema_, 0.0, 1.0);
   return true;
 }
 
-double RelWideHip4::reservationPrice(double fair) {
-  // Inventory skew (quotes.py): skew = (directional_shares / order_size) * 0.5 * place_thresh.
+void RelWideHip4::adjustPredPx() {
+  // Apply inventory skew to pred_px_ at quote time (quotes.py): a long position shifts the price
+  // we quote around DOWN so we lean to sell it off, and vice versa.
+  //   skew = (directional_shares / order_size) * 0.5 * place_thresh
   double order_sz = std::max(1.0, order_size_.toDouble());
   double pos = riskman_ == nullptr ? 0.0 : riskman_->getPos().toDouble();
   double eff_thresh = place_thresh_ * thresh_mult_;
   double skew = (pos / order_sz) * 0.5 * eff_thresh;
-  return std::clamp(fair - skew, 0.0, 1.0);
+  adjusted_pred_px_ = std::clamp(pred_px_ - skew, 0.0, 1.0);
 }
 
 double RelWideHip4::roundPxToSide(double px, bool round_up) {
-  // Snap to the fixed 5dp outcome grid, biased so buys round down and sells round up (so we
-  // never cross ourselves through rounding).
+  // Like Ordex::roundToSide, but onto the fixed 5dp HIP-4 outcome grid (the secmaster tick isn't
+  // configured for outcomes). Biased so buys round down and sells round up (never self-cross).
   double scaled = px / min_tick_;
   double ticks = round_up ? std::ceil(scaled) : std::floor(scaled);
   return pktrade::util::hip4::round_outcome_px(ticks * min_tick_);
 }
 
-void RelWideHip4::reconcileQuotes(double reservation) {
+bool RelWideHip4::shouldCancelPx(double px, Side side) const {
+  // Cancel a resting order once its price has drifted past cancel_buffer_ * place_thresh from
+  // every desired rung on its side (asymmetric hold band around the ladder). Mirrors the role of
+  // RelWideMM2::shouldCancelPx (there vs pred_px +/- cancel_thresh; here vs the adjusted_pred_px rungs).
   double eff_thresh = place_thresh_ * thresh_mult_;
-
-  // Build desired ladder prices per side.
-  std::vector<double> want_bids, want_asks;
   for (int level = 0; level < max_back_levels_; ++level) {
     double distance = eff_thresh * (1.0 + level * rung_mult_);
-    double bid = roundPxToSide(reservation - distance, false);
-    double ask = roundPxToSide(reservation + distance, true);
-    if (bid > 0.0 && bid < 1.0) {
-      want_bids.push_back(bid);
-    }
-    if (ask > 0.0 && ask < 1.0) {
-      want_asks.push_back(ask);
+    double rung = (side == Side::Buy) ? (adjusted_pred_px_ - distance) : (adjusted_pred_px_ + distance);
+    if (std::abs(px - rung) <= cancel_buffer_ * eff_thresh) {
+      return false;  // still near a desired rung -> keep
     }
   }
+  return true;
+}
 
-  auto price_matches = [&](double a, double b) { return std::abs(a - b) < 0.5 * min_tick_; };
-
-  // Cancel resting orders whose price is no longer desired (asymmetric: cancel once the price
-  // has drifted past cancel_buffer_ * place_thresh from the nearest desired rung).
-  auto cancel_stale = [&](std::vector<SimpleOrder>& resting, const std::vector<double>& want) {
+void RelWideHip4::maybeCancel() {
+  auto cancel_side = [&](std::vector<SimpleOrder>& resting, Side side) {
     for (auto& o : resting) {
       if (o.state == SimpleOrderState::CANCEL_INFLIGHT) {
         continue;
       }
-      double px = o.px.toDouble();
-      bool keep = false;
-      for (double w : want) {
-        if (std::abs(px - w) <= cancel_buffer_ * eff_thresh || price_matches(px, w)) {
-          keep = true;
-          break;
-        }
-      }
-      if (!keep) {
+      if (shouldCancelPx(o.px.toDouble(), side)) {
         CancelOrder cxl{o.pk_oid};
         riskman_->cancelOrd(cxl);
         o.state = SimpleOrderState::CANCEL_INFLIGHT;
@@ -206,55 +191,62 @@ void RelWideHip4::reconcileQuotes(double reservation) {
       }
     }
   };
-  cancel_stale(buy_orders_, want_bids);
-  cancel_stale(sell_orders_, want_asks);
+  cancel_side(buy_orders_, Side::Buy);
+  cancel_side(sell_orders_, Side::Sell);
+}
 
-  // Place desired rungs that aren't already resting, subject to side allocation and inventory.
-  // Outcome sizes are whole shares (hip4_ids.h); the secmaster is not configured with the
-  // per-outcome lot/tick, so round directly rather than via secmaster->round_qty.
-  double order_qty_d =
-      pktrade::util::hip4::round_outcome_sz(order_size_.toDouble() * size_mult_);
-  Quantity order_qty = Quantity{std::to_string(order_qty_d)};
+void RelWideHip4::placeRung(Side side, double px, std::vector<SimpleOrder>& resting) {
+  if (px <= 0.0 || px >= 1.0) {
+    return;
+  }
+  // Skip if we already have a live order at this price.
+  for (auto& o : resting) {
+    if (o.state == SimpleOrderState::LIVE && std::abs(o.px.toDouble() - px) < 0.5 * min_tick_) {
+      return;
+    }
+  }
+  // Outcome sizes are whole shares (hip4_ids.h); secmaster has no per-outcome lot, so round here.
+  double order_qty_d = pktrade::util::hip4::round_outcome_sz(order_size_.toDouble() * size_mult_);
   if (order_qty_d <= 0.0) {
     return;
   }
-
-  auto place_side = [&](Side side, const std::vector<double>& want,
-                        std::vector<SimpleOrder>& resting) {
-    for (double px : want) {
-      bool have = false;
-      for (auto& o : resting) {
-        if (o.state == SimpleOrderState::LIVE && price_matches(o.px.toDouble(), px)) {
-          have = true;
-          break;
-        }
-      }
-      if (have) {
-        continue;
-      }
-      // Respect max position on this side.
-      if (riskman_->getSideAlloc(side).toDouble() < order_qty_d) {
-        continue;
-      }
-      // Min-notional guard: a HIP-4 order must clear $10 notional. We quote the YES coin
-      // directly, so both a bid and an ask have notional px * size.
-      if (px * order_qty_d < 10.0) {
-        continue;
-      }
-      NewOrder ord{symbol_,          traded_books_[0], side,  order_qty, Price{std::to_string(px)},
-                   OrderType::Limit, TimeInForce::ALO, false, false};
-      PKOrderId pk = riskman_->sendOrd(ord);
-      if (pk != -1) {
-        resting.emplace_back(SimpleOrder{pk, side, Price{std::to_string(px)}, order_qty,
-                                         SimpleOrderState::LIVE, now_fire_t_, 0});
-      }
-    }
-  };
-  place_side(Side::Buy, want_bids, buy_orders_);
-  place_side(Side::Sell, want_asks, sell_orders_);
+  // Respect max position on this side.
+  if (riskman_->getSideAlloc(side).toDouble() < order_qty_d) {
+    return;
+  }
+  // Min-notional guard: a HIP-4 order must clear $10 notional. We quote the YES coin directly,
+  // so both a bid and an ask have notional px * size.
+  if (px * order_qty_d < 10.0) {
+    return;
+  }
+  Quantity order_qty = Quantity{std::to_string(order_qty_d)};
+  NewOrder ord{symbol_,          traded_books_[0], side,  order_qty, Price{std::to_string(px)},
+               OrderType::Limit, TimeInForce::ALO, false, false};
+  PKOrderId pk = riskman_->sendOrd(ord);
+  if (pk != -1) {
+    resting.emplace_back(SimpleOrder{pk, side, Price{std::to_string(px)}, order_qty,
+                                     SimpleOrderState::LIVE, now_fire_t_, 0});
+  }
 }
 
-void RelWideHip4::emitCapitalReq() {
+void RelWideHip4::maybePlaceFront() {
+  // Front (inside) rung at level 0: adjusted_pred_px +/- place_thresh.
+  double eff_thresh = place_thresh_ * thresh_mult_;
+  placeRung(Side::Buy, roundPxToSide(adjusted_pred_px_ - eff_thresh, false), buy_orders_);
+  placeRung(Side::Sell, roundPxToSide(adjusted_pred_px_ + eff_thresh, true), sell_orders_);
+}
+
+void RelWideHip4::manageBacklevels() {
+  // Back rungs at levels 1..max_back_levels_-1, spaced by rung_mult_.
+  double eff_thresh = place_thresh_ * thresh_mult_;
+  for (int level = 1; level < max_back_levels_; ++level) {
+    double distance = eff_thresh * (1.0 + level * rung_mult_);
+    placeRung(Side::Buy, roundPxToSide(adjusted_pred_px_ - distance, false), buy_orders_);
+    placeRung(Side::Sell, roundPxToSide(adjusted_pred_px_ + distance, true), sell_orders_);
+  }
+}
+
+void RelWideHip4::emitCapitalRequirement() {
   // Declare our capitalization requirement to the gateway once. Target defaults to max_pos
   // (the inventory needed to quote asks up to our limit); a config override wins. The gateway
   // reads on-chain balances, mints the shortfall, and refuses to place for this ticker until
@@ -282,18 +274,19 @@ void RelWideHip4::tryFire() {
 
   // Declare our capitalization requirement once, before quoting.
   if (cap_enabled_ && !cap_sent_) {
-    emitCapitalReq();
+    emitCapitalRequirement();
   }
 
-  double fair;
-  if (!computeFairValue(fair)) {
+  if (!updatePredPx()) {
     // Not ready / stale reference -> cancel-only (hip4maker cancel-only branch).
     cancelOutstandingOrds();
     return;
   }
 
-  double reservation = reservationPrice(fair);
-  reconcileQuotes(reservation);
+  adjustPredPx();
+  maybeCancel();
+  maybePlaceFront();
+  manageBacklevels();
 }
 
 void RelWideHip4::removeOrder(PKOrderId oid) {

@@ -81,12 +81,19 @@ class RelWideHip4 : public Ordex,
   void onFinal(const LevelBook& bk) override {}
 
  protected:
-  // Fair value + quoting (ported from basis.py / quotes.py).
-  bool computeFairValue(double& fair_out);       // updates the basis EMA; false if not ready
-  double reservationPrice(double fair);          // inventory-skewed center
-  double roundPxToSide(double px, bool round_up); // onto the fixed 5dp outcome grid
-  void reconcileQuotes(double reservation);      // place/cancel ladder legs
-  void emitCapitalReq();                          // one-shot capitalization requirement
+  // Fair value + quoting. Ported from hip4maker basis.py/quotes.py, named to match the rel_wide
+  // family (RelWideMM2 / base Ordex). `pred_px_` is the raw price we quote around; the inventory
+  // skew is applied as an adjustment to it -> `adjusted_pred_px_` (the analog of RelWideMM2's
+  // premium_adjusted_pred_px_), and the ladder is built around that.
+  bool updatePredPx();                             // basis EMA -> pred_px_; false if not ready
+  void adjustPredPx();                             // pred_px_ + inventory skew -> adjusted_pred_px_
+  double roundPxToSide(double px, bool round_up);  // fixed 5dp outcome grid; cf. Ordex::roundToSide
+  bool shouldCancelPx(double px, Side side) const; // is this resting price off the desired rungs?
+  void maybeCancel();                              // cancel resting orders off the desired rungs
+  void maybePlaceFront();                          // place the front (level-0) rung, both sides
+  void manageBacklevels();                         // place the back-level rungs, both sides
+  void placeRung(Side side, double px, std::vector<SimpleOrder>& resting); // one rung, if fundable
+  void emitCapitalRequirement();                   // one-shot capitalization req (no rel_wide analog)
 
   void removeOrder(PKOrderId oid);
 
@@ -107,6 +114,9 @@ class RelWideHip4 : public Ordex,
   int64_t basis_last_t_ = 0;
   double local_mid_ = 0.0;
   double remote_mid_ = 0.0;
+  double pred_px_ = 0.0;          // fair value we quote around (rel_wide's pred_px)
+  double adjusted_pred_px_ = 0.0; // pred_px_ shifted for inventory (set each fire); cf.
+                                  // RelWideMM2 premium_adjusted_pred_px_
 
   // quoting
   double place_thresh_ = 0.01;
