@@ -54,6 +54,13 @@
         "max_back_levels": 6,
         "cancel_buffer": 0.5,
 
+        // Crossing (taking): IOC into the HL book when it's mispriced vs fair. Off for now.
+        "can_cross": false,
+        "cross_thresh": 0.005,
+        "cross_price_mode": 0,
+        "exit_adjust": 0.5,
+        "cross_limit_maxpos_frac": 0.25,
+
         // Capitalization requirement declared to the gateway: outcome 15416 needs
         // target complete sets = startup_complete_sets (or max_pos if omitted). The gateway
         // reads on-chain balances, mints the shortfall, and blocks orders for this ticker

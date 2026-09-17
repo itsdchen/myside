@@ -54,6 +54,29 @@ RelWideHip4::RelWideHip4(SymbolId symbol, const rapidjson::Value& ordex_conf,
     cancel_buffer_ = ordex_conf["cancel_buffer"].GetDouble();
   }
 
+  // Crossing (taking) config. Off unless can_cross is set.
+  if (ordex_conf.HasMember("can_cross")) {
+    can_cross_ = ordex_conf["can_cross"].GetBool();
+  }
+  if (ordex_conf.HasMember("cross_thresh")) {
+    cross_thresh_ = ordex_conf["cross_thresh"].GetDouble();
+  }
+  if (ordex_conf.HasMember("cross_price_mode")) {
+    cross_price_mode_ = ordex_conf["cross_price_mode"].GetInt();
+  }
+  if (ordex_conf.HasMember("exit_adjust")) {
+    exit_adjust_ = ordex_conf["exit_adjust"].GetDouble();
+  }
+  if (ordex_conf.HasMember("cross_limit_maxpos_frac")) {
+    cross_limit_maxpos_frac_ = ordex_conf["cross_limit_maxpos_frac"].GetDouble();
+  }
+  if (ordex_conf.HasMember("cross_sz_mult")) {
+    cross_sz_mult_ = ordex_conf["cross_sz_mult"].GetDouble();
+  }
+  if (ordex_conf.HasMember("ms_between_cross")) {
+    ms_between_cross_ = ordex_conf["ms_between_cross"].GetInt64();
+  }
+
   // Startup capitalization requirement. The strategy declares how many complete sets it needs
   // (defaults to max_pos); the gateway reads on-chain balances, mints the shortfall, and gates
   // orders on the ticker until it is capitalized. A config override wins over max_pos.
@@ -187,6 +210,84 @@ bool RelWideHip4::shouldCancelPx(double px, Side side) const {
   return true;
 }
 
+void RelWideHip4::maybeCross() {
+  // Opportunistically take the HL book with an IOC when it is mispriced vs our fair value
+  // (premium_adjusted_pred_px_, i.e. reference + basis, before inventory skew). Mirrors
+  // RelWideMM2::maybeCross; threshold is absolute (probability points). Buy YES when the ask is
+  // below fair by more than the threshold; sell YES when the bid is above fair by more.
+  if (!can_cross_) {
+    return;
+  }
+  if (ms_between_cross_ > 0 && (now_fire_t_ - last_cross_t_) < ms_between_cross_) {
+    return;
+  }
+
+  double best_bid = local_sig_->getBBMeasure();
+  double best_ask = local_sig_->getBAMeasure();
+  double fair = premium_adjusted_pred_px_;
+  double cur_pos = riskman_->getPos().toDouble();
+  double max_pos = max_pos_.toDouble();
+  double base_cross_sz =
+      pktrade::util::hip4::round_outcome_sz(order_size_.toDouble() * cross_sz_mult_ * size_mult_);
+
+  auto do_cross = [&](Side side, double book_px, double thresh, double alloc) {
+    double sz = std::min(base_cross_sz, alloc);
+    // Never overshoot flat when this cross is an exit (reducing an existing position).
+    bool is_exit = (side == Side::Sell && cur_pos > 0) || (side == Side::Buy && cur_pos < 0);
+    if (is_exit) {
+      sz = std::min(sz, std::abs(cur_pos));
+    }
+    sz = pktrade::util::hip4::round_outcome_sz(sz);
+    if (sz <= 0) {
+      return;
+    }
+    double cross_px;
+    if (cross_price_mode_ == 1) {
+      cross_px = roundPxToSide(fair, side == Side::Sell);  // to fair (sell rounds up, buy down)
+    } else if (cross_price_mode_ == 2) {
+      // Keep some edge: sell no lower than fair+thresh, buy no higher than fair-thresh.
+      cross_px = (side == Side::Sell) ? roundPxToSide(fair + thresh, true)
+                                      : roundPxToSide(fair - thresh, false);
+    } else {
+      cross_px = book_px;  // mode 0: cross at the resting book price
+    }
+    if (cross_px <= 0.0 || cross_px >= 1.0 || cross_px * sz < 10.0) {
+      return;  // out of range or below $10 min notional
+    }
+    NewOrder ord{symbol_,          traded_books_[0], side,  Quantity{std::to_string(sz)},
+                 Price{std::to_string(cross_px)}, OrderType::Limit, TimeInForce::IOC, false, false};
+    PKOrderId pk = riskman_->sendOrd(ord);
+    if (pk != -1) {
+      riskman_->setPlaceReason(pk, pktrade::risk::PlaceReason::Cross);
+      last_cross_t_ = now_fire_t_;
+      LOG(INFO) << fmt::format(
+          "({}) RelWideHip4 {} cross: px={} sz={} fair={:.5f} bid={:.5f} ask={:.5f} thresh={:.5f}",
+          symbol_.get(), side == Side::Buy ? "BUY" : "SELL", cross_px, sz, fair, best_bid,
+          best_ask, thresh);
+    }
+  };
+
+  // SELL: the bid is above our fair -> sell into it.
+  if (best_bid > 0.0 && best_bid < 1.0 && fair < best_bid) {
+    if (cur_pos <= -max_pos * cross_limit_maxpos_frac_) {
+      return;  // already sizable short; don't cross further in
+    }
+    double sell_thresh = cross_thresh_ * (cur_pos > 0 ? exit_adjust_ : 1.0);
+    if (best_bid - fair > sell_thresh) {
+      do_cross(Side::Sell, best_bid, sell_thresh, riskman_->getSideAlloc(Side::Sell).toDouble());
+    }
+  } else if (best_ask > 0.0 && best_ask < 1.0 && fair > best_ask) {
+    // BUY: the ask is below our fair -> lift it.
+    if (cur_pos >= max_pos * cross_limit_maxpos_frac_) {
+      return;  // already sizable long; don't cross further in
+    }
+    double buy_thresh = cross_thresh_ * (cur_pos < 0 ? exit_adjust_ : 1.0);
+    if (fair - best_ask > buy_thresh) {
+      do_cross(Side::Buy, best_ask, buy_thresh, riskman_->getSideAlloc(Side::Buy).toDouble());
+    }
+  }
+}
+
 void RelWideHip4::maybeCancel() {
   auto cancel_side = [&](std::vector<SimpleOrder>& resting, Side side) {
     for (auto& o : resting) {
@@ -295,6 +396,7 @@ void RelWideHip4::tryFire() {
 
   updatePremiumEma();  // pred_px_ -> premium_adjusted_pred_px_
   adjustPredPx();      // -> adjusted_pred_px_ (inventory skew)
+  maybeCross();        // opportunistic taking (IOC) when the book is mispriced vs fair
   maybeCancel();
   maybePlaceFront();
   manageBacklevels();

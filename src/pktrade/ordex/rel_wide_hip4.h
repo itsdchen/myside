@@ -94,6 +94,8 @@ class RelWideHip4 : public Ordex,
   void adjustPredPx();                             // premium_adjusted_pred_px_ + inventory skew -> adjusted_pred_px_
   double roundPxToSide(double px, bool round_up);  // fixed 5dp outcome grid; cf. Ordex::roundToSide
   bool shouldCancelPx(double px, Side side) const; // is this resting price off the desired rungs?
+  void maybeCross();                               // opportunistically take the HL book with an IOC
+                                                   // when it's mispriced vs fair (cf. RelWideMM2)
   void maybeCancel();                              // cancel resting orders off the desired rungs
   void maybePlaceFront();                          // place the front (level-0) rung, both sides
   void manageBacklevels();                         // place the back-level rungs, both sides
@@ -134,6 +136,19 @@ class RelWideHip4 : public Ordex,
   double min_tick_ = 1e-5;       // fixed HIP-4 price grid
   double thresh_mult_ = 1.0;
   double size_mult_ = 1.0;
+
+  // crossing (taking): opportunistically IOC into the HL book when it's mispriced vs fair.
+  // Same shape as RelWideMM2's crosser, but the threshold is ABSOLUTE (probability points, like
+  // place_thresh) and we compare against premium_adjusted_pred_px_ (fair value before inventory
+  // skew). Off unless can_cross is set.
+  bool can_cross_ = false;
+  double cross_thresh_ = 0.005;          // cross when |book - fair| exceeds this (prob points)
+  int cross_price_mode_ = 0;             // 0=cross at the book; 1=at fair; 2=at fair -/+ thresh
+  double exit_adjust_ = 1.0;             // <1 makes it easier to cross to REDUCE a position
+  double cross_limit_maxpos_frac_ = 0.25;// don't cross to build past this fraction of max_pos
+  double cross_sz_mult_ = 1.0;           // cross size = order_size * this (before clamps)
+  int64_t ms_between_cross_ = 0;         // rate-limit between crosses
+  int64_t last_cross_t_ = 0;
 
   // Set once the gateway rejects our orders because the outcome is no longer live on its
   // deployer venue (settled / expired / voided). Terminal: we cancel and stop quoting; outcomes

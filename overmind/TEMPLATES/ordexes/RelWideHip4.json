@@ -16,6 +16,15 @@
     "max_back_levels": 6,
     "cancel_buffer": 0.5,
 
+    "_comment_cross": "Crossing (taking): IOC into the HL book when it's mispriced vs fair. Off by default.",
+    "can_cross": false,
+    "cross_thresh": 0.005,
+    "cross_price_mode": 0,
+    "exit_adjust": 1.0,
+    "cross_limit_maxpos_frac": 0.25,
+    "cross_sz_mult": 1.0,
+    "ms_between_cross": 0,
+
     "outcome_id": 0,
     "startup_complete_sets": 350,
     "_comment_capital": "startup_complete_sets is the capitalization target the gateway mints to (defaults to max_pos if omitted); the gateway blocks orders for the ticker until it holds enough complete sets.",
