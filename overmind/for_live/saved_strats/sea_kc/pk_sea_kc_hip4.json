@@ -54,9 +54,10 @@
         "max_back_levels": 6,
         "cancel_buffer": 0.5,
 
-        // Crossing (taking): IOC into the HL book when it's mispriced vs fair. Off for now.
-        "can_cross": false,
-        "cross_thresh": 0.005,
+        // Crossing (taking): IOC into the HL book when it's mispriced vs fair. All thresholds are
+        // ABSOLUTE probability points -- cross_thresh 0.1 = only cross on a >10-cent dislocation.
+        "can_cross": true,
+        "cross_thresh": 0.1,
         "cross_price_mode": 0,
         "exit_adjust": 0.5,
         "cross_limit_maxpos_frac": 0.25,
