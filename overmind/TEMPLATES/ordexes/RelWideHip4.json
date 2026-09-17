@@ -8,7 +8,7 @@
     "max_pos": "350",
     "order_size": "25",
 
-    "apply_fraction": 0.1,
+    "basis_apply_fraction": 0.1,
     "ema_time_constant_ms": 120000,
 
     "place_thresh": 0.02,

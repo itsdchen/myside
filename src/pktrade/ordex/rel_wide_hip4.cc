@@ -30,8 +30,8 @@ RelWideHip4::RelWideHip4(SymbolId symbol, const rapidjson::Value& ordex_conf,
   order_size_ = Quantity{ordex_conf["order_size"].GetString()};
 
   // Basis / fair value (basis.py).
-  if (ordex_conf.HasMember("apply_fraction")) {
-    apply_fraction_ = ordex_conf["apply_fraction"].GetDouble();
+  if (ordex_conf.HasMember("basis_apply_fraction")) {
+    basis_apply_fraction_ = ordex_conf["basis_apply_fraction"].GetDouble();
   }
   if (ordex_conf.HasMember("ema_time_constant_ms")) {
     ema_tdc_ms_ = ordex_conf["ema_time_constant_ms"].GetDouble();
@@ -79,9 +79,9 @@ RelWideHip4::RelWideHip4(SymbolId symbol, const rapidjson::Value& ordex_conf,
   tc_tempo_->addListener(this);
 
   LOG(INFO) << fmt::format(
-      "({}) RelWideHip4: outcome={} apply_fraction={} ema_tdc_ms={} place_thresh={} "
+      "({}) RelWideHip4: outcome={} basis_apply_fraction={} ema_tdc_ms={} place_thresh={} "
       "rung_mult={} max_back_levels={} target_sets_override={} (0=use max_pos)",
-      symbol_.get(), outcome_id_, apply_fraction_, ema_tdc_ms_, place_thresh_, rung_mult_,
+      symbol_.get(), outcome_id_, basis_apply_fraction_, ema_tdc_ms_, place_thresh_, rung_mult_,
       max_back_levels_, target_complete_sets_);
 }
 
@@ -138,8 +138,8 @@ bool RelWideHip4::updatePredPx() {
   }
   basis_last_t_ = now;
 
-  // pred_px = reference_mid + apply_fraction * basis, clipped to [0, 1].
-  pred_px_ = std::clamp(remote_mid_ + apply_fraction_ * basis_ema_, 0.0, 1.0);
+  // pred_px = reference_mid + basis_apply_fraction * basis, clipped to [0, 1].
+  pred_px_ = std::clamp(remote_mid_ + basis_apply_fraction_ * basis_ema_, 0.0, 1.0);
   return true;
 }
 

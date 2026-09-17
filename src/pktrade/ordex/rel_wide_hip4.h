@@ -8,7 +8,7 @@
 // collateral into YES+NO tokens via the gateway's split action.
 //
 // Logic ported from hip4maker:
-//   basis.py   -> time-aware EMA basis + fair value (fair = ref_mid + apply_fraction*basis)
+//   basis.py   -> time-aware EMA basis + fair value (fair = ref_mid + basis_apply_fraction*basis)
 //   quotes.py  -> inventory-skewed reservation price + laddered quotes
 //   runner.py  -> the per-tempo cycle and the startup split capitalization
 //
@@ -107,7 +107,7 @@ class RelWideHip4 : public Ordex,
   int remote_sig_id_ = -1;
 
   // basis / fair value
-  double apply_fraction_ = 1.0;
+  double basis_apply_fraction_ = 1.0;
   double ema_tdc_ms_ = 5000.0;  // basis EMA time constant
   double basis_ema_ = 0.0;
   bool basis_initialized_ = false;
