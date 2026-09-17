@@ -215,12 +215,20 @@ def poly_book(token_id):
 # Book stats + reporting
 # --------------------------------------------------------------------------------------------
 
-def book_stats(bids, asks, levels):
-    """(best_bid, best_ask, spread, bid_notional, ask_notional) over the top `levels`."""
+def book_stats(bids, asks, levels, band_frac):
+    """(best_bid, best_ask, spread, bid_notional, ask_notional).
+
+    Notional is summed only over levels that are BOTH within the first `levels` AND within
+    `band_frac` of the mid (price band = band_frac * mid). This bounds how far into the book we
+    reach, so a far-out "stink" level -- e.g. a huge NO-side bid at ~0 that mirrors, through the
+    YES/NO duality, into a huge YES ask at ~1 -- can't leak into the near-mid notional.
+    """
     bb = bids[0][0] if bids else 0.0
     ba = asks[0][0] if asks else 1.0
-    bid_ntl = sum(p * s for p, s in bids[:levels])
-    ask_ntl = sum(p * s for p, s in asks[:levels])
+    mid = (bb + ba) / 2.0
+    band = band_frac * mid
+    bid_ntl = sum(p * s for i, (p, s) in enumerate(bids) if i < levels and (mid - p) <= band)
+    ask_ntl = sum(p * s for i, (p, s) in enumerate(asks) if i < levels and (p - mid) <= band)
     return bb, ba, (ba - bb), bid_ntl, ask_ntl
 
 
@@ -244,7 +252,7 @@ def scan(args):
             hb, ha = hl_book(base, coin)
         except Exception:
             hb, ha = [], []
-        hbb, hba, hsp, hbn, han = book_stats(hb, ha, args.levels)
+        hbb, hba, hsp, hbn, han = book_stats(hb, ha, args.levels, args.band_frac)
         if (hbn + han) < args.min_hl_notional:
             continue
 
@@ -261,7 +269,7 @@ def scan(args):
             tk, orient = match_kalshi(series, pa, pb)
             if tk:
                 kb, ka = kalshi_book(tk)
-                kbb, kba, ksp, kbn, kan = book_stats(kb, ka, args.levels)
+                kbb, kba, ksp, kbn, kan = book_stats(kb, ka, args.levels, args.band_frac)
                 kmid = (kbb + kba) / 2
                 hmid = (hbb + hba) / 2
                 # Orientation sanity: if the mids disagree wildly, flag it regardless of the
@@ -277,7 +285,7 @@ def scan(args):
             tok = match_polymarket(pa, pb)
             if tok:
                 pbk, pak = poly_book(tok)
-                pbb, pba, psp, pbn, pan = book_stats(pbk, pak, args.levels)
+                pbb, pba, psp, pbn, pan = book_stats(pbk, pak, args.levels, args.band_frac)
                 row["polymarket"] = {"token_id": tok, "bid": pbb, "ask": pba, "spread": psp,
                                      "bid_ntl": pbn, "ask_ntl": pan}
         rows.append(row)
@@ -285,8 +293,9 @@ def scan(args):
     return rows
 
 
-def print_table(rows, levels):
-    print(f"# top-{levels}-level notional ($ = price*size), spread in probability points\n")
+def print_table(rows, levels, band_frac):
+    print(f"# notional ($ = price*size) within min({levels} levels, {band_frac:.0%} of mid); "
+          f"spread in probability points\n")
     hdr = (f"{'coin':>8} {'competition':<8} {'matchup (YES / NO)':<34} "
            f"{'HL spr':>7} {'HL bid$':>9} {'HL ask$':>9}  "
            f"{'ref':<7} {'ref spr':>7} {'ref bid$':>10} {'ref ask$':>10}  orient")
@@ -316,6 +325,10 @@ def main():
     ap.add_argument("--venue-name", default="txyz")
     ap.add_argument("--competition", default=None)
     ap.add_argument("--levels", type=int, default=10)
+    ap.add_argument("--band-frac", type=float, default=0.10,
+                    help="Only count levels within this fraction of the mid (price band = "
+                         "band_frac*mid), on top of the --levels cap. Keeps far-out stink "
+                         "levels out of the notional. Default 0.10 (10%%).")
     ap.add_argument("--min-hl-notional", type=float, default=0.0)
     ap.add_argument("--polymarket", action="store_true")
     ap.add_argument("--testnet", action="store_true")
@@ -327,7 +340,7 @@ def main():
         json.dump(rows, sys.stdout, indent=2)
         print()
     else:
-        print_table(rows, args.levels)
+        print_table(rows, args.levels, args.band_frac)
 
 
 if __name__ == "__main__":
