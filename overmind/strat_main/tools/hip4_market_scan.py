@@ -259,6 +259,7 @@ def scan(args):
         row = {
             "outcome": oid, "coin": coin, "type": o.get("name", "").split(":")[-1],
             "competition": comp, "yes": pa, "no": pb,
+            "start": d.get("scheduledStart", d.get("time", "")),
             "hl": {"bid": hbb, "ask": hba, "spread": hsp, "bid_ntl": hbn, "ask_ntl": han},
             "kalshi": None, "polymarket": None,
         }
@@ -296,26 +297,29 @@ def scan(args):
 def print_table(rows, levels, band_frac):
     print(f"# notional ($ = price*size) within min({levels} levels, {band_frac:.0%} of mid); "
           f"spread in probability points\n")
-    hdr = (f"{'coin':>8} {'competition':<8} {'matchup (YES / NO)':<34} "
+    hdr = (f"{'coin':>8} {'start':<13} {'competition':<8} {'matchup (YES / NO)':<32} "
            f"{'HL spr':>7} {'HL bid$':>9} {'HL ask$':>9}  "
            f"{'ref':<7} {'ref spr':>7} {'ref bid$':>10} {'ref ask$':>10}  orient")
     print(hdr)
     print("-" * len(hdr))
-    for r in sorted(rows, key=lambda x: -(x["hl"]["bid_ntl"] + x["hl"]["ask_ntl"])):
+    # Soonest first; outcomes without a parseable start (e.g. crypto binaries) sort last.
+    for r in sorted(rows, key=lambda x: (x.get("start") or "z", -( x["hl"]["bid_ntl"]
+                                                                     + x["hl"]["ask_ntl"]))):
         hl = r["hl"]
-        matchup = f"{(r['yes'] or '?')[:15]} / {(r['no'] or '?')[:14]}"
+        matchup = f"{(r['yes'] or '?')[:14]} / {(r['no'] or '?')[:13]}"
+        start = (r.get("start") or "")[:13]
         ref = r["kalshi"] or r["polymarket"]
         refname = "kalshi" if r["kalshi"] else ("poly" if r["polymarket"] else "-")
         if ref:
             orient = ref.get("orientation", "")
             if ref.get("mid_agrees") is False:
                 orient = "MID-DISAGREE!"
-            print(f"{r['coin']:>8} {r['competition']:<8} {matchup:<34} "
+            print(f"{r['coin']:>8} {start:<13} {r['competition']:<8} {matchup:<32} "
                   f"{hl['spread']:7.3f} {hl['bid_ntl']:9,.0f} {hl['ask_ntl']:9,.0f}  "
                   f"{refname:<7} {ref['spread']:7.3f} {ref['bid_ntl']:10,.0f} {ref['ask_ntl']:10,.0f}"
                   f"  {orient}")
         else:
-            print(f"{r['coin']:>8} {r['competition']:<8} {matchup:<34} "
+            print(f"{r['coin']:>8} {start:<13} {r['competition']:<8} {matchup:<32} "
                   f"{hl['spread']:7.3f} {hl['bid_ntl']:9,.0f} {hl['ask_ntl']:9,.0f}  "
                   f"{'(no reference matched)':<38}")
 
