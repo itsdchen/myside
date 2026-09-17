@@ -48,11 +48,13 @@
         "premium_ema_coef": 0.1,
         "premium_tdc_s": 120,
 
-        // quotes.py laddering. cancel_buffer is cancel_thresh / place_thresh (0.01 / 0.02).
+        // quotes.py laddering. GENEROUS cancel_buffer (hold until fair drifts
+        // cancel_buffer*place_thresh from the rung) so we don't churn place/cancel L1 quota on
+        // a thin, quiet HL book that rarely fills.
         "place_thresh": 0.02,
         "rung_threshold_multiplier": 1.0,
         "max_back_levels": 6,
-        "cancel_buffer": 0.5,
+        "cancel_buffer": 2.0,
 
         // Crossing (taking): IOC into the HL book when it's mispriced vs fair. All thresholds are
         // ABSOLUTE probability points -- cross_thresh 0.1 = only cross on a >10-cent dislocation.

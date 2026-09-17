@@ -310,9 +310,14 @@ void RelWideHip4::placeRung(Side side, double px, std::vector<SimpleOrder>& rest
   if (px <= 0.0 || px >= 1.0) {
     return;
   }
-  // Skip if we already have a live order at this price.
+  // Hysteresis: skip if we already have a live order within the cancel band of this rung. This
+  // MUST match maybeCancel's keep band (cancel_buffer_ * eff_thresh), otherwise we'd keep the old
+  // order (within band) AND place a new one at the shifted rung on every fair wiggle -- orders
+  // pile up and we burn L1 quote/cancel quota on a thin, quiet book. With them matched, steady
+  // state is zero actions: an order is kept and blocks re-placing until it drifts out of the band.
+  double keep_band = cancel_buffer_ * place_thresh_ * thresh_mult_;
   for (auto& o : resting) {
-    if (o.state == SimpleOrderState::LIVE && std::abs(o.px.toDouble() - px) < 0.5 * min_tick_) {
+    if (o.state == SimpleOrderState::LIVE && std::abs(o.px.toDouble() - px) <= keep_band) {
       return;
     }
   }

@@ -57,14 +57,20 @@
         "place_thresh": 0.02,
         "rung_threshold_multiplier": 1.0,
         "max_back_levels": 4,
-        "cancel_buffer": 0.5,
+        // GENEROUS cancel buffer: HL is thin and quiet for these, so hold orders through 6c
+        // (3 * place_thresh) of fair drift before re-quoting -- avoids burning L1 quota churning
+        // place/cancel on quotes that rarely fill. (Note: a buffer wider than the rung spacing
+        // naturally sparsifies the ladder, which is fine here.)
+        "cancel_buffer": 3.0,
 
         // Crossing (taking): IOC into the thin HL book only on a big (>10c) dislocation vs fair.
+        // Rate-limited so a persistent dislocation we can't fill doesn't spam IOCs / L1 quota.
         "can_cross": true,
         "cross_thresh": 0.1,
         "cross_price_mode": 0,
         "exit_adjust": 0.5,
         "cross_limit_maxpos_frac": 0.25,
+        "ms_between_cross": 2000,
 
         // Capitalization: mint 150 complete sets of outcome 2992 (= max_pos) so we hold YES+NO
         // inventory to quote both sides. Locks ~$150 USDC into tokens, recovered at settlement.
