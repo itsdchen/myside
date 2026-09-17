@@ -477,6 +477,13 @@ class MultiFeed:
             if one_market == "Hyperliquid":
                 self.hl_syms = market_dict["symbols"]
                 self.hl_ws_url = market_dict["wss_endpoint"]
+                # HIP-4 outcome discovery (mirrors the C++ pkmultifeed feature). When
+                # "outcome_venues" is set (e.g. ["txyz"]), periodically fetch outcomeMeta and
+                # add every live outcome coin on those deployer venues to the HL feed. Info URL
+                # is derived from the ws endpoint unless overridden.
+                self.hl_outcome_venues = market_dict.get("outcome_venues", [])
+                self.hl_info_url = market_dict.get("snapshot_endpoint") or (
+                    self.hl_ws_url.replace("wss://", "https://").replace("/ws", "/info"))
             if one_market == "HyperliquidNode":
                 self.hl_node_syms = market_dict["symbols"]
                 self.hl_node_books_endpoint = market_dict["books_endpoint"]
@@ -640,17 +647,63 @@ class MultiFeed:
         event.clear()
         raise ForceRestartFeed("config reload: new symbols added")
 
+    async def _discover_outcomes(self):
+        """Fetch outcomeMeta, filter to the configured HIP-4 deployer venue(s), and add any new
+        outcome coins to the HL feed (add-only; sets hl_reload_event so the HL websocket
+        reconnects and re-subscribes them). No-op unless outcome_venues is configured. Mirrors
+        pkmultifeed.cc::discoverAndSubscribeOutcomes; the difference is the Python feed picks up
+        new symbols via a reconnect rather than a live subscribe.
+
+        outcomeMeta has no server-side venue filter, so fetch all and filter on each outcome's
+        `venue` field. Each outcome -> coins "#{10*id+0}" (YES) and "#{10*id+1}" (NO)."""
+        venues = getattr(self, "hl_outcome_venues", None)
+        if not venues:
+            return
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(self.hl_info_url, json={"type": "outcomeMeta"},
+                                        timeout=aiohttp.ClientTimeout(total=15)) as resp:
+                    data = await resp.json()
+        except Exception as e:
+            self.logger.warning(f"Outcome discovery: fetch failed ({e}); will retry next cycle")
+            return
+        outs = data.get("outcomes", []) if isinstance(data, dict) else []
+        venue_set = set(venues)
+        known = self._known_syms.setdefault("Hyperliquid", set())
+        new_ids = []
+        for o in outs:
+            if o.get("venue") in venue_set:
+                oid = o.get("outcome")
+                if oid is None:
+                    continue
+                for side in (0, 1):
+                    coin = "#%d" % (10 * int(oid) + side)
+                    if coin not in known:
+                        known.add(coin)
+                        new_ids.append(coin)
+        if new_ids:
+            self.logger.info(
+                f"Outcome discovery: {len(new_ids)} new outcome coin(s) on venues "
+                f"{sorted(venue_set)}: {new_ids[:10]}{' ...' if len(new_ids) > 10 else ''}")
+            # Same add-then-reconnect path the config reload uses for HL symbols.
+            self.hl_syms = self.hl_syms + new_ids
+            self.hl_reload_event.set()
+
     async def config_reload_loop(self):
         """Periodically re-read the conf and add newly-listed symbols to the HL /
         DataBento / Refinitiv feeds (add-only), nudging each affected feed to
-        reconnect. Tolerant of torn reads (parse failure -> skip, retry next
-        cycle). Runs until EOD."""
+        reconnect. Also discovers HIP-4 outcomes on the configured deployer venue(s)
+        every cycle (independent of the config file mtime). Tolerant of torn reads
+        (parse failure -> skip, retry next cycle). Runs until EOD."""
         reloadable = ("Hyperliquid", "HyperliquidNode", "DataBentoEquities",
                       "DataBentoBoats", "DataBentoCME", "Refinitiv")
         try:
             last_mtime = os.path.getmtime(self.conf)
         except OSError:
             last_mtime = None
+        # Populate outcomes at startup so they're subscribed on the first HL connect, not only
+        # after the first interval.
+        await self._discover_outcomes()
         while not self.eod_event.is_set():
             try:
                 await asyncio.wait_for(self.eod_event.wait(),
@@ -658,6 +711,9 @@ class MultiFeed:
                 return  # EOD reached
             except asyncio.TimeoutError:
                 pass
+            # HIP-4 outcome discovery runs every cycle regardless of the config file mtime, so
+            # newly listed outcomes are picked up even when the conf hasn't changed.
+            await self._discover_outcomes()
             try:
                 mtime = os.path.getmtime(self.conf)
             except OSError as e:
