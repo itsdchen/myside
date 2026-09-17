@@ -1925,6 +1925,18 @@ class HyperliquidGateway:
 
 
     # Does batch sending
+    def _asset_num(self, symbol):
+        """Resolve the Hyperliquid asset id for an order/cancel symbol.
+
+        HIP-4 outcome coins ("#<encoding>") are NOT in sym_to_idx -- that map is built from the
+        perp `meta` and `spotMeta`, never `outcomeMeta`. Their asset id is the fixed offset
+        OUTCOME_ASSET_OFFSET + encoding, where encoding = 10*outcome + side (the same integer in
+        the coin name after the '#'). Everything else is a normal perp/spot symbol.
+        """
+        if symbol.startswith("#"):
+            return 100_000_000 + int(symbol[1:])
+        return self.sym_to_idx[symbol]
+
     async def send_hyperliquid_orders(self, conn, now_ms, queue_name):
         """queue_name in {"priority", "fast"}."""
         #endpt = self.market_endpoint + "exchange"
@@ -1997,7 +2009,7 @@ class HyperliquidGateway:
                 "reduce_only": False,
             }
 
-            asset_num = self.sym_to_idx[one_order_pb.symbol]
+            asset_num = self._asset_num(one_order_pb.symbol)
             order_wire = hl_signing.order_request_to_order_wire(
                 order_dct, asset_num
             )
@@ -2341,7 +2353,7 @@ class HyperliquidGateway:
             self.force_cancel_pkcoids.discard(pkcoid)
 
             sym = self.pkcoids_to_orderdeets[pkcoid]["symbol"]
-            asset_num = self.sym_to_idx[sym]
+            asset_num = self._asset_num(sym)
 
             cancel_dct = {
                 "asset": asset_num,
