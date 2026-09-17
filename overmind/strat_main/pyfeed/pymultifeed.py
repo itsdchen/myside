@@ -484,6 +484,10 @@ class MultiFeed:
                 self.hl_outcome_venues = market_dict.get("outcome_venues", [])
                 self.hl_info_url = market_dict.get("snapshot_endpoint") or (
                     self.hl_ws_url.replace("wss://", "https://").replace("/ws", "/info"))
+                # Currently-subscribed outcome coins, so each discovery cycle can diff to add
+                # new / drop settled outcomes.
+                self.hl_live_outcomes = set()
+                self.outcome_discovery_interval_s = market_dict.get("outcome_refresh_s", 180)
             if one_market == "HyperliquidNode":
                 self.hl_node_syms = market_dict["symbols"]
                 self.hl_node_books_endpoint = market_dict["books_endpoint"]
@@ -648,14 +652,14 @@ class MultiFeed:
         raise ForceRestartFeed("config reload: new symbols added")
 
     async def _discover_outcomes(self):
-        """Fetch outcomeMeta, filter to the configured HIP-4 deployer venue(s), and add any new
-        outcome coins to the HL feed (add-only; sets hl_reload_event so the HL websocket
-        reconnects and re-subscribes them). No-op unless outcome_venues is configured. Mirrors
-        pkmultifeed.cc::discoverAndSubscribeOutcomes; the difference is the Python feed picks up
-        new symbols via a reconnect rather than a live subscribe.
+        """Reconcile HL subscriptions to the live HIP-4 outcomes on the configured deployer
+        venue(s): subscribe newly listed outcomes and drop settled ones (which leave outcomeMeta).
+        Mirrors pkmultifeed.cc::discoverAndSubscribeOutcomes; the Python feed applies changes via
+        an HL reconnect (init_hl re-reads hl_syms) rather than live subscribe/unsubscribe, so
+        rebuilding hl_syms to the current set handles both add and remove.
 
-        outcomeMeta has no server-side venue filter, so fetch all and filter on each outcome's
-        `venue` field. Each outcome -> coins "#{10*id+0}" (YES) and "#{10*id+1}" (NO)."""
+        No-op unless outcome_venues is configured. outcomeMeta has no server-side venue filter,
+        so fetch all and filter on each outcome's `venue` field."""
         venues = getattr(self, "hl_outcome_venues", None)
         if not venues:
             return
@@ -665,29 +669,57 @@ class MultiFeed:
                                         timeout=aiohttp.ClientTimeout(total=15)) as resp:
                     data = await resp.json()
         except Exception as e:
-            self.logger.warning(f"Outcome discovery: fetch failed ({e}); will retry next cycle")
+            self.logger.warning(f"Outcome discovery: fetch failed ({e}); keeping current subs")
             return
         outs = data.get("outcomes", []) if isinstance(data, dict) else []
         venue_set = set(venues)
-        known = self._known_syms.setdefault("Hyperliquid", set())
-        new_ids = []
+        new_live = set()
         for o in outs:
             if o.get("venue") in venue_set:
                 oid = o.get("outcome")
                 if oid is None:
                     continue
-                for side in (0, 1):
-                    coin = "#%d" % (10 * int(oid) + side)
-                    if coin not in known:
-                        known.add(coin)
-                        new_ids.append(coin)
-        if new_ids:
-            self.logger.info(
-                f"Outcome discovery: {len(new_ids)} new outcome coin(s) on venues "
-                f"{sorted(venue_set)}: {new_ids[:10]}{' ...' if len(new_ids) > 10 else ''}")
-            # Same add-then-reconnect path the config reload uses for HL symbols.
-            self.hl_syms = self.hl_syms + new_ids
-            self.hl_reload_event.set()
+                new_live.add("#%d" % (10 * int(oid) + 0))
+                new_live.add("#%d" % (10 * int(oid) + 1))
+        if not new_live:
+            # A configured venue matching nothing is almost always a typo; don't wipe current
+            # subs on an empty (possibly transient) result, just flag it.
+            self.logger.error(
+                f"Outcome discovery: outcome_venues={venues} matched 0 live outcomes "
+                f"(likely a venue typo); keeping current subs")
+            return
+        if new_live == self.hl_live_outcomes:
+            return  # nothing changed; no reconnect
+        added = new_live - self.hl_live_outcomes
+        removed = self.hl_live_outcomes - new_live
+        self.hl_live_outcomes = new_live
+        # Rebuild hl_syms = (all non-outcome syms, incl. config + intraday-added) + current live
+        # outcomes. The HL reconnect then subscribes exactly this set, so removals drop off.
+        non_outcome = [s for s in self.hl_syms if not s.startswith("#")]
+        self.hl_syms = non_outcome + sorted(new_live)
+        self.logger.info(
+            f"Outcome discovery: +{len(added)} new, -{len(removed)} settled outcome coin(s) on "
+            f"venues {sorted(venue_set)}; reconnecting HL")
+        self.hl_reload_event.set()
+
+    async def outcome_discovery_loop(self):
+        """Reconcile HIP-4 outcome subscriptions every outcome_discovery_interval_s (default
+        180s), on its own cadence (faster than the config reload) so settled outcomes are dropped
+        and new ones added promptly. First pass runs at startup. No-op unless outcome_venues set."""
+        if not getattr(self, "hl_outcome_venues", None):
+            return
+        self.logger.info(
+            f"Outcome discovery loop starting (every {self.outcome_discovery_interval_s}s; "
+            f"venues={self.hl_outcome_venues})")
+        await self._discover_outcomes()
+        while not self.eod_event.is_set():
+            try:
+                await asyncio.wait_for(self.eod_event.wait(),
+                                       timeout=self.outcome_discovery_interval_s)
+                return  # EOD
+            except asyncio.TimeoutError:
+                pass
+            await self._discover_outcomes()
 
     async def config_reload_loop(self):
         """Periodically re-read the conf and add newly-listed symbols to the HL /
@@ -701,9 +733,6 @@ class MultiFeed:
             last_mtime = os.path.getmtime(self.conf)
         except OSError:
             last_mtime = None
-        # Populate outcomes at startup so they're subscribed on the first HL connect, not only
-        # after the first interval.
-        await self._discover_outcomes()
         while not self.eod_event.is_set():
             try:
                 await asyncio.wait_for(self.eod_event.wait(),
@@ -711,9 +740,6 @@ class MultiFeed:
                 return  # EOD reached
             except asyncio.TimeoutError:
                 pass
-            # HIP-4 outcome discovery runs every cycle regardless of the config file mtime, so
-            # newly listed outcomes are picked up even when the conf hasn't changed.
-            await self._discover_outcomes()
             try:
                 mtime = os.path.getmtime(self.conf)
             except OSError as e:
@@ -4379,6 +4405,7 @@ class MultiFeed:
             asyncio.create_task(self.init_pyth()),
             asyncio.create_task(self.init_refinitiv()),
             asyncio.create_task(self.config_reload_loop()),
+            asyncio.create_task(self.outcome_discovery_loop()),
         }
         time_to_eod = end_secs - time.time()
         try:

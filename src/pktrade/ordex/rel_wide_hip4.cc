@@ -273,6 +273,13 @@ void RelWideHip4::emitCapitalReq() {
 void RelWideHip4::tryFire() {
   now_fire_t_ = time_utils::nowToMs();
 
+  // If the outcome has resolved / gone off-venue, we've cancelled and we stay stopped. The
+  // gateway is the correctness backstop (it rejects all orders for the coin); this just stops us
+  // from churning place/reject against it.
+  if (resolved_) {
+    return;
+  }
+
   // Declare our capitalization requirement once, before quoting.
   if (cap_enabled_ && !cap_sent_) {
     emitCapitalReq();
@@ -314,8 +321,24 @@ void RelWideHip4::ordElim(const Order& ord, const OrderElimination& elim) {
 }
 
 void RelWideHip4::ordReject(const Order& ord, const NewOrderReject& rej) {
-  LOG(ERROR) << fmt::format("({}) RelWideHip4: order reject: {}", symbol_.get(), rej.reason);
   removeOrder(ord.pk_order_id);
+
+  // Terminal wind-down: the gateway rejects orders for an outcome that is no longer live on its
+  // deployer venue (settled / expired / voided) with a reason carrying this marker. Once we see
+  // it, cancel everything and stop quoting for good (outcomes never un-resolve). The marker must
+  // stay in sync with the gateway (wsgateway.py OUTCOME_NOT_LIVE_MARKER). Note the transient
+  // startup reject "outcome gate not ready" deliberately does NOT contain "not live".
+  if (!resolved_ && rej.reason.find("outcome not live") != std::string::npos) {
+    resolved_ = true;
+    LOG(WARNING) << fmt::format(
+        "({}) RelWideHip4: outcome not live / resolved -- winding down (cancelling resting "
+        "orders and stopping quoting). Gateway reason: {}",
+        symbol_.get(), rej.reason);
+    cancelOutstandingOrds();
+    return;
+  }
+
+  LOG(ERROR) << fmt::format("({}) RelWideHip4: order reject: {}", symbol_.get(), rej.reason);
 }
 
 void RelWideHip4::cancelOutstandingOrds() {

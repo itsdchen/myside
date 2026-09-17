@@ -211,8 +211,12 @@ mkt_to_config = {
         # capital-reqs for outcome coins not currently live on them. Overridable per-instance
         # with --outcome-venues.
         "outcome_venues": [],
-        # How often (minutes) to refresh sym_to_idx (perp/spot) and the live outcome set.
+        # How often (minutes) to refresh sym_to_idx (perp/spot).
         "symbol_refresh_mins": 10,
+        # How often (minutes) to refresh the live outcome set. Faster than the perp/spot
+        # refresh because it also drives resolution: a settled outcome drops out of outcomeMeta,
+        # leaves live_outcome_coins, and the gate then rejects it (which the strat winds down on).
+        "outcome_refresh_mins": 3,
     },
     "HyperliquidTest": {
         "http_api_endpoint": "https://api.hyperliquid-testnet.xyz/",
@@ -228,9 +232,16 @@ mkt_to_config = {
         "recv_window_ms": 60000,
         "outcome_venues": [],
         "symbol_refresh_mins": 10,
+        "outcome_refresh_mins": 3,
     },
 
 }
+
+# The gateway rejects an order for an outcome coin that is not live on the configured deployer
+# venue(s) with a reason containing this exact marker. RelWideHip4::ordReject matches on it to
+# wind down (a settled outcome drops out of outcomeMeta -> off the live set -> this reject).
+# Keep this string in sync with the ordex (src/pktrade/ordex/rel_wide_hip4.cc).
+OUTCOME_NOT_LIVE_MARKER = "outcome not live"
 
 
 HYPERLIQUID_ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
@@ -270,6 +281,7 @@ class HyperliquidGateway:
         self.outcome_venues = (list(outcome_venues) if outcome_venues is not None
                                else list(self.gateway_config.get("outcome_venues", [])))
         self.symbol_refresh_mins = self.gateway_config.get("symbol_refresh_mins", 10)
+        self.outcome_refresh_mins = self.gateway_config.get("outcome_refresh_mins", 3)
         self.live_outcome_coins = set()
         # False until the first successful outcome discovery. While the gate is enabled but not
         # ready, "#" orders are blocked fail-closed (we don't trade an unverified outcome).
@@ -730,6 +742,7 @@ class HyperliquidGateway:
             tasks.add(asyncio.create_task(self.hl_send_cancels_loop()))
             tasks.add(asyncio.create_task(self.capitalize_loop()))
             tasks.add(asyncio.create_task(self.refresh_symbols_loop()))
+            tasks.add(asyncio.create_task(self.outcome_discovery_loop()))
             tasks.add(asyncio.create_task(self.periodic_cleanup()))
             tasks.add(asyncio.create_task(self.watch_block_file()))
             tasks.add(asyncio.create_task(self.eod_event.wait()))
@@ -1068,7 +1081,11 @@ class HyperliquidGateway:
                     if one_order_pb.symbol in self.cap_blocked_syms:
                         reason = "not yet capitalized"
                     elif self._outcome_gate_blocks(one_order_pb.symbol):
-                        reason = (f"outcome not live on deployer venue(s) {self.outcome_venues}"
+                        # Terminal marker (OUTCOME_NOT_LIVE_MARKER) only once the gate is ready:
+                        # the outcome is genuinely off-venue/settled, so the strat should wind
+                        # down. Before first discovery it's transient ("gate not ready").
+                        reason = (f"{OUTCOME_NOT_LIVE_MARKER} on deployer venue(s) "
+                                  f"{self.outcome_venues}"
                                   if self.outcome_gate_ready else "outcome gate not ready")
                     else:
                         reason = "blocked after liquidation"
@@ -2289,34 +2306,51 @@ class HyperliquidGateway:
         load_hyperliquid_assets is synchronous with blocking retry sleeps, so it is offloaded to
         a thread to avoid stalling the order/cancel loops.
         """
-        self.logger.info(f"Symbol refresh loop starting (every {self.symbol_refresh_mins} min; "
-                         f"outcome_venues={self.outcome_venues})")
+        self.logger.info(f"Symbol refresh loop starting (perp/spot every "
+                         f"{self.symbol_refresh_mins} min)")
+        while not self.eod_event.is_set():
+            try:
+                maps = await asyncio.to_thread(self.load_hyperliquid_assets)
+                # Atomic rebind (readers see the old or new dict, never a torn one).
+                self.sym_to_idx = maps["sym_to_idx"]
+                self.idx_to_sym = maps["idx_to_sym"]
+            except Exception as e:
+                self.logger.warning(f"Symbol refresh: load_hyperliquid_assets failed: {e}")
+
+            # Sleep in 1s steps so we exit promptly on eod.
+            for _ in range(max(1, int(self.symbol_refresh_mins * 60))):
+                if self.eod_event.is_set():
+                    break
+                await asyncio.sleep(1)
+        self.logger.info("Symbol refresh loop exiting")
+
+    async def outcome_discovery_loop(self):
+        """Rebuild the live outcome allowlist from outcomeMeta every outcome_refresh_mins.
+
+        Runs on its own (faster) cadence than the perp/spot refresh because it also drives
+        resolution: a settled outcome drops out of outcomeMeta -> off live_outcome_coins -> the
+        gate rejects it -> the strat winds down on that reject. First pass runs immediately so the
+        gate is populated before much order flow arrives. No-op unless outcome_venues is set.
+        """
+        if not self.outcome_venues:
+            return
+        self.logger.info(f"Outcome discovery loop starting (every {self.outcome_refresh_mins} "
+                         f"min; venues={self.outcome_venues})")
         async with aiohttp.ClientSession() as session:
             while not self.eod_event.is_set():
                 try:
-                    maps = await asyncio.to_thread(self.load_hyperliquid_assets)
-                    # Atomic rebind (readers see the old or new dict, never a torn one).
-                    self.sym_to_idx = maps["sym_to_idx"]
-                    self.idx_to_sym = maps["idx_to_sym"]
+                    await self._refresh_outcomes(session)
                 except Exception as e:
-                    self.logger.warning(f"Symbol refresh: load_hyperliquid_assets failed: {e}")
-
-                if self.outcome_venues:
-                    try:
-                        await self._refresh_outcomes(session)
-                    except Exception as e:
-                        # Keep the last good set on a transient outage rather than opening the
-                        # gate (fail-safe), but make the staleness visible.
-                        self.logger.warning(
-                            f"Outcome discovery failed (keeping last "
-                            f"{len(self.live_outcome_coins)} coins): {e}")
-
-                # Sleep in 1s steps so we exit promptly on eod.
-                for _ in range(max(1, int(self.symbol_refresh_mins * 60))):
+                    # Keep the last good set on a transient outage rather than opening the gate
+                    # (fail-safe), but make the staleness visible.
+                    self.logger.warning(
+                        f"Outcome discovery failed (keeping last "
+                        f"{len(self.live_outcome_coins)} coins): {e}")
+                for _ in range(max(1, int(self.outcome_refresh_mins * 60))):
                     if self.eod_event.is_set():
                         break
                     await asyncio.sleep(1)
-        self.logger.info("Symbol refresh loop exiting")
+        self.logger.info("Outcome discovery loop exiting")
 
     async def _refresh_outcomes(self, session):
         """Rebuild self.live_outcome_coins from outcomeMeta, filtered to self.outcome_venues.
@@ -2336,6 +2370,17 @@ class HyperliquidGateway:
                     continue
                 coins.add("#{}".format(10 * int(oid) + 0))
                 coins.add("#{}".format(10 * int(oid) + 1))
+        # A non-empty venue list that matches nothing is almost always a venue typo -- and it
+        # would silently block ALL outcome trading (empty allowlist, fail-closed). Surface it.
+        if not coins:
+            msg = (f"outcome_venues={self.outcome_venues} configured but 0 live outcomes matched "
+                   f"in outcomeMeta -- likely a venue typo. ALL outcome orders will be blocked.")
+            self.logger.error(msg)
+            if "outcome_venues_empty" not in self.outcome_gate_alerted:
+                self.outcome_gate_alerted.add("outcome_venues_empty")
+                email_utils.send_alerts("WSGATEWAY HIP-4 OUTCOME_VENUES MATCHED NOTHING", msg)
+        else:
+            self.outcome_gate_alerted.discard("outcome_venues_empty")
         self.live_outcome_coins = coins
         self.outcome_gate_ready = True
         self.logger.info(
@@ -2795,7 +2840,8 @@ class HyperliquidGateway:
                     # ticker and alert once, rather than splitting collateral into dead tokens.
                     if self._outcome_gate_blocks(sym):
                         self.cap_blocked_syms.add(sym)
-                        why = (f"outcome not live on deployer venue(s) {self.outcome_venues}"
+                        why = (f"{OUTCOME_NOT_LIVE_MARKER} on deployer venue(s) "
+                               f"{self.outcome_venues}"
                                if self.outcome_gate_ready else "outcome gate not ready")
                         self.logger.error(
                             f"Capital req REFUSED for {sym} (outcome {cr.outcome}): {why}. "

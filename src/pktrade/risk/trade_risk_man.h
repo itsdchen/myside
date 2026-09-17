@@ -75,6 +75,8 @@ enum class NewOrdRejReason {
   Pause429,    // log to ERROR and email
   Halted,      // log to ERROR, TL5, and email
   Liquidated,  // log to ERROR, TL5, and email
+  OutcomeNotLive, // HIP-4 outcome settled / off its deployer venue; log INFO, don't email
+                  // (the ordex winds itself down on this reject — see RelWideHip4::ordReject)
 };
 
 // Extra info for trades file (and maybe orders file)

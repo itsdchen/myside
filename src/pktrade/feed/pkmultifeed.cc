@@ -211,6 +211,9 @@ static HLNodeShared g_hl_node;
 // symbols flow through the owned std::string structures below instead, so
 // config_doc stays immutable for the life of the process.
 constexpr int64_t kConfigReloadIntervalSec = 600;
+// HIP-4 outcome discovery runs faster than the config reload because it also drives resolution
+// (a settled outcome drops out of outcomeMeta and we unsubscribe it).
+constexpr int64_t kOutcomeDiscoveryIntervalSec = 180;
 
 // Extra symbols added intraday, keyed by conf market name ("Hyperliquid",
 // "DataBentoEquities", "DataBentoBoats", "DataBentoCME", "RelayDBCME").
@@ -4077,17 +4080,47 @@ bool reloadConfigSymbols(const std::string& conf,
   return true;
 }
 
-// Discover live HIP-4 outcome coins on the configured deployer venue(s) and live-subscribe any
-// new ones on the Hyperliquid websocket (add-only, no reconnect) — the same durable path
-// reloadConfigSymbols uses. Runs on the periodic tick regardless of config mtime, so newly
-// listed outcomes are picked up within one interval. No-op unless the Hyperliquid config block
-// sets a non-empty "outcome_venues" array (e.g. ["txyz"]).
+// Unsubscribe a symbol from the Hyperliquid websocket. Mirror of hlSubscribeSymbol (same three
+// frames: trades, slow l2Book, fast l2Book) with method "unsubscribe". Used to drop a HIP-4
+// outcome coin once it settles / leaves its deployer venue.
+void hlUnsubscribeSymbol(ix::WebSocket* ws, const std::string& sym_str) {
+  std::string dex_name;
+  auto dex_index = sym_str.find(':');
+  if (dex_index != std::string::npos) {
+    dex_name = sym_str.substr(0, dex_index);
+    if (dex_name != "xyz") {
+      return;
+    }
+  }
+  auto send_unsub = [&](nlohmann::json sub_details) {
+    sub_details["coin"] = sym_str;
+    if (!dex_name.empty()) sub_details["dex"] = dex_name;
+    nlohmann::json payload = {{"method", "unsubscribe"}};
+    payload["subscription"] = sub_details;
+    try {
+      ws->send(payload.dump());
+    } catch (const std::exception& e) {
+      LOG(ERROR) << "Failed to send unsubscribe request: " << e.what();
+    }
+  };
+  send_unsub({{"type", "trades"}});
+  send_unsub({{"type", "l2Book"}});
+  send_unsub({{"type", "l2Book"}, {"fast", true}});
+}
+
+// Discover the live HIP-4 outcome coins on the configured deployer venue(s) and reconcile the
+// Hyperliquid subscriptions: subscribe newly listed outcomes and UNSUBSCRIBE ones that have
+// dropped out (settled / expired / voided — outcomeMeta stops listing them). Add/remove both go
+// through the durable path (g_extra_syms + hlSubscribe/UnsubscribeSymbol on the live socket).
+// `live` is the caller-owned persistent set of currently-subscribed outcome coins (the previous
+// cycle's result); it is updated in place. No-op unless the Hyperliquid config sets a non-empty
+// "outcome_venues" array (e.g. ["txyz"]).
 //
-// outcomeMeta has no server-side venue filter, so we fetch all outcomes and filter on the
-// per-outcome "venue" field. Each outcome expands to two coins, "#{10*outcome}" (YES) and
-// "#{10*outcome+1}" (NO); these are plain "#" coins (no dex), which hlSubscribeSymbol handles.
+// outcomeMeta has no server-side venue filter, so fetch all and filter on the per-outcome
+// "venue" field. Each outcome -> "#{10*id}" (YES) and "#{10*id+1}" (NO), plain "#" coins.
 void discoverAndSubscribeOutcomes(const rapidjson::Value& hl_config,
-                                  std::unordered_set<std::string>& known_hl) {
+                                  std::unordered_set<std::string>& known_hl,
+                                  std::unordered_set<std::string>& live) {
   if (!hl_config.HasMember("outcome_venues") || !hl_config["outcome_venues"].IsArray() ||
       hl_config["outcome_venues"].Empty()) {
     return;  // feature off
@@ -4102,16 +4135,12 @@ void discoverAndSubscribeOutcomes(const rapidjson::Value& hl_config,
                              ? std::string(hl_config["snapshot_endpoint"].GetString())
                              : std::string("https://api.hyperliquid.xyz/info");
 
-  // POST outcomeMeta with a few retries (model on discover_bootstrap_syms in hl_node_publisher).
-  cpr::Response r;
-  for (int attempt = 0; attempt < 3; ++attempt) {
-    r = cpr::Post(cpr::Url{info_url}, cpr::Header{{"Content-Type", "application/json"}},
-                  cpr::Body{R"({"type":"outcomeMeta"})"}, cpr::Timeout{10000});
-    if (r.status_code == 200) break;
-    LOG(WARNING) << "outcome discovery: HTTP " << r.status_code << " (attempt " << attempt << ")";
-  }
+  // Single attempt with a short timeout: this runs on the feed main loop, so we must not block
+  // it for long. On failure we simply keep the current subscriptions and try again next tick.
+  cpr::Response r = cpr::Post(cpr::Url{info_url}, cpr::Header{{"Content-Type", "application/json"}},
+                             cpr::Body{R"({"type":"outcomeMeta"})"}, cpr::Timeout{5000});
   if (r.status_code != 200) {
-    LOG(ERROR) << "outcome discovery: giving up after retries (HTTP " << r.status_code << ")";
+    LOG(WARNING) << "outcome discovery: HTTP " << r.status_code << "; keeping current subs";
     return;
   }
 
@@ -4119,38 +4148,62 @@ void discoverAndSubscribeOutcomes(const rapidjson::Value& hl_config,
   doc.Parse(r.text.c_str());
   if (doc.HasParseError() || !doc.IsObject() || !doc.HasMember("outcomes") ||
       !doc["outcomes"].IsArray()) {
-    LOG(ERROR) << "outcome discovery: unexpected outcomeMeta response shape";
+    LOG(ERROR) << "outcome discovery: unexpected outcomeMeta response shape; keeping current subs";
     return;
   }
 
-  std::vector<std::string> new_coins;
+  std::unordered_set<std::string> new_live;
   for (auto& o : doc["outcomes"].GetArray()) {
     if (!o.IsObject() || !o.HasMember("venue") || !o["venue"].IsString()) continue;
     if (venues.find(o["venue"].GetString()) == venues.end()) continue;
     if (!o.HasMember("outcome") || !o["outcome"].IsInt()) continue;
     int oid = o["outcome"].GetInt();
     for (int side = 0; side < 2; ++side) {
-      std::string coin = "#" + std::to_string(10 * oid + side);
-      if (known_hl.insert(coin).second) {  // first time we've seen this coin
-        new_coins.push_back(coin);
-      }
+      new_live.insert("#" + std::to_string(10 * oid + side));
     }
   }
-  if (new_coins.empty()) return;
+  if (new_live.empty()) {
+    // A configured venue that matches nothing is almost always a typo. Don't wipe existing subs
+    // on an empty result (could also be a transient bad response); just flag it loudly.
+    LOG(ERROR) << "outcome discovery: outcome_venues configured but 0 live outcomes matched "
+                  "(likely a venue typo); keeping current subs";
+    return;
+  }
+
+  std::vector<std::string> to_add, to_remove;
+  for (const auto& c : new_live) {
+    if (!live.count(c)) to_add.push_back(c);
+  }
+  for (const auto& c : live) {
+    if (!new_live.count(c)) to_remove.push_back(c);
+  }
+  if (to_add.empty() && to_remove.empty()) return;
 
   {
     std::lock_guard<std::mutex> lk(g_extra_syms_mtx);
-    for (const auto& c : new_coins) g_extra_syms["Hyperliquid"].push_back(c);
+    auto& extras = g_extra_syms["Hyperliquid"];
+    for (const auto& c : to_add) extras.push_back(c);
+    if (!to_remove.empty()) {
+      std::unordered_set<std::string> rm(to_remove.begin(), to_remove.end());
+      extras.erase(std::remove_if(extras.begin(), extras.end(),
+                                  [&](const std::string& s) { return rm.count(s) > 0; }),
+                   extras.end());
+    }
   }
+  for (const auto& c : to_add) known_hl.insert(c);
+  for (const auto& c : to_remove) known_hl.erase(c);
+
   if (ix::WebSocket* ws = g_hl_ws.load()) {
-    LOG(INFO) << "outcome discovery: subscribing " << new_coins.size()
-              << " new outcome coin(s) on the live websocket";
-    for (const auto& c : new_coins) hlSubscribeSymbol(ws, c);
+    LOG(INFO) << "outcome discovery: +" << to_add.size() << " new, -" << to_remove.size()
+              << " settled outcome coin(s) on the live websocket";
+    for (const auto& c : to_add) hlSubscribeSymbol(ws, c);
+    for (const auto& c : to_remove) hlUnsubscribeSymbol(ws, c);
   } else {
-    LOG(WARNING) << "outcome discovery: " << new_coins.size()
-                 << " new outcome coin(s) recorded but no live WS handle; they will be "
-                    "subscribed on the next connect";
+    LOG(WARNING) << "outcome discovery: +" << to_add.size() << " -" << to_remove.size()
+                 << " but no live WS handle; adds subscribe on next connect";
   }
+
+  live = std::move(new_live);
 }
 
 } // namespace pktrade
@@ -4320,6 +4373,10 @@ int main(int argc, char* argv[]) {
     }
   }
   int64_t last_config_reload_check = 0;
+  // HIP-4 outcome discovery cadence + the persistent set of currently-subscribed outcome coins
+  // (so each cycle can diff against it to subscribe new / unsubscribe settled outcomes).
+  int64_t last_outcome_discovery = 0;
+  std::unordered_set<std::string> live_outcome_coins;
   std::filesystem::file_time_type last_conf_mtime;
   bool have_conf_mtime = false;
   try {
@@ -4364,17 +4421,19 @@ int main(int argc, char* argv[]) {
         } catch (const std::exception& e) {
           LOG(ERROR) << "Config reload: mtime check failed: " << e.what();
         }
+      }
 
-        // Also discover HIP-4 outcomes on the configured deployer venue(s) and live-subscribe
-        // new ones. Unlike the config reload above, this runs every tick (not gated on mtime),
-        // so newly listed outcomes appear within one interval. No-op unless the Hyperliquid
-        // block sets "outcome_venues". (last_config_reload_check starts at 0, so this also
-        // fires on the first loop iteration, populating the set at startup.)
+      // HIP-4 outcome discovery + resolution reconcile, on its own faster cadence. Subscribes
+      // newly-listed outcomes on the deployer venue(s) and unsubscribes ones that have dropped
+      // out (settled/expired). No-op unless the Hyperliquid block sets "outcome_venues".
+      // (last_outcome_discovery starts at 0, so this fires on the first loop iteration too.)
+      if (now - last_outcome_discovery >= pktrade::kOutcomeDiscoveryIntervalSec) {
+        last_outcome_discovery = now;
         if (config_doc["subscriptions"].HasMember("Hyperliquid") &&
             config_doc["subscriptions"]["Hyperliquid"].IsObject()) {
           try {
             pktrade::discoverAndSubscribeOutcomes(config_doc["subscriptions"]["Hyperliquid"],
-                                                  known_syms["Hyperliquid"]);
+                                                  known_syms["Hyperliquid"], live_outcome_coins);
           } catch (const std::exception& e) {
             LOG(ERROR) << "outcome discovery failed: " << e.what();
           }

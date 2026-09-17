@@ -119,6 +119,11 @@ class RelWideHip4 : public Ordex,
   double thresh_mult_ = 1.0;
   double size_mult_ = 1.0;
 
+  // Set once the gateway rejects our orders because the outcome is no longer live on its
+  // deployer venue (settled / expired / voided). Terminal: we cancel and stop quoting; outcomes
+  // never un-resolve. See ordReject.
+  bool resolved_ = false;
+
   // startup capitalization requirement (sent once to the gateway, which owns the mint + gating)
   int outcome_id_ = -1;
   // Target complete sets to request. Defaults to max_pos; a config override wins.

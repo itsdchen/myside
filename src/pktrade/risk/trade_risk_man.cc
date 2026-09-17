@@ -758,6 +758,10 @@ void TradeRiskMan::onOE(const Order& ord, const NewOrderReject& rej) {
     reason = NewOrdRejReason::Halted;
   } else if (rej.reason.find("blocked after liquidation") != std::string::npos) {
     reason = NewOrdRejReason::Liquidated;
+  } else if (rej.reason.find("outcome not live") != std::string::npos) {
+    // HIP-4 outcome settled / off its deployer venue. The ordex winds itself down on this;
+    // keep the marker in sync with wsgateway.py OUTCOME_NOT_LIVE_MARKER.
+    reason = NewOrdRejReason::OutcomeNotLive;
   }
 
   auto log_msg =
@@ -811,6 +815,12 @@ void TradeRiskMan::onOE(const Order& ord, const NewOrderReject& rej) {
       LOG(ERROR) << log_msg;
       pauseTrading(60, TLReason::OrderReject,
                    fmt::format("Pausing for 1 minute because of {} order reject", reason_str));
+      break;
+    }
+    case NewOrdRejReason::OutcomeNotLive: {
+      // HIP-4 outcome settled / off-venue. Expected end-of-life for a market; the ordex winds
+      // itself down (RelWideHip4::ordReject), so just log cleanly -- no email, no TL escalation.
+      LOG(INFO) << log_msg;
       break;
     }
     case NewOrdRejReason::Oracle:
