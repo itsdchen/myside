@@ -1,0 +1,116 @@
+{
+  // HIP-4 relative-value MM trial for Detroit Lions vs Buffalo Bills (NFL Thursday night,
+  // 2026-09-17 8:15pm ET; resolves ~11:30pm-midnight ET, deadline 20260918-0615 UTC).
+  // outcome_id 2992 -> YES coin #29920 (Detroit = participantA = YES on both HL and Kalshi).
+  // Reference: Kalshi KXNFLGAME-26SEP17DETBUF-DET (yes = Detroit), the deepest reference book.
+  //
+  // MAINNET, REAL MONEY. Sizes below are deliberately small TRIAL values -- review before use.
+  "settings": {
+    "commissions": {
+      "tiers": {
+        "Hyperliquid": "HIP3_3"
+      },
+      "promo_tier": "Silver",
+      "use_promo": true
+    },
+    // Overnight window: run through the game and its late resolution.
+    "start_t": "18:00:00 America/New_York",
+    "end_t": "03:00:00 America/New_York"
+  },
+  "simulation": {
+    "Hyperliquid": {
+      "cxl_frac_ahead": 0.3,
+      "use_one_way_latency": false,
+      "sim_latency_secs": 1.0
+    }
+  },
+  "pktraders": [
+    {
+      "traded_symbol": "#29920",
+      "enabled": true,
+      "size_mult": 1,
+      "risk": {
+        "max_notional": 10000000,
+        "max_position": "150",
+        "max_orders": 20,
+        "base_currency": "USDC",
+        "global_inherit": false,
+        "min_pnl": -200,
+        "fv_limit": 2,
+        "timeout_minfv": 900
+      },
+      "ordex": {
+        "type": "RelWideHip4",
+        "markets": [
+          "Hyperliquid"
+        ],
+        "trade_caller": "hip4_cycle_tempo_det_buf",
+        // Small trial sizes. order_size 40 @ ~0.31 = ~$12.4 notional (> $10 min). max_pos 150.
+        "max_pos": "150",
+        "order_size": "40",
+
+        // basis.py: premium_adjusted = ref_mid + premium_ema_coef * EMA(local_mid - ref_mid)
+        "premium_ema_coef": 0.1,
+        "premium_tdc_s": 120,
+
+        // quotes.py laddering. All thresholds are ABSOLUTE probability points.
+        "place_thresh": 0.02,
+        "rung_threshold_multiplier": 1.0,
+        "max_back_levels": 4,
+        // GENEROUS cancel buffer: HL is thin and quiet for these, so hold orders through 6c
+        // (3 * place_thresh) of fair drift before re-quoting -- avoids burning L1 quota churning
+        // place/cancel on quotes that rarely fill. (Note: a buffer wider than the rung spacing
+        // naturally sparsifies the ladder, which is fine here.)
+        "cancel_buffer": 3.0,
+
+        // Crossing (taking): IOC into the thin HL book only on a big (>10c) dislocation vs fair.
+        // Rate-limited so a persistent dislocation we can't fill doesn't spam IOCs / L1 quota.
+        "can_cross": true,
+        "cross_thresh": 0.1,
+        "cross_price_mode": 0,
+        "exit_adjust": 0.5,
+        "cross_limit_maxpos_frac": 0.25,
+        "ms_between_cross": 2000,
+
+        // Capitalization: mint 150 complete sets of outcome 2992 (= max_pos) so we hold YES+NO
+        // inventory to quote both sides. Locks ~$150 USDC into tokens, recovered at settlement.
+        "outcome_id": 2992,
+        "startup_complete_sets": 150,
+
+        "local_sig": "local_mid_det_buf",
+        "remote_sig": "reference_mid_det_buf"
+      },
+      "signals": [
+        {
+          "name": "local_mid_det_buf",
+          "type": "SigMid",
+          "symbol": "#29920",
+          "books": [
+            "Hyperliquid"
+          ],
+          "use_flagged": true
+        },
+        {
+          "name": "reference_mid_det_buf",
+          "type": "SigReference",
+          "kalshi": {
+            "market_ticker": "KXNFLGAME-26SEP17DETBUF-DET",
+            "creds_file": "/home/david/.creds/.Kalshi.creds.json",
+            "weight": 1.0
+          },
+          "reference_stale_after_ms": 5000,
+          "publish_interval_ms": 250
+        }
+      ],
+      "tempos": [
+        {
+          "name": "hip4_cycle_tempo_det_buf",
+          "type": "TimeTempo",
+          "symbol": "#29920",
+          "thresh": 1.0
+        }
+      ],
+      "extra_subs": []
+    }
+  ]
+}

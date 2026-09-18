@@ -505,6 +505,33 @@ PKOrderId TradeRiskMan::sendOrd(const NewOrder& ord) {
   return oid;
 }
 
+void TradeRiskMan::sendCapitalReq(const CapitalReq& req) {
+  // HIP-4 capitalization requirement. Cheap sanity check only; the gateway does the on-chain
+  // balance query, minting, and order gating.
+  if (req.target_complete_sets.toDouble() <= 0) {
+    LOG(ERROR) << fmt::format("({}) Ordex sendCapitalReq with non-positive target {}",
+                              symbol_id_.get(), req.target_complete_sets.toDouble());
+    return;
+  }
+
+  // Capitalization is a Hyperliquid-only L1 action executed by the live wsgateway. There is no
+  // on-chain collateral in sim / paper mode and the local (Binance) gateway does not support
+  // it, so skip.
+  if (!pktrade::GlobalVar::live_ || pktrade::GlobalVar::paper_trading_mode_) {
+    LOG(INFO) << fmt::format("({}) sendCapitalReq skipped (not in live non-paper mode): {}",
+                             symbol_id_.get(), req.to_string());
+    return;
+  }
+  if (live_context_ == nullptr) {
+    LOG(ERROR) << fmt::format("({}) TradeRiskMan: sendCapitalReq: no live context set.",
+                              symbol_id_.get());
+    return;
+  }
+
+  LOG(INFO) << fmt::format("({}) sendCapitalReq: {}", symbol_id_.get(), req.to_string());
+  live_context_->onCapitalReq(req, symbol_id_);
+}
+
 // Send this cancel to the simulator.
 void TradeRiskMan::cancelOrd(const CancelOrder& cxl) {
   // Update the annotation too.
@@ -731,6 +758,10 @@ void TradeRiskMan::onOE(const Order& ord, const NewOrderReject& rej) {
     reason = NewOrdRejReason::Halted;
   } else if (rej.reason.find("blocked after liquidation") != std::string::npos) {
     reason = NewOrdRejReason::Liquidated;
+  } else if (rej.reason.find("outcome not live") != std::string::npos) {
+    // HIP-4 outcome settled / off its deployer venue. The ordex winds itself down on this;
+    // keep the marker in sync with wsgateway.py OUTCOME_NOT_LIVE_MARKER.
+    reason = NewOrdRejReason::OutcomeNotLive;
   }
 
   auto log_msg =
@@ -784,6 +815,12 @@ void TradeRiskMan::onOE(const Order& ord, const NewOrderReject& rej) {
       LOG(ERROR) << log_msg;
       pauseTrading(60, TLReason::OrderReject,
                    fmt::format("Pausing for 1 minute because of {} order reject", reason_str));
+      break;
+    }
+    case NewOrdRejReason::OutcomeNotLive: {
+      // HIP-4 outcome settled / off-venue. Expected end-of-life for a market; the ordex winds
+      // itself down (RelWideHip4::ordReject), so just log cleanly -- no email, no TL escalation.
+      LOG(INFO) << log_msg;
       break;
     }
     case NewOrdRejReason::Oracle:

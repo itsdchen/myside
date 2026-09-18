@@ -127,6 +127,17 @@ PKOrderId LiveContext::onNewOrd(const NewOrder& nord) {
   return the_ord.pk_order_id;
 }
 
+void LiveContext::onCapitalReq(const CapitalReq& req, SymbolId sym) {
+  // Fire-and-forget: the gateway owns minting and order gating. No Order object, no reply.
+  pktrade::gateway::PbMessage msg;
+  auto* pb_cap = msg.mutable_capital_req();
+  pb_cap->set_strategy_id(pktrade::GlobalVar::strat_id_);
+  pb_cap->set_symbol(sym.get());
+  pb_cap->set_outcome(req.outcome);
+  pb_cap->set_target_complete_sets(std::to_string(req.target_complete_sets.toDouble()));
+  publish(msg);
+}
+
 void LiveContext::onCancelOrd(const CancelOrder& cxl) {
   pktrade::gateway::PbMessage msg;
   auto* cxl_ord = msg.mutable_cancel_order();

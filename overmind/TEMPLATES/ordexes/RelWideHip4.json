@@ -1,0 +1,37 @@
+{
+  "ordex": {
+    "type": "RelWideHip4",
+    "markets": [
+      "Hyperliquid"
+    ],
+    "trade_caller": "hip4_cycle_tempo",
+    "max_pos": "350",
+    "order_size": "25",
+
+    "premium_ema_coef": 0.1,
+    "premium_tdc_s": 120,
+
+    "place_thresh": 0.02,
+    "rung_threshold_multiplier": 1.0,
+    "max_back_levels": 6,
+    "_comment_cancel_buffer": "Hold a resting order until fair drifts cancel_buffer*place_thresh from its rung before re-quoting. Keep it GENEROUS on thin/quiet HL books so we don't churn place/cancel (L1 quota) on quotes that rarely fill; a buffer wider than the rung spacing sparsifies the ladder.",
+    "cancel_buffer": 2.0,
+
+    "_comment_thresh": "All thresholds are ABSOLUTE probability points (0-1), not relative: e.g. place_thresh 0.02 = quote 2 cents off fair; cross_thresh 0.1 = only cross when the book is >10 cents mispriced vs fair.",
+    "_comment_cross": "Crossing (taking): IOC into the HL book when it's mispriced vs fair.",
+    "can_cross": true,
+    "cross_thresh": 0.1,
+    "cross_price_mode": 0,
+    "exit_adjust": 0.5,
+    "cross_limit_maxpos_frac": 0.25,
+    "cross_sz_mult": 1.0,
+    "ms_between_cross": 2000,
+
+    "outcome_id": 0,
+    "startup_complete_sets": 350,
+    "_comment_capital": "startup_complete_sets is the capitalization target the gateway mints to (defaults to max_pos if omitted); the gateway blocks orders for the ticker until it holds enough complete sets.",
+
+    "local_sig": "local_mid_hip4",
+    "remote_sig": "reference_mid_hip4"
+  }
+}

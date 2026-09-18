@@ -14,6 +14,7 @@
 #include "pktrade/signals/sig_trd_impulse.h"
 #include "pktrade/signals/sig_trd_px.h"
 #include "pktrade/signals/sig_libra.h"
+#include "pktrade/signals/sig_reference.h"
 #include "pktrade/signals/sig_ret_ems.h"
 
 namespace pktrade::signals {
@@ -74,6 +75,9 @@ Signal* SignalFactory::getOrMakeByConf(const rapidjson::Value& conf,
     sig = new SigRetEms(curIndex_++, conf, this, all_signals_array);
   } else if (sig_type == "SigFile") {
     sig = new SigFile(curIndex_++, conf, this);
+  } else if (sig_type == "SigReference") {
+    // External reference feed (Kalshi WS + Polymarket REST) exposed as a Signal.
+    sig = new SigReference(curIndex_++, conf, this);
   } else {
     throw std::runtime_error("SignalFactory doesn't support type " + sig_type);
   }

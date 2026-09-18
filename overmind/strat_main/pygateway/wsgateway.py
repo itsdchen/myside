@@ -58,6 +58,7 @@ import chron
 import argparse
 import bisect
 import getpass
+import math
 import operator
 import requests
 import signal
@@ -204,6 +205,18 @@ mkt_to_config = {
         # TODO: create simple risk checks later.
         "risk_config": "risk.json",
         "recv_window_ms": 60000,
+        # HIP-4 deployer venue(s) to trade outcomes on (e.g. ["txyz"]). Empty = OFF: no
+        # outcome discovery, no outcome gate (unchanged behavior). When set, the gateway
+        # periodically refreshes the live outcome set on these venues and refuses orders /
+        # capital-reqs for outcome coins not currently live on them. Overridable per-instance
+        # with --outcome-venues.
+        "outcome_venues": [],
+        # How often (minutes) to refresh sym_to_idx (perp/spot).
+        "symbol_refresh_mins": 10,
+        # How often (minutes) to refresh the live outcome set. Faster than the perp/spot
+        # refresh because it also drives resolution: a settled outcome drops out of outcomeMeta,
+        # leaves live_outcome_coins, and the gate then rejects it (which the strat winds down on).
+        "outcome_refresh_mins": 3,
     },
     "HyperliquidTest": {
         "http_api_endpoint": "https://api.hyperliquid-testnet.xyz/",
@@ -217,9 +230,18 @@ mkt_to_config = {
         # TODO: create simple risk checks later.
         "risk_config": "risk.json",
         "recv_window_ms": 60000,
+        "outcome_venues": [],
+        "symbol_refresh_mins": 10,
+        "outcome_refresh_mins": 3,
     },
 
 }
+
+# The gateway rejects an order for an outcome coin that is not live on the configured deployer
+# venue(s) with a reason containing this exact marker. RelWideHip4::ordReject matches on it to
+# wind down (a settled outcome drops out of outcomeMeta -> off the live set -> this reject).
+# Keep this string in sync with the ordex (src/pktrade/ordex/rel_wide_hip4.cc).
+OUTCOME_NOT_LIVE_MARKER = "outcome not live"
 
 
 HYPERLIQUID_ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
@@ -236,7 +258,8 @@ def hash_to_128bit_hex(s: str) -> str:
     return "0x" + h
 
 class HyperliquidGateway:
-    def __init__(self, market, creds, id, local_ips=None, fast_cancels=True):
+    def __init__(self, market, creds, id, local_ips=None, fast_cancels=True,
+                 outcome_venues=None):
         # Make a logger.
         # Log name should have date.
         current_date = datetime.date.today()
@@ -250,6 +273,21 @@ class HyperliquidGateway:
         self.gateway_config = mkt_to_config[market]
         self.gateway_id = id
         self.fast_cancels = fast_cancels
+
+        # HIP-4 outcome discovery + safety gate. `outcome_venues` (CLI override, else the market
+        # config default) are the deployer venues we trade outcomes on. When non-empty, the
+        # gateway periodically rebuilds `live_outcome_coins` (all "#" coins live on those venues)
+        # and refuses orders / capital-reqs for outcome coins not in it. Empty = feature OFF.
+        self.outcome_venues = (list(outcome_venues) if outcome_venues is not None
+                               else list(self.gateway_config.get("outcome_venues", [])))
+        self.symbol_refresh_mins = self.gateway_config.get("symbol_refresh_mins", 10)
+        self.outcome_refresh_mins = self.gateway_config.get("outcome_refresh_mins", 3)
+        self.live_outcome_coins = set()
+        # False until the first successful outcome discovery. While the gate is enabled but not
+        # ready, "#" orders are blocked fail-closed (we don't trade an unverified outcome).
+        self.outcome_gate_ready = False
+        # One-shot alert per coin whose capital-req was refused for being off-venue.
+        self.outcome_gate_alerted = set()
 
         # 5 ms sleep — was 20ms; reduced to pick up new orders sooner.
         # Hits gateway IOC RTT directly. CPU cost from 4x polls is negligible.
@@ -382,6 +420,22 @@ class HyperliquidGateway:
 
         # List of rejected cancel_oids that need to be retried.
         self.queued_cancel_pbs = []
+
+        # HIP-4 capitalization. The strategy declares, per ticker, how many complete sets of an
+        # outcome it needs (PbCapitalReq); the gateway owns making it so: read on-chain balances,
+        # mint the shortfall via a userOutcome/splitOutcome L1 action, and BLOCK order placement
+        # for the ticker until it is capitalized. If capitalization fails, the block stays and we
+        # alert loudly. This is one-directional (strat -> gateway); nothing is sent back.
+        #   cap_reqs: symbol -> {outcome, target, strategy_id, symbol, state}
+        #     state in {"needed", "in_flight", "done", "failed"}
+        self.cap_reqs = {}
+        # Symbols currently refused for placement (pending or failed capitalization). Checked in
+        # the send loop alongside liq_blocked_syms.
+        self.cap_blocked_syms = set()
+        # One-shot failure alert per symbol, so a stuck capitalization doesn't spam email.
+        self.cap_alerted = set()
+        # ws_msg_idx -> symbol for an in-flight capitalization split, to match the WS response.
+        self.ws_id_to_cap_sym = {}
 
         # We need to ignore cancels for these oids bc they were already cancelled.
         # Maps pkcoid -> time.time() when first marked dead. The timestamp lets
@@ -686,6 +740,9 @@ class HyperliquidGateway:
                 tasks.add(asyncio.create_task(self.hl_receive_loop(conn)))
             tasks.add(asyncio.create_task(self.hl_send_orders_loop()))
             tasks.add(asyncio.create_task(self.hl_send_cancels_loop()))
+            tasks.add(asyncio.create_task(self.capitalize_loop()))
+            tasks.add(asyncio.create_task(self.refresh_symbols_loop()))
+            tasks.add(asyncio.create_task(self.outcome_discovery_loop()))
             tasks.add(asyncio.create_task(self.periodic_cleanup()))
             tasks.add(asyncio.create_task(self.watch_block_file()))
             tasks.add(asyncio.create_task(self.eod_event.wait()))
@@ -960,16 +1017,25 @@ class HyperliquidGateway:
                         f"{conn.num_msgs_1min} msgs, {conn.num_weighted_1min} weighted, "
                         f"{conn.num_priority_batches_1min}/{PRIORITY_BATCHES_CAP_PER_MIN} priority.")
 
-                # Filter out new orders for liquidation-blocked symbols before sending
-                # (cancels go through a different loop and stay allowed). Almost always a
-                # no-op: the block set is empty, so this is one check for the whole batch.
-                # When non-empty, two C-level comprehensions per queue collect the rejects
-                # and keep the rest; the rejects are sent after the live orders go out.
+                # Filter out new orders for blocked symbols before sending (cancels go through a
+                # different loop and stay allowed). Two block sets: liquidation blocks, and HIP-4
+                # capitalization blocks (a ticker is refused until it holds enough complete sets,
+                # and stays refused if capitalization fails). Almost always a no-op: both sets are
+                # empty, so this is one check for the whole batch. When non-empty, two C-level
+                # comprehensions per queue collect the rejects and keep the rest; the rejects are
+                # sent after the live orders go out.
+                # Third gate: the HIP-4 outcome safety gate refuses "#" coins that aren't live on
+                # the configured deployer venue(s) (fail-closed before first discovery).
                 rej_queue = []
-                if self.liq_blocked_syms:
+                blocked_syms = self.liq_blocked_syms | self.cap_blocked_syms
+
+                def _order_blocked(o):
+                    return o.symbol in blocked_syms or self._outcome_gate_blocks(o.symbol)
+
+                if blocked_syms or self.outcome_venues:
                     for q in (self.queued_priority_ord_pbs, self.queued_fast_ord_pbs):
-                        rej_queue += [o for o in q if o.symbol in self.liq_blocked_syms]
-                        q[:] = [o for o in q if o.symbol not in self.liq_blocked_syms]
+                        rej_queue += [o for o in q if _order_blocked(o)]
+                        q[:] = [o for o in q if not _order_blocked(o)]
 
                 # Priority IOC lane. Drained every tick (subject to per-min cap)
                 # so IOC pickup latency is loop-period-bounded (~5ms).
@@ -1004,16 +1070,28 @@ class HyperliquidGateway:
                     await self.send_hyperliquid_orders(conn, now_t_ms, "fast")
                     self.last_alo_send_t = now_t
 
-                # Send rejects for any orders dropped above due to liquidation blocks,
-                # after the live orders so we don't delay them (empty in the common case).
+                # Send rejects for any orders dropped above due to a block (liquidation or
+                # HIP-4 capitalization), after the live orders so we don't delay them (empty in
+                # the common case).
                 for one_order_pb in rej_queue:
                     pbresponse = gateway_pb2.PbMessage()
                     new_rej = pbresponse.new_reject
                     new_rej.strategy_id = one_order_pb.strategy_id
                     new_rej.executor_order_id = one_order_pb.executor_order_id
+                    if one_order_pb.symbol in self.cap_blocked_syms:
+                        reason = "not yet capitalized"
+                    elif self._outcome_gate_blocks(one_order_pb.symbol):
+                        # Terminal marker (OUTCOME_NOT_LIVE_MARKER) only once the gate is ready:
+                        # the outcome is genuinely off-venue/settled, so the strat should wind
+                        # down. Before first discovery it's transient ("gate not ready").
+                        reason = (f"{OUTCOME_NOT_LIVE_MARKER} on deployer venue(s) "
+                                  f"{self.outcome_venues}"
+                                  if self.outcome_gate_ready else "outcome gate not ready")
+                    else:
+                        reason = "blocked after liquidation"
                     new_rej.reason = (
-                        f"Symbol {one_order_pb.symbol} blocked after liquidation; "
-                        f"new orders rejected until manually unblocked")
+                        f"Symbol {one_order_pb.symbol} {reason}; "
+                        f"new orders rejected until unblocked")
                     self.acks_pub_socket.send(pbresponse.SerializeToString())
 
                 # Check if we have sent orders that have expired without an ack
@@ -1481,6 +1559,14 @@ class HyperliquidGateway:
                     msg_data = msg_dct["data"]
                     msg_id = msg_data["id"]
                     msg_response = msg_data["response"]
+
+                    # HIP-4 capitalization split responses are on their own track (keyed by
+                    # ws_msg_idx in ws_id_to_cap_sym), so intercept before the order/cancel
+                    # matching (which would KeyError on ws_id_to_pk_cloids_batch[msg_id]).
+                    if msg_id in self.ws_id_to_cap_sym:
+                        self._handle_cap_response(msg_id, msg_response)
+                        continue
+
                     # This is so annoying tbh.
                     response_type = msg_response["type"]
 
@@ -1892,6 +1978,18 @@ class HyperliquidGateway:
 
 
     # Does batch sending
+    def _asset_num(self, symbol):
+        """Resolve the Hyperliquid asset id for an order/cancel symbol.
+
+        HIP-4 outcome coins ("#<encoding>") are NOT in sym_to_idx -- that map is built from the
+        perp `meta` and `spotMeta`, never `outcomeMeta`. Their asset id is the fixed offset
+        OUTCOME_ASSET_OFFSET + encoding, where encoding = 10*outcome + side (the same integer in
+        the coin name after the '#'). Everything else is a normal perp/spot symbol.
+        """
+        if symbol.startswith("#"):
+            return 100_000_000 + int(symbol[1:])
+        return self.sym_to_idx[symbol]
+
     async def send_hyperliquid_orders(self, conn, now_ms, queue_name):
         """queue_name in {"priority", "fast"}."""
         #endpt = self.market_endpoint + "exchange"
@@ -1964,7 +2062,7 @@ class HyperliquidGateway:
                 "reduce_only": False,
             }
 
-            asset_num = self.sym_to_idx[one_order_pb.symbol]
+            asset_num = self._asset_num(one_order_pb.symbol)
             order_wire = hl_signing.order_request_to_order_wire(
                 order_dct, asset_num
             )
@@ -2021,6 +2119,285 @@ class HyperliquidGateway:
         #self.logger.info("Sent neword, the pk_cloids_to_hl_hexoids is like {}".format(self.pk_cloids_to_hl_hexoids))
 
 
+
+    # ------------------------------------------------------------------
+    # HIP-4 capitalization
+    #
+    # The strategy declares (PbCapitalReq) how many complete sets of an outcome it needs to
+    # quote a ticker. The gateway owns satisfying that: read on-chain balances, mint the
+    # shortfall via a splitOutcome L1 action, and keep the ticker order-blocked until it holds
+    # enough (and permanently, loudly, if minting fails).
+    #
+    # Per-req state machine (cap_reqs[sym]["state"]):
+    #   needed     -> query balances; enough? -> done (unblock); else send split -> in_flight
+    #   in_flight  -> waiting on the split's WS response (resolved in _handle_cap_response):
+    #                 ok -> confirming ; err -> failed
+    #   confirming -> query balances (never re-mint here, to avoid double-minting on settlement
+    #                 lag); enough? -> done ; past deadline? -> needed (retry, up to MAX) / failed
+    #   done       -> unblocked, skip
+    #   failed     -> blocked, one-shot alert, skip
+    # Only the `needed` state ever sends a split, so a split is never issued twice concurrently.
+    # ------------------------------------------------------------------
+
+    CAP_CONFIRM_TIMEOUT_S = 15
+    CAP_MAX_ATTEMPTS = 3
+
+    def _cap_user_address(self):
+        return self.listen_address or self.subaccount_address or self.wallet_address
+
+    async def _query_complete_sets(self, session, outcome):
+        """complete_sets = min(YES total, NO total) for the outcome, from spotClearinghouseState.
+
+        YES/NO balances are the spot tokens "+{10*outcome+0}" / "+{10*outcome+1}".
+        """
+        payload = {"type": "spotClearinghouseState", "user": self._cap_user_address()}
+        text = await hyp_fetch(session, self.market_endpoint + "info", payload)
+        data = json.loads(text)
+        balances = data.get("balances", []) if isinstance(data, dict) else []
+        yes_tok = "+{}".format(10 * outcome + 0)
+        no_tok = "+{}".format(10 * outcome + 1)
+        yes_total = 0.0
+        no_total = 0.0
+        for b in balances:
+            coin = b.get("coin")
+            if coin == yes_tok:
+                yes_total = float(b.get("total", "0"))
+            elif coin == no_tok:
+                no_total = float(b.get("total", "0"))
+        return min(yes_total, no_total)
+
+    async def _send_cap_split(self, conn, sym, req, need_shares):
+        """Mint `need_shares` complete sets of the outcome (splitOutcome L1 action).
+
+        Whole shares only. Signed/posted exactly like an order batch. Records the WS msg id so
+        _handle_cap_response can resolve success/failure. Returns True if the split was sent.
+        Wire format ported from hip4_utils.split_outcome.
+        """
+        amount = int(math.floor(need_shares))
+        if amount <= 0:
+            return False
+        next_nonce = self.get_next_nonce(int(time.time() * 1000))
+        if next_nonce == 0:
+            self.logger.info(f"Capital split for {sym}: no nonce space, will retry")
+            return False
+        self.last_nonce_used = next_nonce
+
+        action = {
+            "type": "userOutcome",
+            "splitOutcome": {"outcome": int(req["outcome"]), "amount": str(float(amount))},
+        }
+        signature = hl_signing.sign_l1_action(
+            self.eth_wallet, action, self.subaccount_address, next_nonce, self.is_mainnet)
+        ws_payload = {
+            "method": "post",
+            "id": self.ws_msg_idx,
+            "request": {"type": "action", "payload": {
+                "action": action,
+                "nonce": next_nonce,
+                "signature": signature,
+                "vaultAddress": self.subaccount_address,
+            }},
+        }
+        self.ws_id_to_cap_sym[self.ws_msg_idx] = sym
+        self.ws_msg_idx += 1
+        conn.num_batches_1min += 1
+        conn.num_msgs_1min += 1
+        conn.num_weighted_1min += 1
+        self.logger.info(
+            f"Capital split: minting {amount} complete sets of outcome {req['outcome']} "
+            f"for {sym}")
+        await conn.ws.send(json.dumps(ws_payload))
+        return True
+
+    async def capitalize_loop(self):
+        """Drive every ticker's capitalization to `done` (or `failed`). Runs every ~2s.
+
+        Only touches `needed` and `confirming` reqs (balance queries; `needed` may also send a
+        split). `in_flight` reqs are resolved by the WS response handler.
+        """
+        self.logger.info("Capitalization loop starting")
+        async with aiohttp.ClientSession() as session:
+            while not self.eod_event.is_set():
+                for sym, req in list(self.cap_reqs.items()):
+                    state = req.get("state")
+                    if state not in ("needed", "confirming"):
+                        continue
+                    try:
+                        current = await self._query_complete_sets(session, req["outcome"])
+                    except Exception as e:
+                        self.logger.warning(
+                            f"Capital: balance query failed for {sym}: {e}; will retry")
+                        continue
+
+                    if current >= req["target"]:
+                        if state != "done":
+                            req["state"] = "done"
+                            self.cap_blocked_syms.discard(sym)
+                            self.logger.info(
+                                f"Capital: {sym} capitalized "
+                                f"(have {current} >= target {req['target']}); unblocked")
+                        continue
+
+                    if state == "confirming":
+                        # Awaiting settlement of a split that came back ok. Never re-mint here.
+                        if time.time() >= req.get("confirm_deadline", 0):
+                            if req.get("attempts", 0) < self.CAP_MAX_ATTEMPTS:
+                                req["state"] = "needed"  # retry a fresh split
+                            else:
+                                self._cap_fail(
+                                    sym, req,
+                                    f"still short after {self.CAP_MAX_ATTEMPTS} attempts "
+                                    f"(have {current}, target {req['target']})")
+                        continue
+
+                    # state == "needed": mint the shortfall.
+                    conn = self.pick_best_connection(time.time())
+                    if conn is None:
+                        continue  # no connection headroom; retry next loop
+                    req["attempts"] = req.get("attempts", 0) + 1
+                    sent = await self._send_cap_split(conn, sym, req, req["target"] - current)
+                    if sent:
+                        req["state"] = "in_flight"
+                await asyncio.sleep(2.0)
+        self.logger.info("Capitalization loop exiting")
+
+    def _cap_fail(self, sym, req, reason):
+        """Mark a ticker's capitalization failed: stays order-blocked, alert once, log loudly."""
+        req["state"] = "failed"
+        self.cap_blocked_syms.add(sym)
+        msg = (f"HIP-4 capitalization FAILED for {sym} (outcome {req.get('outcome')}): {reason}. "
+               f"Orders for this ticker are blocked until it is capitalized.")
+        self.logger.error(msg)
+        if sym not in self.cap_alerted:
+            self.cap_alerted.add(sym)
+            email_utils.send_alerts("WSGATEWAY HIP-4 CAPITALIZATION FAILED", msg)
+
+    def _handle_cap_response(self, msg_id, msg_response):
+        """Resolve a capitalization split's WS "post" response.
+
+        ok -> confirming (balances re-checked by capitalize_loop before we unblock, so we never
+        trade on an unconfirmed mint); anything else -> failed (blocked + one-shot alert).
+        """
+        sym = self.ws_id_to_cap_sym.pop(msg_id, None)
+        if sym is None:
+            return
+        req = self.cap_reqs.get(sym)
+        if req is None:
+            return
+        payload = msg_response.get("payload") if isinstance(msg_response, dict) else None
+        status = payload.get("status") if isinstance(payload, dict) else None
+        if status == "ok":
+            req["state"] = "confirming"
+            req["confirm_deadline"] = time.time() + self.CAP_CONFIRM_TIMEOUT_S
+            self.logger.info(f"Capital split ok for {sym}; confirming via balances")
+        else:
+            reason = payload.get("response") if isinstance(payload, dict) else msg_response
+            self._cap_fail(sym, req, str(reason)[:500])
+
+    # ------------------------------------------------------------------
+    # Periodic symbol refresh + HIP-4 outcome discovery / safety gate
+    # ------------------------------------------------------------------
+
+    async def refresh_symbols_loop(self):
+        """Every symbol_refresh_mins: refresh perp/spot sym_to_idx AND, if outcome_venues is
+        configured, rebuild the live outcome allowlist. Runs one pass immediately at startup so
+        the gate is populated before much order flow arrives.
+
+        load_hyperliquid_assets is synchronous with blocking retry sleeps, so it is offloaded to
+        a thread to avoid stalling the order/cancel loops.
+        """
+        self.logger.info(f"Symbol refresh loop starting (perp/spot every "
+                         f"{self.symbol_refresh_mins} min)")
+        while not self.eod_event.is_set():
+            try:
+                maps = await asyncio.to_thread(self.load_hyperliquid_assets)
+                # Atomic rebind (readers see the old or new dict, never a torn one).
+                self.sym_to_idx = maps["sym_to_idx"]
+                self.idx_to_sym = maps["idx_to_sym"]
+            except Exception as e:
+                self.logger.warning(f"Symbol refresh: load_hyperliquid_assets failed: {e}")
+
+            # Sleep in 1s steps so we exit promptly on eod.
+            for _ in range(max(1, int(self.symbol_refresh_mins * 60))):
+                if self.eod_event.is_set():
+                    break
+                await asyncio.sleep(1)
+        self.logger.info("Symbol refresh loop exiting")
+
+    async def outcome_discovery_loop(self):
+        """Rebuild the live outcome allowlist from outcomeMeta every outcome_refresh_mins.
+
+        Runs on its own (faster) cadence than the perp/spot refresh because it also drives
+        resolution: a settled outcome drops out of outcomeMeta -> off live_outcome_coins -> the
+        gate rejects it -> the strat winds down on that reject. First pass runs immediately so the
+        gate is populated before much order flow arrives. No-op unless outcome_venues is set.
+        """
+        if not self.outcome_venues:
+            return
+        self.logger.info(f"Outcome discovery loop starting (every {self.outcome_refresh_mins} "
+                         f"min; venues={self.outcome_venues})")
+        async with aiohttp.ClientSession() as session:
+            while not self.eod_event.is_set():
+                try:
+                    await self._refresh_outcomes(session)
+                except Exception as e:
+                    # Keep the last good set on a transient outage rather than opening the gate
+                    # (fail-safe), but make the staleness visible.
+                    self.logger.warning(
+                        f"Outcome discovery failed (keeping last "
+                        f"{len(self.live_outcome_coins)} coins): {e}")
+                for _ in range(max(1, int(self.outcome_refresh_mins * 60))):
+                    if self.eod_event.is_set():
+                        break
+                    await asyncio.sleep(1)
+        self.logger.info("Outcome discovery loop exiting")
+
+    async def _refresh_outcomes(self, session):
+        """Rebuild self.live_outcome_coins from outcomeMeta, filtered to self.outcome_venues.
+
+        outcomeMeta has no server-side venue filter, so fetch all and filter on the per-outcome
+        `venue` field. Coins are "#{10*outcome+side}" for both sides.
+        """
+        text = await hyp_fetch(session, self.market_endpoint + "info", {"type": "outcomeMeta"})
+        data = json.loads(text)
+        outs = data.get("outcomes", []) if isinstance(data, dict) else []
+        venues = set(self.outcome_venues)
+        coins = set()
+        for o in outs:
+            if o.get("venue") in venues:
+                oid = o.get("outcome")
+                if oid is None:
+                    continue
+                coins.add("#{}".format(10 * int(oid) + 0))
+                coins.add("#{}".format(10 * int(oid) + 1))
+        # A non-empty venue list that matches nothing is almost always a venue typo -- and it
+        # would silently block ALL outcome trading (empty allowlist, fail-closed). Surface it.
+        if not coins:
+            msg = (f"outcome_venues={self.outcome_venues} configured but 0 live outcomes matched "
+                   f"in outcomeMeta -- likely a venue typo. ALL outcome orders will be blocked.")
+            self.logger.error(msg)
+            if "outcome_venues_empty" not in self.outcome_gate_alerted:
+                self.outcome_gate_alerted.add("outcome_venues_empty")
+                email_utils.send_alerts("WSGATEWAY HIP-4 OUTCOME_VENUES MATCHED NOTHING", msg)
+        else:
+            self.outcome_gate_alerted.discard("outcome_venues_empty")
+        self.live_outcome_coins = coins
+        self.outcome_gate_ready = True
+        self.logger.info(
+            f"Outcome discovery: {len(coins)} live outcome coins on venues {sorted(venues)}")
+
+    def _outcome_gate_blocks(self, sym):
+        """True iff the outcome safety gate should refuse this symbol.
+
+        Only applies when outcome_venues is configured and sym is an outcome ("#") coin.
+        Fail-closed: before the first successful discovery, all "#" coins are blocked (we won't
+        trade an unverified outcome).
+        """
+        if not self.outcome_venues or not sym.startswith("#"):
+            return False
+        if not self.outcome_gate_ready:
+            return True
+        return sym not in self.live_outcome_coins
 
     async def send_hyperliquid_cancel(self, conn, now_ms):
         #endpt = self.market_endpoint + "exchange"
@@ -2134,7 +2511,7 @@ class HyperliquidGateway:
             self.force_cancel_pkcoids.discard(pkcoid)
 
             sym = self.pkcoids_to_orderdeets[pkcoid]["symbol"]
-            asset_num = self.sym_to_idx[sym]
+            asset_num = self._asset_num(sym)
 
             cancel_dct = {
                 "asset": asset_num,
@@ -2451,6 +2828,43 @@ class HyperliquidGateway:
                         continue
 
                     self.queued_cancel_pbs.append(ord_action_pb.cancel_order)
+                elif ord_action_pb.HasField("capital_req"):
+                    # HIP-4 capitalization requirement. Record it and block the ticker until the
+                    # capitalize_loop confirms we hold enough complete sets (fail-safe: never
+                    # place before we're capitalized). The loop unblocks immediately if we
+                    # already hold enough.
+                    cr = ord_action_pb.capital_req
+                    sym = cr.symbol
+                    # Outcome safety gate: never mint for an outcome that isn't live on the
+                    # configured deployer venue (settled / unknown / wrong-venue). Block the
+                    # ticker and alert once, rather than splitting collateral into dead tokens.
+                    if self._outcome_gate_blocks(sym):
+                        self.cap_blocked_syms.add(sym)
+                        why = (f"{OUTCOME_NOT_LIVE_MARKER} on deployer venue(s) "
+                               f"{self.outcome_venues}"
+                               if self.outcome_gate_ready else "outcome gate not ready")
+                        self.logger.error(
+                            f"Capital req REFUSED for {sym} (outcome {cr.outcome}): {why}. "
+                            f"Ticker blocked.")
+                        if sym not in self.outcome_gate_alerted:
+                            self.outcome_gate_alerted.add(sym)
+                            email_utils.send_alerts(
+                                "WSGATEWAY HIP-4 CAPITAL REQ OFF-VENUE",
+                                f"Refused capital req for {sym} (outcome {cr.outcome}): {why}")
+                    else:
+                        self.cap_reqs[sym] = {
+                            "outcome": int(cr.outcome),
+                            "target": float(cr.target_complete_sets),
+                            "strategy_id": cr.strategy_id,
+                            "symbol": sym,
+                            "state": "needed",
+                        }
+                        self.cap_blocked_syms.add(sym)
+                        self.cap_alerted.discard(sym)
+                        self.outcome_gate_alerted.discard(sym)
+                        self.logger.info(
+                            f"Capital req: {sym} outcome={cr.outcome} "
+                            f"target_complete_sets={cr.target_complete_sets}")
 
             # Making this happen more often.
             await asyncio.sleep(self.zmq_sleep_t)
@@ -2478,6 +2892,12 @@ async def main():
     parser.add_argument("--local-ips", required=False, default=None,
                         help="Comma-separated local IPs for multi-WS connections, "
                              "e.g. 10.0.1.10,10.0.1.11,10.0.1.12")
+    parser.add_argument("--outcome-venues", required=False, default=None,
+                        help="Comma-separated HIP-4 deployer venues to trade outcomes on "
+                             "(e.g. 'txyz'). Overrides the market config default. When set, the "
+                             "gateway discovers the live outcome set on these venues every "
+                             "symbol_refresh_mins and refuses orders/capital-reqs for outcome "
+                             "coins not live on them.")
     parser.add_argument("--disable-fast-cancels", action="store_true",
                         help="Omit Hyperliquid's top-level f:true fast-cancel flag")
     args = parser.parse_args()
@@ -2515,12 +2935,14 @@ async def main():
     await asyncio.sleep(args.wait_secs)
 
     local_ips = args.local_ips.split(",") if args.local_ips else None
+    outcome_venues = (args.outcome_venues.split(",") if args.outcome_venues else None)
     hl_gw = HyperliquidGateway(
         args.market,
         args.creds,
         args.id,
         local_ips=local_ips,
         fast_cancels=not args.disable_fast_cancels,
+        outcome_venues=outcome_venues,
     )
     await asyncio.sleep(2)
 

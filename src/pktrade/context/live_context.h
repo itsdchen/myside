@@ -33,6 +33,10 @@ class LiveContext {
   // Pushing things to the gateway.
   PKOrderId onNewOrd(const NewOrder& ord);
   void onCancelOrd(const CancelOrder& cxl);
+  // HIP-4 capitalization requirement (strat -> gateway only). Serializes a PbCapitalReq and
+  // publishes it; the gateway owns minting and order gating, so there is no reply. `sym` is the
+  // requesting strategy's symbol (carried in the message for the gateway's block set).
+  void onCapitalReq(const CapitalReq& req, SymbolId sym);
 
   // Handle messages from the gateway. These are basically acks from the market
   // or the gateway.

@@ -99,6 +99,24 @@ message PbCancelOrderReject {
   string reason = 4;
 }
 
+// HIP-4 capitalization requirement: the strategy declares how much inventory (complete
+// sets of an outcome) it needs to quote a ticker, and the GATEWAY owns making it so. The
+// gateway reads the current on-chain balances (spotClearinghouseState), mints the shortfall
+// via a Hyperliquid L1 `userOutcome`/`splitOutcome` action (see hip4_utils.split_outcome),
+// and gates order placement on it: until a ticker is capitalized (and if capitalization
+// ever fails) the gateway refuses to place any order for that ticker and logs loudly. This
+// is one-directional (strat -> gateway); the gateway does not report the result back.
+message PbCapitalReq {
+  string strategy_id = 1;
+  // The traded coin symbol (e.g. "#154160"), used for the gateway's order block set.
+  string symbol = 2;
+  // The HIP-4 outcome id (NOT the per-side asset id). Encoding is 10*outcome + side.
+  int32 outcome = 3;
+  // How many complete sets of the outcome the strategy needs (~ its max position). Sent as
+  // a string; whole shares only. The gateway mints max(0, target - current complete sets).
+  string target_complete_sets = 4;
+}
+
 message PbMessage {
   oneof payload {
     PbNewOrder new_order = 100;
@@ -112,6 +130,8 @@ message PbMessage {
     PbCancelOrderReject cancel_reject = 107;
     // Gateway to us.
     PbGatewayAck gateway_ack = 108;
+    // HIP-4 capitalization requirement (strat -> gateway only).
+    PbCapitalReq capital_req = 109;
   }
 }
 

@@ -6,6 +6,7 @@
 #include "alpha_rel_wide_mm.h"
 #include "diagnostics_mm.h"
 #include "rel_cross.h"
+#include "rel_wide_hip4.h"
 #include "rel_wide_mm_2.h"
 #include "trade_recorder.h"
 #include "wide_mm.h"
@@ -29,6 +30,8 @@ Ordex* OrdexFactory::makeByConf(SymbolId symbol, rapidjson::Value& conf,
     new_ordex = new TradeRecorder(symbol, conf, sf, tf);
   } else if (ordex_type == "WideMM") {
     new_ordex = new WideMM(symbol, conf, sf, tf);
+  } else if (ordex_type == "RelWideHip4") {
+    new_ordex = new RelWideHip4(symbol, conf, sf, tf);
   } else {
     throw std::runtime_error("OrdexFactory doesn't support type " + ordex_type);
   }

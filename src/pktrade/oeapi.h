@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <stdexcept>
 #include <string>
 
 #include "pktrade/mdapi.h"
@@ -130,6 +131,22 @@ struct ModifyOrder {
   Quantity target_qty;
 };
 
+// HIP-4 capitalization requirement: the strategy declares how much inventory (complete sets
+// of an outcome) it needs to quote a ticker; the gateway owns minting the shortfall and gating
+// order placement on it. One-directional (strat -> gateway); no reply. See gateway.proto
+// PbCapitalReq.
+struct CapitalReq {
+  // The HIP-4 outcome id (not the per-side asset id). Encoding is 10*outcome + side.
+  int outcome;
+  // How many complete sets the strategy needs (~ its max position). Whole shares.
+  Quantity target_complete_sets;
+
+  std::string to_string() const {
+    return std::string("CAPITALREQ outcome ") + std::to_string(outcome) + " target_sets " +
+           std::to_string(target_complete_sets.toDouble());
+  }
+};
+
 /////////////////////////////////////////////////////////
 // Gateway -> trader
 struct GatewayAck {
@@ -200,6 +217,12 @@ class Executor {
   virtual PKOrderId sendOrd(const NewOrder&) = 0;
   virtual void cancelOrd(const CancelOrder&) = 0;
   virtual void modOrd(const ModifyOrder&) = 0;
+
+  // HIP-4 capitalization requirement (strat -> gateway). Live-only: the default throws so
+  // sim/local executors that never handle collateral don't have to implement it.
+  virtual void sendCapitalReq(const CapitalReq&) {
+    throw std::runtime_error("sendCapitalReq is not supported by this Executor");
+  }
 };
 
 class OEListener {
